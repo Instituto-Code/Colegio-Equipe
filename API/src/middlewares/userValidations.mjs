@@ -34,9 +34,7 @@ export const userValidations = () => {
         .isLength({ min: 5 })
         .withMessage("A senha tem que ter no mínimo 5 caracteres!"),
 
-        body("adress")
-        .isString()
-        .withMessage("Os Campos de endereço são obrigatórios!")
+
 
     ]
 }
