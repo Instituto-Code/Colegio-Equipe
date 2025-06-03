@@ -1,0 +1,48 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body{
+    background-color: #0F172A;
+    color: #F8FAFC;
+}
+
+#apresentation{
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#apresentation a{
+    text-decoration: none;
+    color: #F8FAFC;
+}
+
+#apresentation a h1{
+    padding: 2vw;
+    background-color: #9146FF;
+    border-radius: 10px;
+    animation: animationTitle infinite 2s ease-in-out;
+}
+
+#apresentation a h1:hover{
+    animation: animationTitle infinite .4s ease-in-out;
+    cursor: pointer;
+}
+
+@keyframes animationTitle {
+    0%{
+        box-shadow: 4px 4px 10px 3px;
+    }
+    50%{
+        box-shadow: 4px 4px 10px 10px;
+    }
+    100%{
+        box-shadow: 4px 4px 10px 3px;
+    }
+}
+
