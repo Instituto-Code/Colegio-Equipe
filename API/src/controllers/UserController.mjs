@@ -7,10 +7,11 @@ dotenv.config()
 
 const JWT_SECRET = process.env.JWT_SECRET
 
+//Função para geração de token a partir do id de usuário
 const generateToken = (id) => {
     return jwt.sign(
         { id },
-        JWT_SECRET,
+        JWT_SECRET, //O token é inserido no token aqui!!
         { expiresIn: "7d" }
     )
 }
@@ -26,7 +27,7 @@ export const register = async (req, res) => {
         dataNasc, 
         numberTel, 
         password, 
-        adress, 
+        adress, //Adress será um objeto vindo do frontend
         role, 
         active 
     } = req.body
@@ -66,13 +67,79 @@ export const register = async (req, res) => {
             _id: newUser._id,
             token: generateToken(newUser._id)
        })
-
-        
     }
     catch(error){
         console.log(error)
         res.status(500).json({ msg: "Erro interno do servidor!" })
     }
+}
+
+export const login = async (req, res) => {
+    const { email, password } = req.body
+
+    try{
+
+        const user = await User.findOne({ email })
+
+        //Verificando se o usuário existe
+        if(!user){
+            return res.status(404).json({ errors: ["Usuáiro não encontrado!"] })
+        }
+
+        //Comparando senha
+        if(!(bcrypt.compare(password, user.password))){
+            return res.status(422).json({ errors: ["Senha incorreta!"] })
+        }
+
+        //Retornando usuário logado
+        res.status(200).json({
+            _id: user._id,
+            token: generateToken(user._id)
+        })
+    }
+    catch(error){
+        console.log(error)
+        res.status(500).json({ errors: ["Erro interno do servidor!"] })
+    }
+}
 
 
+//Acessando usuário logado
+export const getCurentUser = async (req, res) => {
+    const user = req.user
+    console.log(user)
+    res.status(200).json(user)
+}
+
+//Edição de nome e senha de usuário (pode mudar as possibilidades futuramente)
+
+export const updateUser = async (req, res) => {
+    const { name, password } = req.body
+
+    try{
+        const userLogged = req.user
+        const user = await User.findById(userLogged.id).select("-password")
+
+        //Atualizando nome
+        if(name){
+            user.name  = name
+        }
+
+        //Atualizando senha
+        if(password){
+            const salt = await bcrypt.genSalt()
+            const newPass = await bcrypt.hash(password, salt)
+            user.password = newPass
+        }
+
+        //salvando usuário
+        await user.save()
+
+        res.status(201).json(user)
+
+    }
+    catch(error){
+        console.log(error)
+        res.status(500).json({ errors: ["Erro interno do servidor!"] })
+    }
 }
