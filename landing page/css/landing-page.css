@@ -1,0 +1,184 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+body{
+    margin: 0px;
+    overflow-x: hidden;
+}
+#landing_header{
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+#logo_header{
+    display: flex;
+    width: auto;
+    padding-left:1.5vw;
+    margin: 15px 0 15px 0;
+}
+#btns_sections{
+    display: flex;
+    align-items: center;
+    padding-right: 1.5vw;
+    gap: 3vw;
+}
+#btns_sections a{
+    display: flex;
+    width: 100%;
+    padding: 10px;
+    color: black;
+    text-decoration: none;
+    justify-content: center;
+    white-space: nowrap;
+    font: 400 1.3vw "Inter";
+    cursor: pointer;
+}
+#btn_header{
+    display: flex;
+    height: 2.4vw;
+    justify-content: center;
+    align-items: center;
+    font: 400 1.3vw "Inter";
+    padding: 15px;
+    white-space: nowrap;
+    background-color: #D9D9D9;
+    border: none 0px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+#slider_1{
+    display: flex;
+    width: auto;
+    justify-content: center;
+}
+#slides{
+    display: flex;
+    position: relative;
+    width: 100vw;
+    height: 48vw;
+    transition: 0.5s ease-in-out;
+}
+.slide{
+    min-width: 100%;
+    transition: 0.5s;
+}
+.slide img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+#slider_1 h1{
+    font: 4.5vw "Inter";
+    padding-left: 5vw;
+    margin-top: 5vw;
+}
+#slider_1 h2{
+    font: 1.3vw "Inter";
+    font-weight: 400;
+    padding-left: 5vw;
+}
+#content{
+    display: flex;
+    position: absolute;
+    width: 85%;
+    margin: 3vw 0px 30px 0px;
+    border-radius: 30px;
+    background-color: rgba(255, 255, 255, 0.8);
+}
+#logo_section{
+    display: flex;
+    align-items: center;
+    margin-left: 80px;
+}
+#logo_section img{
+    width: 30vw;
+    align-items: center;
+}
+#btn_content{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border:0px none;
+    border-radius: 10px;
+    font: 400 1.8vw "Inter";
+    background-color: #040FD9;
+    color: white;
+    width: 13vw;
+    height: 4vw;
+    margin: 2vw 0 5vw 4.9vw;
+    cursor: pointer;
+}
+
+@media (max-width:610px){
+    #btns_sections{
+        display: none;
+    }
+    #menu_header{
+        display: flex;
+        flex-direction: column;
+        width: auto;
+        gap: 1vw;
+        margin-right: 7vw;
+    }
+    #logo_header img{
+        width: 15vw;
+    }
+    .linhas{
+        display: flex;
+        width: 11vw;
+        border-radius: 10px;
+        height: 1.8vw;
+        background-color: #040FD9;
+    }
+    #slider_1{
+        display: flex;
+        width: auto;
+        height: auto;
+    }
+    .slide{
+        width: auto;
+    }
+    .slide img{
+        height: 120vw;
+    }
+    #content{
+        flex-direction: column;
+        margin: 2vw;
+    }
+    #logo_section{
+        margin: 0;
+        align-items: center;
+        justify-content: center;
+    }
+    #logo_section img{
+        width: 40vw;
+        margin-bottom: 20px;
+    }
+    #text_content{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    #slider_1 h1{
+        font: 7vw "Inter";
+        text-align: center;
+        padding: 0%;
+        margin: 10px 40px 30px 40px;
+    }
+    #slider_1 h2{
+        font: 3vw "Inter";
+        text-align: center;
+        font-weight: 400; 
+        margin: 0 40px 10px 40px;   
+        padding: 0%;
+    }
+    #btn_content{
+        width: 30vw;
+        height: 10vw;
+        font-size: 4vw;
+        margin: 20px 0 20px 0 ;
+    }
+
+
+}
