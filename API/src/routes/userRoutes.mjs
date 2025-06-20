@@ -15,6 +15,7 @@ import { authGuard } from "../middlewares/authGuard.mjs"
 import { validate } from "../middlewares/handleValidations.mjs"
 import { userValidations } from "../middlewares/userValidations.mjs"
 import { userLoginValidations } from "../middlewares/userValidations.mjs"
+import { authorizeRole } from "../middlewares/authorizeRole.mjs"
 
 //Criação de endpoint com as proteções
 userRouter.post("/register", userValidations(), validate, register)
