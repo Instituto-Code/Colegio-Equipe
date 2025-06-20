@@ -12,17 +12,13 @@ const UserSchema = new Schema({
         unique: true
     },
     cpf: {
-        type: String,
-        unique: true,
-        required: true
+        type: String
     },
     dataNasc: {
-        type: Date,
-        required: true
+        type: Date
     },
     numberTel: {
-        type: String,
-        required: false
+        type: String
     },
     password: {
         type: String,
@@ -45,7 +41,7 @@ const UserSchema = new Schema({
         type: Boolean,
         default: true
     }
-}, { timestamps: true })
+}, { timestamps: true });
 
-export default mongoose.model("User", UserSchema)
+export default mongoose.model("User", UserSchema);
 

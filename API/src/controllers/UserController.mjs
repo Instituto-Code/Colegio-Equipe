@@ -22,14 +22,11 @@ export const register = async (req, res) => {
     //Pegando dados da requisição
     const { 
         name, 
-        email, 
-        cpf, 
-        dataNasc, 
-        numberTel, 
+        email,  
         password, 
-        adress, //Adress será um objeto vindo do frontend
         role, 
-        active 
+        active,
+        confirmPass
     } = req.body
 
     try{
@@ -52,11 +49,7 @@ export const register = async (req, res) => {
         const newUser = await User.create({
             name, 
             email, 
-            cpf, 
-            dataNasc, 
-            numberTel, 
             password: hashPass,  //Recebendo a senha criptografada
-            adress, 
             role, 
             active
         })
@@ -83,7 +76,7 @@ export const login = async (req, res) => {
 
         //Verificando se o usuário existe
         if(!user){
-            return res.status(404).json({ errors: ["Usuáiro não encontrado!"] })
+            return res.status(404).json({ errors: ["Usuário não encontrado!"] })
         }
 
         //Comparando senha
@@ -114,7 +107,14 @@ export const getCurentUser = async (req, res) => {
 //Edição de nome e senha de usuário (pode mudar as possibilidades futuramente)
 
 export const updateUser = async (req, res) => {
-    const { name, password } = req.body
+    const { 
+        name, 
+        password ,
+        cpf,
+        numberTel,
+        dataNasc,
+        adress
+    } = req.body
 
     try{
         const userLogged = req.user
@@ -122,14 +122,30 @@ export const updateUser = async (req, res) => {
 
         //Atualizando nome
         if(name){
-            user.name  = name
+            user.name  = name;
         }
 
         //Atualizando senha
         if(password){
-            const salt = await bcrypt.genSalt()
-            const newPass = await bcrypt.hash(password, salt)
-            user.password = newPass
+            const salt = await bcrypt.genSalt();
+            const newPass = await bcrypt.hash(password, salt);
+            user.password = newPass;
+        }
+
+        if(cpf){
+            user.cpf = cpf;
+        }
+
+        if(numberTel){
+            user.numberTel = numberTel;
+        }
+
+        if(dataNasc){
+            user.dataNasc = dataNasc;
+        }
+
+        if(adress){
+            user.adress = adress;
         }
 
         //salvando usuário
