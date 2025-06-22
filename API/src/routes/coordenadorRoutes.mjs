@@ -20,14 +20,14 @@ import {
 
 
 //Configurações de rotas
-coordenadorRouter.post('/register-classes', authGuard, authorizeRole("Coordenador"), registerClasses);
-coordenadorRouter.post('/register-students', authGuard, authorizeRole("Coordenador"), registerStudent);
-coordenadorRouter.post('/register-teacher', authGuard, authorizeRole("Coordenador"), registerTeacher);
-coordenadorRouter.post('/register-discipline', authGuard, authorizeRole("Coordenador"), registerDisciplines);
-coordenadorRouter.put('/classToTeacher', authGuard, authorizeRole("Coordenador"), classToTeacher);
-coordenadorRouter.put('/disciplineToTeacher', authGuard, authorizeRole("Coordenador"), disciplineToTeacher);
-coordenadorRouter.put('/disciplineToClass', authGuard, authorizeRole("Coordenador"), disciplineToClass);
-coordenadorRouter.put('/studentToClass', authGuard, authorizeRole("Coordenador"), studentToClass);
+coordenadorRouter.post('/register-classes', authGuard, authorizeRole("coordenador"), registerClasses);
+coordenadorRouter.post('/register-students', authGuard, authorizeRole("coordenador"), registerStudent);
+coordenadorRouter.post('/register-teacher', authGuard, authorizeRole("coordenador"), registerTeacher);
+coordenadorRouter.post('/register-discipline', authGuard, authorizeRole("coordenador"), registerDisciplines);
+coordenadorRouter.patch('/classToTeacher', authGuard, authorizeRole("coordenador"), classToTeacher);
+coordenadorRouter.patch('/disciplineToTeacher', authGuard, authorizeRole("coordenador"), disciplineToTeacher);
+coordenadorRouter.patch('/disciplineToClass', authGuard, authorizeRole("coordenador"), disciplineToClass);
+coordenadorRouter.patch('/studentToClass', authGuard, authorizeRole("coordenador"), studentToClass);
 
 
 export default coordenadorRouter;

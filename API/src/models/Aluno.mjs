@@ -56,7 +56,7 @@ const AlunoSchema = new Schema({
             ref: "Disciplina" // => relacionamento com o modela da Disciplina
         },
         //Comparecimentos
-        presenças: Number,
+        presencas: Number,
 
         //Faltas
         faltas: Number

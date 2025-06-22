@@ -24,7 +24,7 @@ const ProfessorSchema = new Schema({
         ref: "Disciplina",
     }],
 
-    Turmas: [{
+    turmas: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Turma"
     }]

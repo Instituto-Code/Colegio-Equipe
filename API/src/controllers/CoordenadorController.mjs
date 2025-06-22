@@ -200,7 +200,7 @@ export const classToTeacher = async (req, res) => {
         await classroom.save();
 
         //Inserindo turma no esquema de professor
-        teacher.Turmas.push(classId);
+        teacher.turmas.push(classId);
 
         //Salvando professor
         await teacher.save();
