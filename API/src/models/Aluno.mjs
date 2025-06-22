@@ -26,13 +26,27 @@ const AlunoSchema = new Schema({
 
     //notas
     notas: [{
-        discipline: {
+        disciplina: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Disciplina" // => relacionamento com o modela da Disciplina
         },
 
+        //Professor relacionado com a nota
+        professor: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Professor"
+        },
+
+        //Tipo de nota, se é atividade prova etc
+        tipo: String,
+
         //Notas
-        grade: Number
+        nota: Number,
+
+        data: {
+            type: Date,
+            default: Date.now
+        }
     }],
 
     //frequencia
