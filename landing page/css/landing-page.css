@@ -1,8 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kumbh+Sans:wght@100..900&display=swap');
 
 body{
     margin: 0px;
     overflow-x: hidden;
+}
+:root{
+    --fonte-1:'Inter';
+    --fonte-2:'Kumbh'
 }
 #landing_header{
     display: flex;
@@ -14,7 +18,10 @@ body{
     display: flex;
     width: auto;
     padding-left:1.5vw;
-    margin: 15px 0 15px 0;
+    margin: 10px 0 10px 0;
+}
+#logo_header img{
+    width: 4vw;
 }
 #btns_sections{
     display: flex;
@@ -24,13 +31,9 @@ body{
 }
 #btns_sections a{
     display: flex;
-    width: 100%;
-    padding: 10px;
     color: black;
-    text-decoration: none;
     justify-content: center;
-    white-space: nowrap;
-    font: 400 1.3vw "Inter";
+    font: 400 1.2vw var(--fonte-1);
     cursor: pointer;
 }
 #btn_header{
@@ -38,9 +41,8 @@ body{
     height: 2.4vw;
     justify-content: center;
     align-items: center;
-    font: 400 1.3vw "Inter";
-    padding: 15px;
-    white-space: nowrap;
+    font: 400 1.3vw var(--fonte-1);
+    padding: 1.2vw;
     background-color: #D9D9D9;
     border: none 0px;
     border-radius: 10px;
@@ -48,40 +50,38 @@ body{
 }
 #slider_1{
     display: flex;
-    width: auto;
+    position: relative;
+    height: 50vw;
+    align-items: center;
     justify-content: center;
 }
 #slides{
     display: flex;
-    position: relative;
     width: 100vw;
-    height: 48vw;
-    transition: 0.5s ease-in-out;
+    max-height:100%;
+    min-height: 100%;
+    transition: 1s ease-in-out;
 }
 .slide{
-    min-width: 100%;
-    transition: 0.5s;
-}
-.slide img{
+    display: flex;
     width: 100%;
-    height: 100%;
+    height: auto;
     object-fit: cover;
+    flex-shrink: 0;
 }
 #slider_1 h1{
-    font: 4.5vw "Inter";
+    font: 4vw var(--fonte-1);
     padding-left: 5vw;
-    margin-top: 5vw;
 }
 #slider_1 h2{
-    font: 1.3vw "Inter";
+    font: 1.3vw var(--fonte-1);
     font-weight: 400;
     padding-left: 5vw;
 }
 #content{
     display: flex;
     position: absolute;
-    width: 85%;
-    margin: 3vw 0px 30px 0px;
+    margin: 0 5vw;
     border-radius: 30px;
     background-color: rgba(255, 255, 255, 0.8);
 }
@@ -100,7 +100,7 @@ body{
     align-items: center;
     border:0px none;
     border-radius: 10px;
-    font: 400 1.8vw "Inter";
+    font: 400 1.8vw var(--fonte-1);
     background-color: #040FD9;
     color: white;
     width: 13vw;
@@ -108,8 +108,119 @@ body{
     margin: 2vw 0 5vw 4.9vw;
     cursor: pointer;
 }
+#texts_qs{
+    background-image: url('../assets/Quem_somos.png');
+    background-color: rgba(187, 189, 242, 0.3);
+    display: flex;
+    flex-direction: column;
+    width: 95%;
+    box-shadow: 0px 0px 15px rgb(141, 141, 141);
+    border-radius: 1vw;
+}
+#texts_qs h1{ 
+    font: 300 5vw var(--fonte-2) ;
+    margin:4vw 5vw; 
+}
+#texts_qs h2{
+    font: 500 1.5vw var(--fonte-1) ;
+    padding: 2vw 5vw 2vw;
+}
+#section_eventos{
+    display: flex;
+    flex-direction: column;
+    border-radius: 20px;
+    box-shadow: 0px 0px 15px rgb(141, 141, 141);
+    align-items: center;
+    background-color:rgba(187, 189, 242, 0.3);
+    margin: 2.4% ;
+}
+#section_eventos h1{
+    font: 400 3.6rem var(--fonte-1) ;
+    margin: 2vh 0 ;
+}
+.slider_ev {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+.slides_ev {
+  display: flex;
+  width: auto;
+  transition: transform 0.4s ease-in-out;
+}
+.slide_ev {
+  width: 100%;
+  flex-shrink: 0;
+}
+.indicators {
+    text-align: center;
+    margin: 0.8vw;
+}
+.dot {
+    width: 1vw;
+    aspect-ratio: 1/1;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+}
+.dot.active {
+  background-color: #fcd770; 
+}
+.sections_texts {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 2vw 0;
+}
+.cards {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 95vw;
+    border-radius: 1vw;
+    box-shadow: 0px 0px 15px rgb(141, 141, 141);
+}
+.content_cards {
+    display: flex;
+    flex-direction: column;
+    margin: 4vw 20vw 0 5vw;
+}
+.titles_cards {
+    display: flex;
+    flex-direction:column;
+}
+.text_card {
+    margin: 5vw 0 5vw 0;
+    font:400 1.8vw var(--fonte-1)
+}
+.titles_cards h1{
+    margin:0 0 0 0 ;
+    font: 300 5vw var(--fonte-2);
+}
+.lines{
+    display: flex;
+    align-items: center;
+}
+.line{
+    display: flex;
+    width: 100%;
+    height: 1vh;
+}
+.ball{
+    display: flex;
+    width: 4vw;
+    aspect-ratio: 1/1;
+    border-radius: 100px;   
+}
+.logo_cards{
+    margin-right: 10vw;
+}
+.logo_cards img{
+    width: 21vw;
+}
 
-@media (max-width:610px){
+@media (max-width:630px){
     #btns_sections{
         display: none;
     }
@@ -121,64 +232,89 @@ body{
         margin-right: 7vw;
     }
     #logo_header img{
-        width: 15vw;
+        width: 20vw;
     }
     .linhas{
         display: flex;
-        width: 11vw;
+        width: 10vw;
         border-radius: 10px;
-        height: 1.8vw;
+        height: 0.7vh;
         background-color: #040FD9;
     }
     #slider_1{
-        display: flex;
+        align-items: center;
+        flex-direction: column-reverse;
         width: auto;
-        height: auto;
+        height: 92vh;
+        overflow: hidden;
     }
-    .slide{
-        width: auto;
-    }
-    .slide img{
-        height: 120vw;
+    #section_eventos h1{
+        font: 400 2em 'Inter' ;
     }
     #content{
         flex-direction: column;
-        margin: 2vw;
-    }
-    #logo_section{
-        margin: 0;
         align-items: center;
-        justify-content: center;
+        text-align: center;
     }
-    #logo_section img{
-        width: 40vw;
-        margin-bottom: 20px;
+    #content h1{
+        padding: 10px 20px 0 20px ;
+        font-size: 2.5rem ;
+        margin: 0%;
     }
-    #text_content{
+    #content h2{
+        padding: 0 20px;
+        font-size: 0.9rem;
+    }
+    #logo_section, #text_content{
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
+        margin: 0%;
+        max-width: 100%;
+        max-height: 100%;
+        overflow: hidden;
     }
-    #slider_1 h1{
-        font: 7vw "Inter";
-        text-align: center;
-        padding: 0%;
-        margin: 10px 40px 30px 40px;
-    }
-    #slider_1 h2{
-        font: 3vw "Inter";
-        text-align: center;
-        font-weight: 400; 
-        margin: 0 40px 10px 40px;   
-        padding: 0%;
+    #logo_section img{
+        width: 70vw;
+        align-items: center;
     }
     #btn_content{
-        width: 30vw;
-        height: 10vw;
-        font-size: 4vw;
-        margin: 20px 0 20px 0 ;
+        margin: 15px;
+        width: 52vw;
+        height: 8vh;
+        font-size: 1.8rem;
+    }   
+    #texts_qs h1{
+        font-size: 3rem;
     }
-
-
+    #texts_qs h2{
+        font-size: 0.9rem;
+        text-align: center;
+    }
+    .cards, #texts_qs{
+        flex-direction: column;   
+        justify-content:center;
+        align-items: center;
+    }
+    .content_cards{
+        margin: 10vw 0 0 0;
+        align-items: center;
+    }
+    .text_card{
+        font-size: 1.2rem;
+        padding:0 5vw ;
+        text-align: center;
+    }
+    .titles_cards h1{
+        font-size: 2.4rem;
+    }
+    .logo_cards{
+        margin: 7vw 0;
+    }
+    .logo_cards img{
+        width: 30vw;
+    }
+    .ball{
+        display: none;
+    }
 }
