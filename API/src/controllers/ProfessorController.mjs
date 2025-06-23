@@ -90,9 +90,8 @@ export const insertGrades = async (req, res) => {
 export const insertAttendance = async (req, res) => {
     const {
         studentId,
-        disciplinaId,
-        presencas,
-        faltas
+        tipo,
+        data
     } = req.body;
 
     try {
@@ -119,28 +118,22 @@ export const insertAttendance = async (req, res) => {
             return res.status(404).json({ errors: ["Professor não encontrado!"] });
         }
 
-        //Verificando se já tem dados de frequencia
-        const indexFrequency = student.frequencia.findIndex(i =>
-            i.disciplina.toString() === disciplinaId
-        );
-
-        if (indexFrequency !== -1) {
-            // Atualiza os valores existentes
-            student.frequencia[indexFrequency].presencas = presencas;
-            student.frequencia[indexFrequency].faltas = faltas;
-        } else {
-            // Adiciona nova frequência
-            student.frequencia.push({
-                disciplina: disciplinaId,
-                presencas,
-                faltas
-            });
+        //Incrementando presenças e faltas
+        if(tipo === "presencas"){
+            student.frequencia.presencas += 1;
         }
+
+        if(tipo === "faltas"){
+            student.frequencia.faltas += 1;
+        }
+
+        student.frequencia.data = data;
 
         await student.save();
 
         res.status(201).json({
             msg: "Frequencia adicionada!",
+            frequencia: student.frequencia
         })
 
     }
@@ -187,7 +180,7 @@ export const listDisciplines = async (req, res) => {
     try{
 
         //Buscando usuário logado
-        const user = req.user
+        const user = req.user;
 
 
         //Verificando se é professor
@@ -202,7 +195,7 @@ export const listDisciplines = async (req, res) => {
 
         res.status(200).json({
             listTurmas: professor.disciplinas
-        })
+        });
 
     }
     catch(error){
@@ -211,4 +204,53 @@ export const listDisciplines = async (req, res) => {
     }
 }
 
+//Funcionalidades de anotações sobre os alunos para os pais
+export const notes = async (req, res) => {
+    const {
+        studentId,
+        anotacao,
+    } = req.body;
 
+    try{
+
+        const student = await Aluno.findById(studentId);
+
+        if(!student){
+            return res.status(404).json({ errors: ["Aluno não encontrado!"] });
+        }   
+
+        //Buscando usuário para filtrar quem é professor
+        const user = req.user
+
+        const professorId = await Professor.findOne({ user: user._id }).select("_id");
+
+        console.log(professorId)
+
+        //Criando anotação
+        const professor = await Professor.findById(professorId);
+
+        if(!professor){
+            return res.status(404).json({ errors: ["Professor não encontrado!"] });
+        }
+
+        //Criando anotação
+        const newNote = {
+            professor: professorId,
+            anotacao
+        }
+
+        student.anotacoes.push(newNote);
+
+        await student.save();
+
+        res.status(201).json({
+            msg: "Anotação adicionada com sucesso!",
+            anotação: newNote
+        })
+
+    }
+    catch(error){
+        res.status(500).json({ errors: ["Erro interno do servidor!"] });
+        console.log(error);
+    }
+}

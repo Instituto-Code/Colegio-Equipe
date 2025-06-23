@@ -50,16 +50,44 @@ const AlunoSchema = new Schema({
     }],
 
     //frequencia
-    frequencia: [{
-        disciplina: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Disciplina" // => relacionamento com o modela da Disciplina
-        },
+    frequencia: {
         //Comparecimentos
-        presencas: Number,
+        presencas: {
+            type: Number,
+            default: 0
+        },
 
         //Faltas
-        faltas: Number
+        faltas: {
+            type: Number,
+            default: 0
+        },
+
+        data: {
+            type: Date,
+            default: Date.now
+        }
+    },
+
+    //Anotações
+    anotacoes: [{
+
+        //Professor responsável
+        professor: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Professor"
+        },
+
+        //Conteúdo
+        anotacao: {
+            type: String,
+            required: true
+        },
+
+        data: {
+            type: Date,
+            default: Date.now
+        }
     }]
 }, { timestamps: true });
 
