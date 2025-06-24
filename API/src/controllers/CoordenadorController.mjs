@@ -3,6 +3,7 @@ import Disciplina from "../models/Disciplina.mjs";
 import Professor from "../models/Professor.mjs";
 import Turma from "../models/Turma.mjs";
 import Aluno from "../models/Aluno.mjs";
+import Pais from "../models/Pais.mjs";
 
 
 //CADASTRO DE PROFESSORES, ALUNOS, TURMAS E DISCIPLINAS ()
@@ -162,6 +163,43 @@ export const registerDisciplines = async (req, res) => {
         console.log(error);
     }
 }
+
+//Registrando pais
+export const registerParents = async (req, res) => {
+    const { userId } = req.body;
+
+    try{
+
+        //Buscando usuário
+        const user = await User.findById(userId).select("-password");
+
+        //Validações
+        if(!user){
+            return res.status(404).json({ errors: ["Usuário não encontrado!"] });
+        }   
+    
+        //Criando novo responsável
+        const newParent = await Pais.create({
+            userId
+        });
+
+        //Atribuindo role de responsável ao usuário
+        user.role = "responsavel";
+
+        await user.save();
+
+        res.status(201).json({
+            msg: "Atribuição feita com sucesso!",
+            responsável: newParent
+        });
+
+    }
+    catch(error){
+        res.status(500).json({ errors: ["Erro interno do servidor!"] });
+        console.log(error);
+    }
+}
+
 
 //PREPARANDO OS RELACIONAMENTOS (CADASTROS ENTRE OS ESQUEMAS)
 
@@ -340,6 +378,49 @@ export const studentToClass = async (req, res) => {
 
         res.status(201).json({
             msg: "Aluno salvo na turma!"
+        })
+
+    }
+    catch(error){
+        res.status(500).json({ errors: ["Erro interno do servidor!"] });
+        console.log(error);
+    }
+}
+
+//Atribuindo aluno ao pai
+export const studentToParent = async (req, res) => {
+    const { studentId, parentId } = req.body;
+
+    try{
+
+        //Buscando aluno
+        const student = await Aluno.findById(studentId);
+
+        //Validação
+        if(!student){
+            return res.status(404).json({ errors: ["Aluno não encontrado!"] });
+        }
+
+        //Buscando responsável
+        const parent = await Pais.findById(parentId);
+
+        //Validação
+        if(!parent){
+            return res.status(404).json({ errors: ["Responsável não encontrado!"] });
+        }
+
+        //Salvando aluno no schema do responsável
+        parent.filhos.push(studentId);
+
+        await parent.save();
+
+        //Salvando responsável no schema do aluno
+        student.parents.push(parentId);
+
+        await student.save();
+
+        res.status(201).json({
+            msg: "Atribuição de responsável ao filho(a) feita com sucesso!"
         })
 
     }

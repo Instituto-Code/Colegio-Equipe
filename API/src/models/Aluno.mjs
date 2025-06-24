@@ -24,6 +24,11 @@ const AlunoSchema = new Schema({
         ref: "Turma" // => relacionamento com o modela da turma 
     },
 
+    parents: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }],
+
     //notas
     notas: [{
         disciplina: {

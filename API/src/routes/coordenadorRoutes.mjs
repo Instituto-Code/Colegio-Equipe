@@ -14,7 +14,9 @@ import {
     classToTeacher,
     disciplineToTeacher,
     disciplineToClass,
-    studentToClass
+    studentToClass,
+    registerParents,
+    studentToParent
 
 } from "../controllers/CoordenadorController.mjs";
 
@@ -28,6 +30,8 @@ coordenadorRouter.patch('/classToTeacher', authGuard, authorizeRole("coordenador
 coordenadorRouter.patch('/disciplineToTeacher', authGuard, authorizeRole("coordenador"), disciplineToTeacher);
 coordenadorRouter.patch('/disciplineToClass', authGuard, authorizeRole("coordenador"), disciplineToClass);
 coordenadorRouter.patch('/studentToClass', authGuard, authorizeRole("coordenador"), studentToClass);
+coordenadorRouter.patch('/register-parent', authGuard, authorizeRole("coordenador"), registerParents);
+coordenadorRouter.patch('/studentToParent', authGuard, authorizeRole("coordenador"), studentToParent);
 
 
 export default coordenadorRouter;
