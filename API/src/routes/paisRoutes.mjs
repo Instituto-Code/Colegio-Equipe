@@ -3,8 +3,7 @@ const paisRouter = exporess.Router();
 
 //Rotas
 import { 
-    listChildrens,
-    listFrequency
+    listChildrens
 } from "../controllers/PaisController.mjs";
 
 //Middlewares
@@ -13,7 +12,6 @@ import { authorizeRole } from "../middlewares/authorizeRole.mjs";
 
 //config. rotas
 paisRouter.get('/list-childrens', authGuard, listChildrens);
-paisRouter.get('/list-frequency', authGuard, listFrequency);
 
 
 export default paisRouter;

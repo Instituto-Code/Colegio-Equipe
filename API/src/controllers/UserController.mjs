@@ -2,6 +2,7 @@ import User from "../models/User.mjs";
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
 import bcrypt from "bcryptjs"
+import { sendResetPass } from "../services/sendEmail.mjs";
 import crypto from "crypto"
 dotenv.config()
 
@@ -157,5 +158,90 @@ export const updateUser = async (req, res) => {
     catch(error){
         console.log(error)
         res.status(500).json({ errors: ["Erro interno do servidor!"] })
+    }
+}
+
+//MODIFICAÇÃO DE SENHA DO USUÁRIO NA TELA DE LOGIN
+
+//Pegando dados e enviando email
+export const resetPassMail = async (req, res) => {
+    const { email } = req.body;
+
+    try{
+        const user = await User.findOne({ email });
+
+        if(!user){
+            return res.status(404).json({
+                errors: ["Usuário não encontrado!"]
+            });
+        }
+
+        //Gerando token com o crypto
+        const resetToken = crypto.randomBytes(32).toString("hex")
+
+        //Criando o hash do token
+        const tokenHash = crypto.createHash("sha256").update(resetToken).digest("hex");
+
+        //Salvando no schema do usuário
+        user.resetPassToken = tokenHash;
+        user.resetPassTokenExpires = Date.now() + 15 * 60 * 1000;
+        await user.save();
+
+        const resetLink = `${process.env.FRONTEND_URL}/resetPass/${resetToken}`;
+
+        //Enviando dados para a função de envio de email
+        sendResetPass(email, resetLink);
+
+        res.status(200).json({
+            msg: "E-mail de redefinição enviado com sucesso!"
+        });
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({ errors: ["Erro interno do servidor!"] });
+    }
+}
+
+//Rota que modifica a senha
+export const resetPass =  async (req, res) => {
+    const { newPass } = req.body;
+    const { token } = req.params;
+
+    try{
+
+        const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+
+        const user = await User.findOne({
+            resetPassToken: tokenHash,
+            resetPassTokenExpires: { $gt: Date.now() }
+        });
+
+        if(!user){
+            return res.status(404).json({
+                errors: ["Token expirado!"]
+            });
+        }
+
+        //criptografando senha
+        const salt = await bcrypt.genSalt();
+        const passHash = await bcrypt.hash(newPass, salt);
+
+        //Salvando nova senha
+        user.password = passHash;
+
+        //Limpando dados de redefinição do banco
+        user.resetPassToken = undefined;
+        user.resetPassTokenExpires = undefined
+
+        await user.save();
+
+        res.status(201).json({
+            msg: "Senha redefinida com sucesso!"
+        });
+
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({ errors: ["Erro interno do servidor!"] });
     }
 }

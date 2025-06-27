@@ -7,7 +7,8 @@ import {
     getCurentUser, 
     login, 
     register, 
-    updateUser 
+    updateUser,
+    resetPassMail
 } from "../controllers/UserController.mjs"
 
 //Middlewares
@@ -22,6 +23,7 @@ userRouter.post("/register", userValidations(), validate, register)
 userRouter.post("/login", userLoginValidations(), validate, login)
 userRouter.get("/profile", authGuard, getCurentUser)
 userRouter.put("/updateUser", authGuard, validate, updateUser)
+userRouter.post('/send-reset', authGuard, resetPassMail)
 
 export default userRouter
 

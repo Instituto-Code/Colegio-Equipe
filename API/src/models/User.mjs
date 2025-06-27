@@ -32,6 +32,15 @@ const UserSchema = new Schema({
         estado: String,
         cep: String,
     },
+
+    resetPassToken: {
+        type: String
+    },
+
+    resetPassTokenExpires: {
+        type: Date
+    },
+    
     role: {
         type: String,
         enum: ["coordenador", "aluno", "responsavel", "professor", "pendente"],
