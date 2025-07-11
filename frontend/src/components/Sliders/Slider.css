@@ -1,0 +1,40 @@
+.Slider_1{
+    display: flex;
+    position: relative;
+    height: 46vw;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+.swiper{
+    display: flex;
+    width: 100%;
+    height: 100%;
+    max-height:100%;
+    min-height: 100%;
+    transition: 1s ease-in-out;
+}
+.swiper-wrapper{
+    display: flex;
+    width: 100vw;
+    height: 100%;
+    max-height:100%;
+    min-height: 100%;
+    transition: 1s ease-in-out;
+}
+.swiper-slide{
+    display: flex;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+@media(max-width: 630px){
+    .Slider_1{
+        align-items: center;
+        width: auto;
+        height: 90vh;
+        overflow: hidden;
+    }
+}
