@@ -6,6 +6,17 @@ const api_url = import.meta.env.VITE_API_URL
 
 // Provider que encapsula a lógica de autenticação e prove funções e estados para os componentes filhos.
 export const AuthProvider = ({ children }) => {
+    const [token, setToken] = useState(null)
+    const [user, setUser] = useState({})
+
+    // Verifica se já existe um token salvo no localStorage.
+    useEffect(()=>{
+        const token = localStorage.getItem("token")
+        if(token && user){
+            setToken(token)
+        }
+    })
+
 
     // Função de registro de um novo usuário;
     const register = async(name,email,password,confirmPass) => {
@@ -20,7 +31,7 @@ export const AuthProvider = ({ children }) => {
 
             const data = await res.json()
             console.log(data)
-            
+
             if(res.ok){
                 console.log(data)
             }
@@ -30,13 +41,38 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
+    // Função de login de usuário.
+    const login = async(email, password) => {
+        try{   
+            const res = await fetch(`${api_url}/api/users/login` , {
+                method: 'POST',
+                headers:{
+                    'Content-type':'application/json'
+                },
+                body: JSON.stringify({email,password})
+            })
 
+            const data = await res.json()
+
+            if(res.ok){
+                console.log(data)
+                const token = data.token
+                localStorage.setItem("token", token)
+                setToken(token)
+            }else{
+                console.error("Login falhou", data.message)
+            }
+
+        }catch(error){
+            console.log(error)
+        }
+    }
 
 
 
     // Retorno do contexto com as funções disponíveis.
     return(
-        <AuthContext.Provider value={{register}}>
+        <AuthContext.Provider value={{register, login}}>
             {children}
         </AuthContext.Provider>
     )
