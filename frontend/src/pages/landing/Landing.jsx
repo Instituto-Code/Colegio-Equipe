@@ -24,15 +24,11 @@ export const LandingPage = () => {
             <div id="logo_header">
                 <img src={img_header} />
             </div>
-            <div id="menu_header">
-                <div className="linhas" />
-                <div className="linhas" />
-                <div className="linhas" />
-            </div>
+            
             <div id="btns_sections">
                 <a className="a_sections" href="#sections_texts">Quem somos</a>
                 <a className="a_sections" href="#text_mission">Propósitos</a>
-                <button id="btn_header"><Link to="/SignIn" >Cadastre-se</Link></button>
+                <button id="btn_header"><Link to="/register" >Cadastre-se</Link></button>
             </div>
         </header>
 

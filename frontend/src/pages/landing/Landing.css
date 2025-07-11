@@ -185,14 +185,19 @@
 }
 
 @media (max-width:630px){
-    #btns_sections{
+    
+    #btns_sections .a_sections{
         display: none;
     }
-    #menu_header{
-        display: flex;
-        flex-direction: column;
-        gap: 1vw;
-        margin-right: 7vw;
+
+    #btn_header{
+        padding: 0%;
+        width: 30vw;
+        height: 10vw;
+        font-size: 100rem;
+    }
+    #btn_header a{
+        font-size: 4.5vw;
     }
     #logo_header img{
         width: 20vw;
