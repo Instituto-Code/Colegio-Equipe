@@ -8,6 +8,7 @@ import userRouter from "./userRoutes.mjs";
 import coordenadorRouter from "./coordenadorRoutes.mjs";
 import professorRouter from "./professorRoutes.mjs";
 import paisRouter from "./paisRoutes.mjs";
+import adminRouter from "./AdminRoutes.mjs";
 
 // Emular __dirname para este arquivo
 const __filename = fileURLToPath(import.meta.url);
@@ -25,5 +26,6 @@ router.use('/api/users', userRouter);
 router.use('/api/coordenador', coordenadorRouter);
 router.use('/api/professor', professorRouter);
 router.use('/api/pais', paisRouter);
+router.use('/api/admin', adminRouter)
 
 export default router;

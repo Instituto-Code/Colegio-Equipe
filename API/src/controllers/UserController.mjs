@@ -51,8 +51,6 @@ export const register = async (req, res) => {
             name, 
             email, 
             password: hashPass,  //Recebendo a senha criptografada
-            role, 
-            active
         })
 
 

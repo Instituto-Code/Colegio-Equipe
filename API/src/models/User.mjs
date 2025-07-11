@@ -43,7 +43,7 @@ const UserSchema = new Schema({
     
     role: {
         type: String,
-        enum: ["coordenador", "aluno", "responsavel", "professor", "pendente"],
+        enum: ["coordenador", "aluno", "responsavel", "professor", "pendente", "admin"],
         default: "pendente"
     },
     active:{
