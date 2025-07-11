@@ -25,9 +25,6 @@ export const register = async (req, res) => {
         name, 
         email,  
         password, 
-        role, 
-        active,
-        confirmPass
     } = req.body
 
     try{
