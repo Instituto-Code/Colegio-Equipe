@@ -23,8 +23,8 @@ userRouter.post("/register", userValidations(), validate, register)
 userRouter.post("/login", userLoginValidations(), validate, login)
 userRouter.get("/profile", authGuard, getCurentUser)
 userRouter.put("/updateUser", authGuard, validate, updateUser)
-userRouter.post('/send-reset', authGuard, resetPassMail)
-userRouter.patch('/reset-pass/:token', authGuard, resetPass)
+userRouter.post('/send-reset', resetPassMail)
+userRouter.patch('/reset-pass/:token', resetPass)
 
 export default userRouter
 
