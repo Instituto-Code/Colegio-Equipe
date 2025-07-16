@@ -40,10 +40,10 @@
 .form_register{
     display: flex;
     flex-direction: column;
-    text-align: left;
     width:50%;
     gap: 3vb;
 }
+
 .title_register{
     display: flex;
     font:500 2em var(--font-1);
@@ -55,7 +55,15 @@
     margin-top: 4vh;
     font: 300 1rem var(--font-1);
 }
-
+.link_pages a{
+    text-decoration: solid;
+    font: 700 1rem var(--font-1);
+    
+}
+.forgot_pass a{
+    text-decoration: none;
+ 
+}
 @media (max-width:1024px){
     .img_register{
         display: none;

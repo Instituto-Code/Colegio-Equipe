@@ -31,6 +31,7 @@ export const LoginUser = () => {
                 <form onSubmit={handleSubmit} id="form_login" className='form_register'>
                     <InputAuth title={'Email'} type={'email'} name={'email'} value={email} onChange={(e)=>{setEmail(e.target.value)}}/>
                     <InputAuth title={'Senha'} type={'password'} name={'password'} value={password} onChange={(e)=>{setPassword(e.target.value)}}/>
+                    <div className='forgot_pass'><Link to="/forgot">Esqueceu a senha?</Link></div>
                     <ButtonAuth nomeBtn={'Login'} type={'submit'} id={'btn_login'}  />
                 </form>
 

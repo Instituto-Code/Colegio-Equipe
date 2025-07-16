@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { data, useParams } from "react-router-dom";
 
 // Criando contexto de autenticação e variável de ambiente.
 const AuthContext = createContext()
@@ -68,11 +69,58 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
+    // Função para envio do link de redefinição para o email.
+    const resetPassMail = async(email)=> {
+        try{
+            const res = await fetch(`${api_url}/api/users/send-reset`, {
+                method:'POST',
+                headers:{
+                    'Content-type':'application/json'
+                },
+                body: JSON.stringify({ email })
+            })
 
+            const data = await res.json()
+            
+            if(res.ok){
+                console.log(data)
+            }else{
+                console.log(data)
+            }
+                
+        }catch(error){
+            console.error(error)
+        }
+    }
 
+    // Função de alteração de senha (enviado por email).
+    const resetPass = async(newPass, token) => {
+        try{
+            const res = await fetch(`${api_url}/api/users/reset-pass/${token}`, {
+                method :'PATCH',
+                headers:{
+                    'Content-type':'application/json'
+                },
+                body: JSON.stringify({ newPass })
+
+            })
+
+            const data = await res.json()
+
+            if(res.ok){
+                console.log(data)
+            }else{
+                console.log(data)
+            }
+        }catch(error){
+            console.error(error)
+            console.log(error)
+        }
+        
+    }
     // Retorno do contexto com as funções disponíveis.
     return(
-        <AuthContext.Provider value={{register, login}}>
+        <AuthContext.Provider value={{register, login, resetPassMail, resetPass}}>
             {children}
         </AuthContext.Provider>
     )
