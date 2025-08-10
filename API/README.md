@@ -9,4 +9,3 @@ Este é o ponto de partida para um projeto backend em Node.js com Express.
 - Dotenv
 - CORS
 - Nodemon (desenvolvimento)
-

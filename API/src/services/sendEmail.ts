@@ -1,10 +1,10 @@
-import nodemailer from "nodemailer";
-import dotenv from "dotenv";
+import nodemailer, { SendMailOptions } from 'nodemailer';
+import dotenv from 'dotenv';
 dotenv.config();
 
 //Criando transporter para envio de email
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  service: 'gmail',
   auth: {
     user: process.env.USER_EMAIL,
     pass: process.env.APP_PASS,
@@ -12,8 +12,11 @@ const transporter = nodemailer.createTransport({
 });
 
 //Criando corpo de envio
-export const sendResetPass = async (to, resetLink) => {
-  const mailOption = {
+export const sendResetPass = async (
+  to: string,
+  resetLink: string,
+): Promise<boolean> => {
+  const mailOption: SendMailOptions = {
     from: process.env.USER_EMAIL,
     to,
     subject: `Modificação de senha`,
@@ -25,11 +28,10 @@ export const sendResetPass = async (to, resetLink) => {
         `,
   };
 
-  try{
+  try {
     await transporter.sendMail(mailOption);
     return true;
-  }
-  catch(error){
+  } catch (error: any) {
     console.log(error);
     return false;
   }
