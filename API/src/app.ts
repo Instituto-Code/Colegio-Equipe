@@ -2,6 +2,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import config from 'config';
+import Logger from '../config/logger.js';
 
 //Config. dependências
 const app = express();
@@ -9,7 +11,7 @@ app.use(cors());
 dotenv.config();
 
 // Configuração de banco de dados
-import connectToDatabase from './settings/database/dbConnection.js';
+import db from '../config/db.js';
 
 //Config. dados json e formulário
 app.use(express.json());
@@ -19,15 +21,15 @@ app.use(express.urlencoded({ extended: true }));
 import router from './routes/Router.js';
 app.use(router);
 
-const PORT = process.env.PORT;
+const PORT = config.get<number>('port');
 
 //Conectando ao servidor
 const startServer = async () => {
   try {
-    await connectToDatabase();
+    await db();
 
     app.listen(PORT || 3000, () => {
-      console.log(`Conectado ao sevidor na porta ${PORT}`);
+      Logger.info(`Conectado ao sevidor na porta ${PORT}`);
     });
   } catch (err) {
     console.log('Erro ao se conectar ao mongoDB');

@@ -1,3 +1,4 @@
+import Logger from '../../config/logger.js';
 import { CustomRequest } from '../middlewares/authGuard.js';
 import User from '../models/User.js';
 import { Request, Response } from 'express';
@@ -43,6 +44,6 @@ export const modifyDataUser = async (req: CustomRequest, res: Response) => {
     res.status(500).json({
       errors: ['Erro interno do servidor!'],
     });
-    console.log(err);
+    Logger.error(`Erro interno do servidor: ${err}`);
   }
 };

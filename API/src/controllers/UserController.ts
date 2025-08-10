@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs';
 import { sendResetPass } from '../services/sendEmail.js';
 import crypto from 'crypto';
 import { CustomRequest } from '../middlewares/authGuard.js';
+import Logger from '../../config/logger.js';
 dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -13,7 +14,8 @@ const JWT_SECRET = process.env.JWT_SECRET;
 //Função para geração de token a partir do id de usuário
 const generateToken = (id: string) => {
   if (!JWT_SECRET) {
-    return console.log("Variável de ambiente 'JWT_SECRET' indefinida!");
+    Logger.error("Variável de ambiente 'JWT_SECRET' indefinida!");
+    return null;
   }
   return jwt.sign(
     { id },
@@ -53,7 +55,7 @@ export const register = async (req: CustomRequest, res: Response) => {
       token: generateToken(newUser._id as string),
     });
   } catch (error) {
-    console.log(error);
+    Logger.error(`Erro interno do servidor: ${error}`);
     res.status(500).json({ msg: 'Erro interno do servidor!' });
   }
 };
@@ -80,7 +82,7 @@ export const login = async (req: CustomRequest, res: Response) => {
       token: generateToken(user._id as string),
     });
   } catch (error) {
-    console.log(error);
+    Logger.error(`Erro interno do servidor: ${error}`);
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
   }
 };
@@ -139,7 +141,7 @@ export const updateUser = async (req: CustomRequest, res: Response) => {
 
     res.status(201).json(user);
   } catch (error) {
-    console.log(error);
+    Logger.error(`Erro interno do servidor: ${error}`);
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
   }
 };
@@ -182,7 +184,7 @@ export const resetPassMail = async (req: Request, res: Response) => {
       msg: 'E-mail de redefinição enviado com sucesso!',
     });
   } catch (error) {
-    console.log(error);
+    Logger.error(`Erro interno do servidor: ${error}`);
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
   }
 };
@@ -223,7 +225,7 @@ export const resetPass = async (req: Request, res: Response) => {
       msg: 'Senha redefinida com sucesso!',
     });
   } catch (error) {
-    console.log(error);
+    Logger.error(`Erro interno do servidor: ${error}`);
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
   }
 };

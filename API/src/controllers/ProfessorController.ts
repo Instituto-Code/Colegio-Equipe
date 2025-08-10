@@ -5,6 +5,7 @@ import Disciplina from '../models/Disciplina.js';
 import { Response } from 'express';
 import { CustomRequest } from '../middlewares/authGuard.js';
 import { INota } from '../models/Aluno.js';
+import Logger from '../../config/logger.js';
 
 //Funcionalidade de inserir notas
 export const insertGrades = async (req: CustomRequest, res: Response) => {
@@ -83,7 +84,7 @@ export const insertGrades = async (req: CustomRequest, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
-    console.log(error);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -135,7 +136,7 @@ export const insertAttendance = async (req: CustomRequest, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
-    console.log(error);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -166,7 +167,7 @@ export const listClasses = async (req: CustomRequest, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
-    console.log(error);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -197,7 +198,7 @@ export const listDisciplines = async (req: CustomRequest, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
-    console.log(error);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -248,6 +249,6 @@ export const notes = async (req: CustomRequest, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
-    console.log(error);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };

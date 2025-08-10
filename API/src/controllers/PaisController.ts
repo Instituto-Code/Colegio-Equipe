@@ -1,6 +1,7 @@
 import Pais from '../models/Pais.js';
 import { Request, Response } from 'express';
 import { CustomRequest } from '../middlewares/authGuard.js';
+import Logger from '../../config/logger.js';
 
 //Listar filhos
 export const listChildrens = async (req: CustomRequest, res: Response) => {
@@ -27,6 +28,6 @@ export const listChildrens = async (req: CustomRequest, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
-    console.log(error);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };

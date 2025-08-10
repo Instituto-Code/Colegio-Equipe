@@ -5,6 +5,7 @@ import Turma from '../models/Turma.js';
 import Aluno from '../models/Aluno.js';
 import Pais from '../models/Pais.js';
 import { Request, Response } from 'express';
+import Logger from '../../config/logger.js';
 
 //CADASTRO DE PROFESSORES, ALUNOS, TURMAS E DISCIPLINAS ()
 
@@ -36,7 +37,7 @@ export const registerClasses = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
-    console.log(error);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -65,7 +66,7 @@ export const registerStudent = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
-    console.log(error);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -96,7 +97,7 @@ export const registerTeacher = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
-    console.log(error);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -126,7 +127,7 @@ export const registerDisciplines = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
-    console.log(error);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -159,7 +160,7 @@ export const registerParents = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
-    console.log(error);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -211,7 +212,7 @@ export const classToTeacher = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
-    console.log(error);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -257,7 +258,7 @@ export const disciplineToTeacher = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
-    console.log(error);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -297,7 +298,7 @@ export const disciplineToClass = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
-    console.log(error);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -340,7 +341,7 @@ export const studentToClass = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
-    console.log(error);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -380,6 +381,6 @@ export const studentToParent = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
-    console.log(error);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
