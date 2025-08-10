@@ -11,7 +11,7 @@ app.use(cors());
 dotenv.config();
 
 // Configuração de banco de dados
-import db from '../config/db.js';
+import dbConnection from '../config/db.js';
 
 //Config. dados json e formulário
 app.use(express.json());
@@ -26,7 +26,7 @@ const PORT = config.get<number>('port');
 //Conectando ao servidor
 const startServer = async () => {
   try {
-    await db();
+    await dbConnection();
 
     app.listen(PORT || 3000, () => {
       Logger.info(`Conectado ao sevidor na porta ${PORT}`);
