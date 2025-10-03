@@ -12,11 +12,20 @@ import visao from '../../assets/Images/visao.png'
 import './Landing.css'
 import { Slider1 } from "../../components/Sliders/Slider";
 import { Footer }from "../../components/Footer/Footer";
+import { useAuth } from "../../contexts/authContext"
+
 
 // Tela de landing page.
 export const LandingPage = () => {
     // Imagens para slider.
     const imagens_Slide1 = [imagem_1,imagem_2,imagem_3,imagem_4]
+
+    //Funções do useAuth.
+    const { user, logout } = useAuth()
+
+    //Pegando o token do localStorege para renderizar ou não o nome do usuário.
+    const token = localStorage.getItem("token")
+    
 
     return(
     <>
@@ -28,7 +37,16 @@ export const LandingPage = () => {
             <div id="btns_sections">
                 <a className="a_sections" href="#sections_texts">Quem somos</a>
                 <a className="a_sections" href="#text_mission">Propósitos</a>
-                <button id="btn_header"><Link to="/register" >Cadastre-se</Link></button>
+                {(user && token ) ? (
+                    <>
+                        <h3>{user.name}</h3>
+                        <button onClick={() => logout()}>Sair</button>
+                    </>
+                ) : (
+                    <button id="btn_header"><Link to="/register" >Cadastre-se</Link></button>
+                )}
+                
+                
             </div>
         </header>
 

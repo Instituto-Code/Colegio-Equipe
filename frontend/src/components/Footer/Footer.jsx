@@ -26,7 +26,7 @@ export const Footer = () => {
             </ul>
           </div>
       
-          <div className="footer-social">
+          <div className="footer_social">
             <h3>Redes Sociais</h3>
             <div class="social-icons">
                 <a href="https://instagram.com/colegioequipe__" target="_blank" rel="noopener noreferrer"><img src={whatsapp_icon} className='footer_logo_sm'/></a>

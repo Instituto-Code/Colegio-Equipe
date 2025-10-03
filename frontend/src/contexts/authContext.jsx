@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { data, useParams } from "react-router-dom";
+// import { data, useParams } from "react-router-dom";
 
 // Criando contexto de autenticação e variável de ambiente.
 const AuthContext = createContext()
@@ -9,19 +9,24 @@ const api_url = import.meta.env.VITE_API_URL
 export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(null)
     const [user, setUser] = useState({})
+    // const [errors, setErrors] = useState([])
+    const [success, setSuccess] = useState("")
+    const [loading, setLoading] = useState(false)
 
     // Verifica se já existe um token salvo no localStorage.
     useEffect(()=>{
         const token = localStorage.getItem("token")
-        if(token && user){
+        if(token){
             setToken(token)
+            profile(token)
         }
-    })
+    },[])
 
 
     // Função de registro de um novo usuário;
     const register = async(name,email,password,confirmPass) => {
         try{
+            setLoading(true)
             const res = await fetch(`${api_url}/api/users/register`, {
                 method: 'POST',
                 headers:{
@@ -35,16 +40,26 @@ export const AuthProvider = ({ children }) => {
 
             if(res.ok){
                 console.log(data)
+                setSuccess("Registro feito com sucesso!")
+                setLoading(false)
+                setInterval(() => {
+                    setSuccess("")
+                }, 3000)
+                return true
             }
         }catch(error){
-            
-            console.error(error)           
+            console.error(error)        
+            setSuccess("Falha ao registrar")   
+            return false
+        }finally{
+            setLoading(false)
         }
     }
 
     // Função de login de usuário.
     const login = async(email, password) => {
         try{   
+            setLoading(true)
             const res = await fetch(`${api_url}/api/users/login` , {
                 method: 'POST',
                 headers:{
@@ -60,11 +75,44 @@ export const AuthProvider = ({ children }) => {
                 const token = data.token
                 localStorage.setItem("token", token)
                 setToken(token)
+                await profile(token)
+                setLoading(false)
             }else{
                 console.error("Login falhou", data.message)
             }
 
         }catch(error){
+            console.log(error)
+        }
+        finally{
+            setLoading(false)
+        }
+    }
+
+    //Sair da conta do usuário
+    const logout = () => {
+        setUser(null)
+        setToken(null)
+        localStorage.removeItem("token")
+    }
+
+    //Dados de usuário
+    const profile = async(customToken) => {
+        try{
+            const res = await fetch(`${api_url}/api/users/profile`, {
+                headers: {
+                    Authorization: `Bearer ${customToken}`
+                }
+            })
+
+            const data = await res.json()
+
+            if(res.ok){
+                console.log(data)
+                setUser(data)
+            }
+        }
+        catch(error){
             console.log(error)
         }
     }
@@ -120,7 +168,7 @@ export const AuthProvider = ({ children }) => {
     }
     // Retorno do contexto com as funções disponíveis.
     return(
-        <AuthContext.Provider value={{register, login, resetPassMail, resetPass}}>
+        <AuthContext.Provider value={{register, login, resetPassMail, resetPass, success, loading, user, token, setSuccess, setToken, logout, profile}}>
             {children}
         </AuthContext.Provider>
     )

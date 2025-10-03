@@ -16,7 +16,7 @@
 }
 #footer_ce .footer-brand,
 #footer_ce .footer-links,
-#footer_ce .footer-social{
+#footer_ce .footer_social{
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -80,7 +80,7 @@
     }
     #footer_ce .footer-links, 
     #footer_ce .footer-brand, 
-    #footer_ce .footer-social {
+    #footer_ce .footer_social {
         flex: none;
         margin: 0;
     }
