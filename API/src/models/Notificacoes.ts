@@ -4,15 +4,18 @@ interface INotificacao {
   author: Types.ObjectId;
   conteudo: string;
   tipo: 'pessoa' | 'grupo';
-  pessoa: Types.ObjectId;
-  grupo: 'aluno' | 'responsavel' | 'professor' | 'pendente';
+  pessoa?: Types.ObjectId;
+  grupo?: 'aluno' | 'responsavel' | 'professor' | 'pendente';
   visto: Types.ObjectId[];
+  criadoEm: Date;
 }
 
 const NotificacaoSchema = new Schema<INotificacao>({
+
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
+    required: true
   },
 
   conteudo: {
@@ -23,18 +26,32 @@ const NotificacaoSchema = new Schema<INotificacao>({
   tipo: {
     type: String,
     enum: ['pessoa', 'grupo'],
+    required: true
+  },
+
+  pessoa: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   },
   
   grupo: {
     type: String,
     enum: ['aluno', 'responsavel', 'professor', 'pendente'],
   },
+
   visto: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
+      default: []
     },
   ],
+
+  criadoEm: {
+    type: Date,
+    default: Date.now
+  }
+
 });
 
-export default mongoose.model('Notificacao', NotificacaoSchema);
+export default mongoose.model<INotificacao>('Notificacao', NotificacaoSchema);
