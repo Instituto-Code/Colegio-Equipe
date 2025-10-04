@@ -12,9 +12,9 @@ const transporter = nodemailer.createTransport({
     pass: process.env.APP_PASS,
   },
   tls: {
-    rejectUnauthorized: false
+    rejectUnauthorized: false,
   },
-  connectionTimeout: 10000
+  connectionTimeout: 10000,
 });
 
 //Criando corpo de envio
