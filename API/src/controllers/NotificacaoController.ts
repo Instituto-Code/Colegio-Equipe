@@ -27,19 +27,42 @@ export const createNote = async (req: CustomRequest, res: Response) => {
     }
 };
 
- export const deleteNote = async (req: CustomRequest, res:Response) => {
+ export const deleteNote = async (req: CustomRequest, res: Response) => {
     try {
-        const { id } = req.params;
+        const { id } = req.body;
 
-        const note = await Notificacoes.findByPK(id);
+        const note = await Notificacoes.findByIdAndDelete(id);
         if (!note) {
             return res.status(404).json({error: "Notificação não encontrada!" });
         }
-        await note.destroy();
-        res.status().json({message: "Notificação excluída com sucesso!"});
+        res.status(200).json({message: "Notificação excluída com sucesso!"});
     }
     catch (error) {
         res.status(500).json({error: "Erro interno no servidor"});
         console.error(error);
     }
+ }
+
+ export const updateNote = async (req: CustomRequest, res:Response) => {
+    try {
+        const { id, conteudo, tipo, } = req.body;
+
+        const note = await Notificacoes.findById(id);
+        if(!note) {
+            return res.status(404).json({error: "Notificação não encontrada!"});
+        }
+
+        if (conteudo) note.conteudo = conteudo;
+        if (tipo) note.tipo = tipo;
+
+        await note.save();
+
+        res.status(200).json({message: "Notificação atualizada com sucesso", note});
+    }
+
+    catch (error) {
+        res.status(500).json({error: "Erro interno no servidor"});
+        console.error(error);
+    }
+
  }
