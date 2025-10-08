@@ -39,13 +39,11 @@ const NotificacaoSchema = new Schema<INotificacao>({
     enum: ['aluno', 'responsavel', 'professor', 'pendente'],
   },
 
-  visto: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      default: []
-    },
-  ],
+  visto: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: 'User',
+    default: []
+  },
 
   criadoEm: {
     type: Date,

@@ -2,13 +2,12 @@ import express from "express";
 const noteRouter = express.Router();
 
 
-import { createNote } from "../controllers/NotificacaoController.js";
+import { createNote, deleteNote, updateNote } from "../controllers/NotificacaoController.js";
 import { authGuard } from "../middlewares/authGuard.js";
 import { authorizeRole } from "../middlewares/authorizeRole.js";
-import { deleteNote } from "../controllers/NotificacaoController.js";
 
 noteRouter.post("/create-note", authGuard, authorizeRole('coordenador'), createNote);
-noteRouter.delete("/delete-note", authGuard, authorizeRole('coordenador'), deleteNote);
-
+noteRouter.delete("/delete-note/:id", authGuard, authorizeRole('coordenador'), deleteNote);
+noteRouter.patch("/update-note/:id", authGuard, authorizeRole('coordenador'), updateNote);
 
 export default noteRouter;
