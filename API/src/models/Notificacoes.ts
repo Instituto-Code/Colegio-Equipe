@@ -7,7 +7,7 @@ interface INotificacao {
   pessoa?: Types.ObjectId;
   grupo?: 'aluno' | 'responsavel' | 'professor' | 'pendente';
   visto: Types.ObjectId[];
-  criadoEm: Date;
+  createdAt: Date;
 }
 
 const NotificacaoSchema = new Schema<INotificacao>({
@@ -45,11 +45,6 @@ const NotificacaoSchema = new Schema<INotificacao>({
     default: []
   },
 
-  criadoEm: {
-    type: Date,
-    default: Date.now
-  }
-
-});
+}, { timestamps: true });
 
 export default mongoose.model<INotificacao>('Notificacao', NotificacaoSchema);
