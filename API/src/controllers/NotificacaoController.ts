@@ -168,3 +168,36 @@ export const createNote = async (req: CustomRequest, res: Response) => {
         console.error(error);    
     }
  }
+
+ //Listando notificações por IDs
+ export const listNotesByUser = async (req: CustomRequest, res: Response) {
+    try {
+        const { id } = req.params;
+
+        const user = await User.findById(id);
+        if(!user) {
+            return res.status(404).json({error: "Usuário não encontrado"});
+        }
+
+        const notificacoes = await Notificacoes.find({
+            // Para garantir que a consulta retorne notificações onde o usuário seja autor ou destinatário
+            $or: [
+                { author: id },
+                { pessoa: id }
+            ]
+        })
+        .populate({
+            path: "author",
+            select: "+nome +email"
+        })
+        .sort({ createdAt: -1});
+
+        return req.status(200).json(notificacoes);
+    }
+
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Erro interno no servidor"});
+    }
+ }
+
