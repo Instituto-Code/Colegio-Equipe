@@ -181,6 +181,7 @@ export const createNote = async (req: CustomRequest, res: Response) => {
 
         const notificacoes = await Notificacoes.find({
             // Para garantir que a consulta retorne notificações onde o usuário seja autor ou destinatário
+            tipo: "pessoa",
             $or: [
                 { author: id },
                 { pessoa: id }
