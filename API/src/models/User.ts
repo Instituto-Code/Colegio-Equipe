@@ -37,6 +37,7 @@ const UserSchema = new Schema<IUser>(
       type: String,
       required: true,
       trim: true,
+      select: true
     },
     email: {
       type: String,

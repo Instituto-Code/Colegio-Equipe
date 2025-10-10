@@ -9,7 +9,7 @@ export const createNote = async (req: CustomRequest, res: Response) => {
     try{
         const { conteudo, tipo, pessoa, grupo } = req.body;
 
-        const authorId = req.user;
+        const authorId = req.user._id;
 
         //Validações
         if(!conteudo || !tipo){
@@ -132,7 +132,7 @@ export const createNote = async (req: CustomRequest, res: Response) => {
  //Listando notificações por grupos
  export const listNotesGroup = async (req: CustomRequest, res: Response) => {
     try{
-        const userId = req.user;
+        const userId = req.user._id;
 
         //Filtrando usuário logado
         const user = await User.findById(userId);
@@ -166,5 +166,50 @@ export const createNote = async (req: CustomRequest, res: Response) => {
     catch(error: any){
         res.status(500).json({error: "Erro interno no servidor"});
         console.error(error);    
+    }
+ };
+
+ //  Views nas notificações
+
+ export const viewNotes = async (req: CustomRequest, res: Response) => {
+    try{
+        const userId = req.user._id;
+        const { noteId } = req.params;
+
+        const user = await User.findById(userId).select("-password");
+
+        if(!user){
+            return res.status(404).json({
+                error: "Usuário não encontrado!"
+            });
+        };
+
+        const note = await Notificacoes.findById(noteId);
+
+        if(!note){
+            return res.status(404).json({
+                error: "Notificação não encontrada"
+            });
+        };
+
+        //Impede várias vizualizações
+        if(!note.visto.includes(userId)){
+            note.visto.push(userId);
+            await note.save();
+        }
+
+        //Recuperando dados da notificação atualizada
+        const updatedNote = await Notificacoes.findById(noteId)
+            .populate("author", "nome role email")
+            .populate("visto", "nome role email")
+
+        res.status(201).json({
+            message: "Notificação marcada como vista com sucesso",
+            note: updatedNote,
+        })
+    }
+    catch(error){
+        res.status(500).json({error: "Erro interno no servidor"});
+        console.error(error); 
     }
  }
