@@ -11,6 +11,6 @@ noteRouter.delete("/delete-note/:id", authGuard, authorizeRole('coordenador'), d
 noteRouter.patch("/update-note/:id", authGuard, authorizeRole('coordenador'), updateNote);
 noteRouter.get('/list-note-groups', authGuard, listNotesGroup);
 noteRouter.patch('/view/:noteId', authGuard, viewNotes);
-noteRouter.get('/list-note-user/:id', authGuard, authorizeRole('coordenador'), listNotesByUser);
+noteRouter.get('/list-note-user/:id', authGuard, listNotesByUser);
 
 export default noteRouter;
