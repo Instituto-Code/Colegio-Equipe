@@ -6,35 +6,34 @@ import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import 'swiper/css/autoplay'
 
-import './Slider.css'
-
 // Primeiro slider da landing page.
 export const Slider1 = ({ children, imagens }) => {
     return(
-        <div className="Slider_1"> 
-            {/* Slider */}
-            <Swiper
-            // Configurações do slider.
-            modules={[Navigation, Pagination, Autoplay]}
-            slidesPerView={1}
-            speed={1500}
-            autoplay={{
-                delay:3000
-            }}
-            loop={true}
-            >   
-                {/* Função para exibição de imagens */}
-                {imagens.map((imgSrc, index) =>{
-                    return(
-                        <SwiperSlide className="children_Swiper" key={index}>
-                            <img src={imgSrc} alt={`Slide ${index+1}`} className="swiper-slide"/>
-                        </SwiperSlide>
-                    )
-                })}
-            </Swiper>
+      <div className = "flex relative items-center justify-center h-screen w-full max-sm:items-center max-sm:h-[90vh] "
+      >
+        <Swiper
+          modules={[Navigation, Pagination, Autoplay]}
+          slidesPerView={1}
+          speed={1500}
+          autoplay={{ delay: 3000 }}
+          loop={true}
+          className="flex w-full h-full max-h-full min-h-full transition-all duration-1000 ease-in-out"
+        >
+          {imagens.map((imgSrc, index) => (
+            <SwiperSlide
+              key={index}
+              className=" flex w-screen max-h-full min-h-full transition-all duration-1000 ease-in-out"
+            >
+              <img
+                src={imgSrc}
+                alt={`Slide ${index + 1}`}
+                className="flex w-full h-full object-cover flex-shrink-0"
+              />
+            </SwiperSlide>
+          ))}
+        </Swiper>
 
-            {/* Exibição de conteúdo dentro do slide */}
-            {children}
-        </div>
+        {children}
+      </div>
     )
 }

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import '../Global_auth.css'
+
 import img_register from '../../../assets/Images/img_auth.png'
 import { useState } from 'react'
 import { useAuth } from '../../../contexts/authContext'
@@ -37,30 +37,31 @@ export const SiginUser = () =>{
     }
 
     return(
-        <div className='content_register'>
-            <div className='login_signin'>
-                <div className='title_register' >Cadastre-se!</div>
-                {success && <p style={{color: "green", fontWeight: "bold"}}>{success}</p>}
-                {/* Formulário de cadastro */}
-                <form onSubmit={handleRegister} id='form_login' className='form_register'>
-                    <InputAuth title={'Nome'} placeHolder={'Ex: João'} type={'text'} name={'nome'} value={name} onChange={(e)=>{setNome(e.target.value)}}/>
-                    <InputAuth title={'Email'} placeHolder={'Ex: joaozin@gmail.com'} name={'email'} value={email} onChange={(e)=>{setEmail(e.target.value)}}/>
-                    <InputAuth title={'Senha'} type={'password'} name={'password'} value={password} onChange={(e)=>{setPassword(e.target.value)}}/>
-                    <InputAuth title={'Confirme a senha'} type={'password'} name={'confirmPass'} value={confirmPass} onChange={(e)=>{setConfirmPass(e.target.value)}}/>
-                    <ButtonAuth
-                    nomeBtn={`${loading ? "Carregando..." : "Cadastre-se"}`}  
+         <div className="flex justify-center items-center w-screen max-md:h-screen">
+            <div className="flex flex-col items-center justify-center w-1/2 h-full rounded-[10px] max-md:w-full max-md:justify-around max-md:h-full">
+                <div className="flex font-medium text-[2em] font-sans text-center mb-[2vh]">
+                    Cadastre-se!
+                </div>
+                {success && <p className="text-green-600 font-bold">{success}</p>}
+
+                <form onSubmit={handleRegister} id="form_login" className="flex flex-col w-1/2 gap-[3vb] max-md:w-4/5">
+                    <InputAuth title={'Nome'} placeHolder={'Ex: João'} type={'text'} name={'nome'} value={name} onChange={(e) => setNome(e.target.value)} />
+                    <InputAuth title={'Email'} placeHolder={'Ex: joaozin@gmail.com'} name={'email'} value={email} onChange={(e) => setEmail(e.target.value)} />
+                    <InputAuth title={'Senha'} type={'password'} name={'password'} value={password} onChange={(e) => setPassword(e.target.value)} />
+                    <InputAuth title={'Confirme a senha'} type={'password'} name={'confirmPass'} value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} />
+                    <ButtonAuth 
+                    nomeBtn={`${loading ? "Carregando..." : "Cadastre-se"}`} 
                     type={'submit'} 
-                    id={'btn_signin'}/>
+                    id={'btn_signin'} />
                 </form>
 
-                {/* Link para login */}
-                <div className='link_pages'>
-                    Já tem uma conta? <Link to="/login">Clique aqui</Link>
+                <div className="mt-[4vh] font-light text-[1rem] font-sans">
+                    Já tem uma conta? <Link to="/login" className="font-bold no-underline">Clique aqui</Link>
                 </div>
             </div>
 
-            <div className='img_register'>
-                <img src={img_register} alt="" />
+            <div className="flex w-1/2 h-screen items-center object-cover max-md:hidden">
+                <img src={img_register} alt="" className="flex w-full h-full object-cover bg-center" />
             </div>
         </div>
         )

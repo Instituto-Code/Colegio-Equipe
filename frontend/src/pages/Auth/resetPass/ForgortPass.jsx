@@ -21,21 +21,24 @@ export const ForgotPass = () =>{
 
     
     return(
-        <div className='content_register'>
-            <div className='login_signin'>
-                <div className='title_register' style={{ marginBottom:'60px'}}>Esqueci minha senha</div>
+       <div className="flex justify-center items-center w-screen max-md:h-full">
+            <div className="flex flex-col items-center justify-center w-1/2 h-full rounded-[10px] max-md:w-full max-md:justify-around max-md:h-full">
+                <div className="flex font-medium text-[2em] font-sans text-center mb-[4vh]" >
+                    Esqueci minha senha
+                </div>
 
-                {/* Formulário de envio de email */}
-                <form onSubmit={handleSubmit} id="form_login" className='form_register' style={{gap:'60px'}}>
-                    <InputAuth title={'Seu email'} type={'email'} name={'email'} value={email} onChange={(e)=>{setEmail(e.target.value)}}></InputAuth>
-                    <ButtonAuth nomeBtn={'Enviar link'} type={'submit'}></ButtonAuth>
+                <form onSubmit={handleSubmit} id="form_login" className="flex flex-col w-1/2 gap-[60px] max-md:w-4/5">
+                    <InputAuth title={'Seu email'} type={'email'} name={'email'} value={email} onChange={(e) => setEmail(e.target.value)} />
+                    <ButtonAuth nomeBtn={'Enviar link'} type={'submit'} />
                 </form>
-                {/* Link para o login */}
-                <div className='link_pages'><Link to='/login'>Voltar para o login</Link></div>
+
+                <div className="mt-[4vh] font-light text-[1rem] font-sans">
+                    <Link to='/login' className="no-underline">Voltar para o login</Link>
+                </div>
             </div>
 
-            <div className='img_register'>
-                <img src={img_register} alt="" />
+            <div className="flex w-1/2 h-screen items-center object-cover max-md:hidden">
+                <img src={img_register} alt="" className="flex w-full h-full object-cover bg-center" />
             </div>
         </div>
     )
