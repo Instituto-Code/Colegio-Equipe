@@ -18,6 +18,7 @@ import {
   registerParents,
   studentToParent,
 } from '../controllers/CoordenadorController.js';
+import { listEvents, registerEvent } from '../controllers/EventController.js';
 
 //Configurações de rotas
 coordenadorRouter.post(
@@ -79,6 +80,17 @@ coordenadorRouter.patch(
   authGuard,
   authorizeRole('coordenador'),
   studentToParent,
+);
+coordenadorRouter.post(
+  '/create-event',
+  authGuard,
+  authorizeRole('coordenador'),
+  registerEvent
+);
+coordenadorRouter.get(
+  '/list-events',
+  authGuard,
+  listEvents
 );
 
 export default coordenadorRouter;
