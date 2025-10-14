@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import img_register from '../../../assets/Images/img_auth.png'
@@ -13,7 +13,7 @@ export const ForgotPass = () =>{
    
     const { resetPassMail } = useAuth()
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
         resetPassMail(email)

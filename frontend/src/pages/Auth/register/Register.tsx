@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 
 import img_register from '../../../assets/Images/img_auth.png'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useAuth } from '../../../contexts/authContext'
 
 import { InputAuth } from '../../../components/Inputs/Inputs'
@@ -20,7 +20,7 @@ export const SiginUser = () =>{
     const { register, loading, success } = useAuth()
 
     //Enviando formulário de Registro
-    const handleRegister = async (e)=>{
+    const handleRegister = async (e: React.FormEvent<HTMLFormElement>)=>{
         e.preventDefault()
 
         const resposta = await register(name,email,password,confirmPass)
@@ -51,8 +51,7 @@ export const SiginUser = () =>{
                     <InputAuth title={'Confirme a senha'} type={'password'} name={'confirmPass'} value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} />
                     <ButtonAuth 
                     nomeBtn={`${loading ? "Carregando..." : "Cadastre-se"}`} 
-                    type={'submit'} 
-                    id={'btn_signin'} />
+                    type={'submit'}  />
                 </form>
 
                 <div className="mt-[4vh] font-light text-[1rem] font-sans">

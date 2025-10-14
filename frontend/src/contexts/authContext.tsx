@@ -1,44 +1,68 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import type { ReactNode } from "react";
 // import { data, useParams } from "react-router-dom";
 
 // Criando contexto de autenticação e variável de ambiente.
-const AuthContext = createContext()
+
 const api_url = import.meta.env.VITE_API_URL
 
+// Tipagem do usuario
+interface IUser {
+    name: string,
+    email: string,
+    password: string,
+    confirmPass: string
+}
+
+interface IAuthContextProps {
+    user: IUser | null,
+    token: string | null,
+    loading: boolean,
+    success: string | "",
+    register: (name: string, email: string, password: string, confirmPass: string) => Promise<boolean | void>
+    login: (email: string, password: string) => Promise<void>,
+    logout: () => void
+    profile: (customToken: string) => Promise<void>
+    resetPassMail: (email: string) => Promise<void>
+    resetPass: (newPass: string, token: string) => Promise<void>
+}
+
+const AuthContext = createContext<IAuthContextProps | undefined >(undefined)
+
 // Provider que encapsula a lógica de autenticação e prove funções e estados para os componentes filhos.
-export const AuthProvider = ({ children }) => {
-    const [token, setToken] = useState(null)
-    const [user, setUser] = useState({})
+export const AuthProvider = ({ children }: {children:ReactNode} ) => {
+    const [token, setToken] = useState<string | null>(null)
+    const [user, setUser] = useState<IUser | null>(null)
     // const [errors, setErrors] = useState([])
-    const [success, setSuccess] = useState("")
+    const [success, setSuccess] = useState<string | "">("")
     const [loading, setLoading] = useState(false)
 
     // Verifica se já existe um token salvo no localStorage.
-    useEffect(()=>{
+    useEffect(() => {
         const token = localStorage.getItem("token")
-        if(token){
+        if (token) {
             setToken(token)
             profile(token)
         }
-    },[])
+    }, [])
 
 
     // Função de registro de um novo usuário;
-    const register = async(name,email,password,confirmPass) => {
-        try{
+    const register = async (name: string, email: string, password: string, confirmPass: string) => {
+        try {
             setLoading(true)
             const res = await fetch(`${api_url}/api/users/register`, {
                 method: 'POST',
-                headers:{
-                    'Content-type':'application/json'
+                headers: {
+                    'Content-type': 'application/json'
                 },
-                body: JSON.stringify({name, email, password, confirmPass})
+                body: JSON.stringify({ name, email, password, confirmPass })
             })
 
             const data = await res.json()
             console.log(data)
 
-            if(res.ok){
+            if (res.ok) {
                 console.log(data)
                 setSuccess("Registro feito com sucesso!")
                 setLoading(false)
@@ -47,44 +71,44 @@ export const AuthProvider = ({ children }) => {
                 }, 3000)
                 return true
             }
-        }catch(error){
-            console.error(error)        
-            setSuccess("Falha ao registrar")   
+        } catch (error) {
+            console.error(error)
+            setSuccess("Falha ao registrar")
             return false
-        }finally{
+        } finally {
             setLoading(false)
         }
     }
 
     // Função de login de usuário.
-    const login = async(email, password) => {
-        try{   
+    const login = async (email: string, password: string) => {
+        try {
             setLoading(true)
-            const res = await fetch(`${api_url}/api/users/login` , {
+            const res = await fetch(`${api_url}/api/users/login`, {
                 method: 'POST',
-                headers:{
-                    'Content-type':'application/json'
+                headers: {
+                    'Content-type': 'application/json'
                 },
-                body: JSON.stringify({email,password})
+                body: JSON.stringify({ email, password })
             })
 
             const data = await res.json()
 
-            if(res.ok){
+            if (res.ok) {
                 console.log(data)
                 const token = data.token
                 localStorage.setItem("token", token)
                 setToken(token)
                 await profile(token)
                 setLoading(false)
-            }else{
+            } else {
                 console.error("Login falhou", data.message)
             }
 
-        }catch(error){
+        } catch (error) {
             console.log(error)
         }
-        finally{
+        finally {
             setLoading(false)
         }
     }
@@ -97,8 +121,8 @@ export const AuthProvider = ({ children }) => {
     }
 
     //Dados de usuário
-    const profile = async(customToken) => {
-        try{
+    const profile = async (customToken: string) => {
+        try {
             const res = await fetch(`${api_url}/api/users/profile`, {
                 headers: {
                     Authorization: `Bearer ${customToken}`
@@ -107,47 +131,47 @@ export const AuthProvider = ({ children }) => {
 
             const data = await res.json()
 
-            if(res.ok){
+            if (res.ok) {
                 console.log(data)
                 setUser(data)
             }
         }
-        catch(error){
+        catch (error) {
             console.log(error)
         }
     }
 
     // Função para envio do link de redefinição para o email.
-    const resetPassMail = async(email)=> {
-        try{
+    const resetPassMail = async (email: string) => {
+        try {
             const res = await fetch(`${api_url}/api/users/send-reset`, {
-                method:'POST',
-                headers:{
-                    'Content-type':'application/json'
+                method: 'POST',
+                headers: {
+                    'Content-type': 'application/json'
                 },
                 body: JSON.stringify({ email })
             })
 
             const data = await res.json()
-            
-            if(res.ok){
+
+            if (res.ok) {
                 console.log(data)
-            }else{
+            } else {
                 console.log(data)
             }
-                
-        }catch(error){
+
+        } catch (error) {
             console.error(error)
         }
     }
 
     // Função de alteração de senha (enviado por email).
-    const resetPass = async(newPass, token) => {
-        try{
+    const resetPass = async (newPass: string, token: string) => {
+        try {
             const res = await fetch(`${api_url}/api/users/reset-pass/${token}`, {
-                method :'PATCH',
-                headers:{
-                    'Content-type':'application/json'
+                method: 'PATCH',
+                headers: {
+                    'Content-type': 'application/json'
                 },
                 body: JSON.stringify({ newPass })
 
@@ -155,20 +179,20 @@ export const AuthProvider = ({ children }) => {
 
             const data = await res.json()
 
-            if(res.ok){
+            if (res.ok) {
                 console.log(data)
-            }else{
+            } else {
                 console.log(data)
             }
-        }catch(error){
+        } catch (error) {
             console.error(error)
             console.log(error)
         }
-        
+
     }
     // Retorno do contexto com as funções disponíveis.
-    return(
-        <AuthContext.Provider value={{register, login, resetPassMail, resetPass, success, loading, user, token, setSuccess, setToken, logout, profile}}>
+    return (
+        <AuthContext.Provider value={{ register, login, resetPassMail, resetPass, success, loading, user, token, logout, profile }}>
             {children}
         </AuthContext.Provider>
     )
@@ -176,6 +200,10 @@ export const AuthProvider = ({ children }) => {
 }
 
 // Hook customizado para consumir o contexto.
-export const useAuth = () =>{
-    return useContext(AuthContext)
+export const useAuth = () => {
+    const context = useContext(AuthContext)
+    if(!context){
+        throw new Error("UseAuth deve ser usado dentro do AuthProvider")
+    }
+    return context
 }

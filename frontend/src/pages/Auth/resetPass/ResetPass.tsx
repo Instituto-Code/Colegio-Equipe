@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import img_register from '../../../assets/Images/img_auth.png'
@@ -6,19 +6,30 @@ import { InputAuth } from "../../../components/Inputs/Inputs"
 import { ButtonAuth } from "../../../components/Buttons/Buttons"
 import { useAuth } from '../../../contexts/authContext'
 
+interface TokenParams {
+  token: string;
+}
 
 export const ResetPass = () =>{
-    const { token } = useParams() 
+    const { token } = useParams<TokenParams>() 
     const [password, setPassword] = useState("")
     const [confirmPass, setConfirmPass] = useState("")
 
-    const { resetPass } = useAuth()
+    if(!token){
+        return <div>Token não existe!</div>
+    }
+    const { resetPass, } = useAuth()
 
-    const handleSubmit = async (e) =>{
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) =>{
         e.preventDefault()
         console.log(token, password)
 
-        await resetPass(password, token)
+        if (typeof token === 'string') {
+            await resetPass(password, token)
+        } else {
+            // handle error, e.g. show a message or prevent submission
+            console.error("Token is missing or invalid.")
+        }
     }
     
     return(

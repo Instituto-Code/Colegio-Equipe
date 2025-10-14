@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import img_register from '../../../assets/Images/img_auth.png'
 
@@ -25,7 +25,7 @@ export const LoginUser = () => {
     },[token, navigate])
 
     // Enviando formulário de login.
-    const handleLogin = async (e) => {
+    const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
         await login(email,password) 
@@ -45,7 +45,7 @@ export const LoginUser = () => {
                     <div className="mb-2">
                         <Link to="/forgot" className="no-underline">Esqueceu a senha?</Link>
                     </div>
-                    <ButtonAuth nomeBtn={`${loading ? "Carregando..." : "Login"}`} type={'submit'} id={'btn_login'} />
+                    <ButtonAuth nomeBtn={`${loading ? "Carregando..." : "Login"}`} type={'submit'} />
                 </form>
 
                 <div className="mt-[4vh] font-light text-[1rem] font-sans">
