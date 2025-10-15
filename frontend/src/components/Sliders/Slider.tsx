@@ -9,7 +9,7 @@ import 'swiper/css/autoplay'
 // Primeiro slider da landing page.
 export const Slider1 = ({ children, imagens }) => {
     return(
-      <div className = "flex relative items-center justify-center h-screen w-full max-sm:items-center max-sm:h-[90vh] "
+      <div className = "flex relative items-center justify-center h-screen w-full max-sm:items-center max-sm:h-[90vh] z-[-10] "
       >
         <Swiper
           modules={[Navigation, Pagination, Autoplay]}
@@ -27,7 +27,7 @@ export const Slider1 = ({ children, imagens }) => {
               <img
                 src={imgSrc}
                 alt={`Slide ${index + 1}`}
-                className="flex w-full h-full object-cover flex-shrink-0"
+                className="flex w-full h-full object-cover "
               />
             </SwiperSlide>
           ))}

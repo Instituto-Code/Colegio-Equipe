@@ -19,12 +19,12 @@
     
     // "ignoreDeprecations": "6.0",
 
-    // "baseUrl": ".",
-    // "paths": {
-    //   "@/*": [
-    //     "./src/*"
-    //   ]
-    // },
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
 
     /* Linting */
     "strict": true,
