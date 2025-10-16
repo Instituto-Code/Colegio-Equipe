@@ -7,11 +7,12 @@ import type { ReactNode } from "react";
 const api_url = import.meta.env.VITE_API_URL
 
 // Tipagem do usuario
-interface IUser {
+export interface IUser {
     name: string,
     email: string,
-    password: string,
-    confirmPass: string
+    role: string,
+    password?: string,
+    confirmPass?: string
 }
 
 interface IAuthContextProps {
@@ -39,11 +40,14 @@ export const AuthProvider = ({ children }: {children:ReactNode} ) => {
 
     // Verifica se já existe um token salvo no localStorage.
     useEffect(() => {
+        setLoading(true)
         const token = localStorage.getItem("token")
         if (token) {
             setToken(token)
             profile(token)
+           
         }
+        setLoading(false)
     }, [])
 
 
