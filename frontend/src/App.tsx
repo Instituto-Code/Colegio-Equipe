@@ -10,6 +10,7 @@ import { AuthProvider } from "./contexts/authContext";
 
 import { CoordenadorPage } from "./pages/coordenador/CoordenadorPage";
 import { PrivateRouter } from "./components/PrivateRoutes/PrivateRoutes";
+import DashboardLayout from "./components/Dasboard/DashboardLayout";
 
 function AppContent() {
 
@@ -28,7 +29,9 @@ function AppContent() {
         path="/coordenador"
         element={
           <PrivateRouter roles={["coordenador"]}>
-            <CoordenadorPage />
+            <DashboardLayout>
+              <CoordenadorPage />
+            </DashboardLayout>
           </PrivateRouter>
         }
       />

@@ -1,7 +1,9 @@
+import DashCoordenador from "@/components/Dasboard/DashboardLayout"
+
 export const CoordenadorPage = () => {
     return(
-        <div>
-            <h2>Página de coordenador!</h2>
+        <div className="flex w-screen h-screen ">
+            
         </div>
     )
 }

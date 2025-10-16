@@ -1,0 +1,56 @@
+import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
+
+import { MenuItems } from "@/configs/MenuItems"
+
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar"
+import { useAuth } from "@/contexts/authContext"
+
+
+
+type Role = "coordenador" 
+
+
+
+export const SideBar = () => {
+
+    const { user } = useAuth()
+
+    const items = user?.role && user.role in MenuItems ? MenuItems[user.role as Role] : [] 
+
+    return(
+    <Sidebar>
+      <SidebarHeader />
+      <SidebarContent>
+        <SidebarGroup />
+        <SidebarGroupLabel>Application</SidebarGroupLabel>
+        <SidebarGroupContent>
+            <SidebarMenu>
+              {items.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <a href={item.url}>
+                      
+                      <span>{item.title}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        <SidebarGroup />
+      </SidebarContent>
+      <SidebarFooter />
+    </Sidebar>
+    )
+}
