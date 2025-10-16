@@ -16,10 +16,7 @@ import {
 } from "@/components/ui/sidebar"
 import { useAuth } from "@/contexts/authContext"
 
-
-
-type Role = "coordenador" 
-
+type Role = "coordenador" | "professor" 
 
 
 export const SideBar = () => {
@@ -33,7 +30,7 @@ export const SideBar = () => {
       <SidebarHeader />
       <SidebarContent>
         <SidebarGroup />
-        <SidebarGroupLabel>Application</SidebarGroupLabel>
+        <SidebarGroupLabel>Bem vindo(a), {user?.name}</SidebarGroupLabel>
         <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (

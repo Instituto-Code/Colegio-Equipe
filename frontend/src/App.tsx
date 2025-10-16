@@ -11,10 +11,13 @@ import { AuthProvider } from "./contexts/authContext";
 import { CoordenadorPage } from "./pages/coordenador/CoordenadorPage";
 import { PrivateRouter } from "./components/PrivateRoutes/PrivateRoutes";
 import DashboardLayout from "./components/Dasboard/DashboardLayout";
+import { UserGerence } from "./components/Coordenador/UserGerence";
+import { Matriculas } from "./components/Coordenador/Matriculas";
+import { ProfessorPage } from "./pages/professor/ProfessroPage";
+import { GerenciarAlunos } from "./components/professor/GerenceStudents";
+import { GerenciarTurmas } from "./components/professor/GerenceClass";
 
 function AppContent() {
-
-
   return (
     <Routes>
       {/* Públicas */}
@@ -25,16 +28,36 @@ function AppContent() {
       <Route path="/resetPass/:token" element={<ResetPass />} />
 
       {/* Protegidas */}
+
+      {/* Rotas de coordenador */}
       <Route
         path="/coordenador"
         element={
           <PrivateRouter roles={["coordenador"]}>
-            <DashboardLayout>
-              <CoordenadorPage />
-            </DashboardLayout>
+            <DashboardLayout />
           </PrivateRouter>
         }
-      />
+      >
+        {/* Rotas do coordenador */}
+        <Route index element={<CoordenadorPage />} />
+        <Route path="gerenciar" element={<UserGerence />} />
+        <Route path="matriculas" element={<Matriculas />} />
+      </Route>
+
+        {/* Rotas do professor */}
+      <Route
+        path="/professor"
+        element={
+          <PrivateRouter roles={["professor"]}>
+            <DashboardLayout />
+          </PrivateRouter>
+        }
+      >
+        {/* Rotas do coordenador */}
+        <Route index element={<ProfessorPage />} />
+        <Route path="gerenciar-alunos" element={<GerenciarAlunos />} />
+        <Route path="gerenciar-turmas" element={<GerenciarTurmas />} />
+      </Route>
     </Routes>
   );
 }

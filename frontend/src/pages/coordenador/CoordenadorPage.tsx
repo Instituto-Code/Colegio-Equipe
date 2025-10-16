@@ -1,9 +1,10 @@
-import DashCoordenador from "@/components/Dasboard/DashboardLayout"
+import { DashCoordenador } from "@/components/Coordenador/DashCoordenador"
+
 
 export const CoordenadorPage = () => {
     return(
-        <div className="flex w-screen h-screen ">
-            
+        <div className="flex h-screen ">
+            <DashCoordenador />
         </div>
     )
 }

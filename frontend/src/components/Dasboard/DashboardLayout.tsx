@@ -1,15 +1,17 @@
+import { Outlet } from "react-router-dom";
+import { SidebarProvider, SidebarTrigger } from "../ui/sidebar";
+import { SideBar } from "../Sidebar/SideBar";
 
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { SideBar } from "@/components/Sidebar/SideBar"
-
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout() {
   return (
     <SidebarProvider>
-      <SideBar />
-      <main>
-        <SidebarTrigger />
-        {children}
-      </main>
+      <div className="flex min-h-screen">
+        <SideBar />
+        <main className="flex-1 p-6">
+          <SidebarTrigger />
+          <Outlet />
+        </main>
+      </div>
     </SidebarProvider>
-  )
+  );
 }

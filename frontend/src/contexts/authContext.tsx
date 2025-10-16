@@ -36,18 +36,22 @@ export const AuthProvider = ({ children }: {children:ReactNode} ) => {
     const [user, setUser] = useState<IUser | null>(null)
     // const [errors, setErrors] = useState([])
     const [success, setSuccess] = useState<string | "">("")
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
 
     // Verifica se já existe um token salvo no localStorage.
     useEffect(() => {
-        setLoading(true)
-        const token = localStorage.getItem("token")
-        if (token) {
-            setToken(token)
-            profile(token)
-           
+        const fetchData = async () => {
+            setLoading(true)
+                const token = localStorage.getItem("token")
+                if (token) {
+                    setToken(token)
+                    await profile(token)
+                
+                }
+            setLoading(false)
         }
-        setLoading(false)
+        fetchData();
+        
     }, [])
 
 
