@@ -68,16 +68,18 @@ export const AuthProvider = ({ children }: {children:ReactNode} ) => {
 
             if (res.ok) {
                 console.log(data)
-                setSuccess("Registro feito com sucesso!")
+
+                //Limpa o localstorage ao criar outra conta
+                localStorage.removeItem("token");
+                setUser(null);
+                setToken(null);
+
                 setLoading(false)
-                setInterval(() => {
-                    setSuccess("")
-                }, 3000)
+                
                 return true
             }
         } catch (error) {
             console.error(error)
-            setSuccess("Falha ao registrar")
             return false
         } finally {
             setLoading(false)
@@ -106,7 +108,7 @@ export const AuthProvider = ({ children }: {children:ReactNode} ) => {
                 await profile(token)
                 setLoading(false)
             } else {
-                console.error("Login falhou", data.message)
+                console.error("Login falhou", data.errors)
             }
 
         } catch (error) {

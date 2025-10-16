@@ -38,7 +38,9 @@ export const LandingPage = () => {
     <>
       <header className="flex fixed mb-2.5 top-0 left-0 bg-white w-full justify-between items-center p-1">
         <div className="flex">
-          <img src={img_header} className="w-[7vw] max-sm:w-[25vw] " />
+          <Link to={"/"}>
+            <img src={img_header} className="w-[7vw] max-sm:w-[25vw] " />
+          </Link>
         </div>
         <div className="flex items-center pr-[1.5vw] gap-[3vw]">
           <a
@@ -62,8 +64,7 @@ export const LandingPage = () => {
           ) : (
             <Link to="/register">
               <Button
-                className="font-normal text-[1.3vw] max-sm:text-[4.5vw] font-[Inter] bg-[#D9D9D9] text-black 
-                 border-0 rounded-[10px] cursor-pointer w-auto max-sm:w-[30vw] h-[2.4vw] max-sm:h-[10vw]"
+                className="font-normal text-[1.3vw] max-sm:text-[4.5vw] font-[Inter] bg-slate-100 text-black hover:bg-slate-50 border-0 rounded-[10px] cursor-pointer w-auto max-sm:w-[30vw] h-[2.4vw] max-sm:h-[10vw]"
               >
                 Cadastre-se
               </Button>

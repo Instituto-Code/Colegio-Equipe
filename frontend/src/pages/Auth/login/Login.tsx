@@ -6,6 +6,10 @@ import { InputAuth } from '../../../components/Inputs/Inputs'
 import { ButtonAuth } from '../../../components/Buttons/Buttons'
 import { useAuth } from '../../../contexts/authContext'
 import { useNavigate } from 'react-router-dom'
+import { Spinner } from '@/components/ui/spinner'
+import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { AlertCircleIcon } from 'lucide-react'
 
 // Tela de login do usuário.
 export const LoginUser = () => {
@@ -15,7 +19,7 @@ export const LoginUser = () => {
     const navigate = useNavigate()
 
     // Função de login do contexto de autenticação.
-    const { login, loading, token} = useAuth()
+    const { login, loading, token } = useAuth()
 
     // Efeito para navegar a página inicial com base no token.
     useEffect(()=>{
@@ -28,7 +32,7 @@ export const LoginUser = () => {
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
-        await login(email,password) 
+        await login(email, password) 
     }
 
     
@@ -40,12 +44,27 @@ export const LoginUser = () => {
                 </div>
 
                 <form onSubmit={handleLogin} id="form_login" className="flex flex-col w-1/2 gap-[3vb] max-md:w-4/5">
-                    <InputAuth title={'Email'} type={'email'} name={'email'} value={email} onChange={(e) => setEmail(e.target.value)} />
-                    <InputAuth title={'Senha'} type={'password'} name={'password'} value={password} onChange={(e) => setPassword(e.target.value)} />
+
+                    <InputAuth title={'Email'} type={'email'} name={'email'} placeHolder='Seu E-mail' value={email} onChange={(e) => setEmail(e.target.value)} />
+
+                    <InputAuth title={'Senha'} type={'password'} placeHolder='Sua senha' name={'password'} value={password} onChange={(e) => setPassword(e.target.value)} />
+
                     <div className="mb-2">
                         <Link to="/forgot" className="no-underline">Esqueceu a senha?</Link>
                     </div>
-                    <ButtonAuth nomeBtn={`${loading ? "Carregando..." : "Login"}`} type={'submit'} />
+
+                    <Button disabled={loading} type='submit' className='bg-[#303A73] hover:bg-[#181f44] cursor-pointer'>
+                        {
+                            loading ? (
+                                <span className='flex gap-1.5 items-center'>
+                                    <Spinner />
+                                    Carregando
+                                </span>
+                            ) : (
+                                <span>Login</span>
+                            )
+                        }
+                    </Button>
                 </form>
 
                 <div className="mt-[4vh] font-light text-[1rem] font-sans">

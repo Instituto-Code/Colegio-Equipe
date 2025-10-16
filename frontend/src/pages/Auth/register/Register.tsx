@@ -5,8 +5,9 @@ import React, { useState } from 'react'
 import { useAuth } from '../../../contexts/authContext'
 
 import { InputAuth } from '../../../components/Inputs/Inputs'
-import { ButtonAuth } from '../../../components/Buttons/Buttons'
 import { useNavigate } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
+import { Spinner } from '@/components/ui/spinner'
 
 // Tela para cadastro de usuário.
 export const SiginUser = () =>{
@@ -31,7 +32,7 @@ export const SiginUser = () =>{
         setConfirmPass("")
 
         if(resposta){
-            navigate("/login")
+            setTimeout(() => navigate("/login"), 300)
         }
         
     }
@@ -46,12 +47,25 @@ export const SiginUser = () =>{
 
                 <form onSubmit={handleRegister} id="form_login" className="flex flex-col w-1/2 gap-[3vb] max-md:w-4/5">
                     <InputAuth title={'Nome'} placeHolder={'Ex: João'} type={'text'} name={'nome'} value={name} onChange={(e) => setNome(e.target.value)} />
+
                     <InputAuth title={'Email'} placeHolder={'Ex: joaozin@gmail.com'} name={'email'} value={email} onChange={(e) => setEmail(e.target.value)} />
+
                     <InputAuth title={'Senha'} type={'password'} name={'password'} value={password} onChange={(e) => setPassword(e.target.value)} />
+
                     <InputAuth title={'Confirme a senha'} type={'password'} name={'confirmPass'} value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} />
-                    <ButtonAuth 
-                    nomeBtn={`${loading ? "Carregando..." : "Cadastre-se"}`} 
-                    type={'submit'}  />
+
+                    <Button disabled={loading} type='submit' className='bg-[#303A73] hover:bg-[#181f44] cursor-pointer'>
+                        {
+                            loading ? (
+                                <span className='flex gap-1.5 items-center'>
+                                    <Spinner />
+                                    Carregando
+                                </span>
+                            ) : (
+                                <span>Cadastrar</span>
+                            )
+                        }
+                    </Button>
                 </form>
 
                 <div className="mt-[4vh] font-light text-[1rem] font-sans">

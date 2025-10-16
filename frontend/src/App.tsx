@@ -1,30 +1,45 @@
-import { LandingPage } from './pages/landing/Landing'
+import { LandingPage } from "./pages/landing/Landing";
 
-import { Route, Routes } from 'react-router-dom'
-import './index.css'
-import { LoginUser } from './pages/Auth/login/Login'
-import { SiginUser } from './pages/Auth/register/Register'
-import { ForgotPass } from './pages/Auth/resetPass/ForgortPass'
-import { ResetPass } from './pages/Auth/resetPass/ResetPass'
-import { AuthProvider, useAuth } from './contexts/authContext'
-import { CoordenadorPage } from './pages/coordenador/CoordenadorPage'
+import { Route, Routes } from "react-router-dom";
+import "./index.css";
+import { LoginUser } from "./pages/Auth/login/Login";
+import { SiginUser } from "./pages/Auth/register/Register";
+import { ForgotPass } from "./pages/Auth/resetPass/ForgortPass";
+import { ResetPass } from "./pages/Auth/resetPass/ResetPass";
+import { AuthProvider } from "./contexts/authContext";
 
-function App() {
+import { CoordenadorPage } from "./pages/coordenador/CoordenadorPage";
+import { PrivateRouter } from "./components/PrivateRoutes/PrivateRoutes";
+
+function AppContent() {
+
 
   return (
-    <>
-      <AuthProvider>
-        <Routes>
-          <Route path='/' element={<LandingPage />} />
-          <Route path='/login' element={<LoginUser />} />
-          <Route path='/register' element={<SiginUser />} />
-          <Route path='/forgot' element={<ForgotPass />} />
-          <Route path='/resetPass/:token' element={<ResetPass />} />
-          <Route path='/coordenador' element={<CoordenadorPage />} />
-        </Routes>
-      </AuthProvider>
-    </>
-  )
+    <Routes>
+      {/* Públicas */}
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={<LoginUser />} />
+      <Route path="/register" element={<SiginUser />} />
+      <Route path="/forgot" element={<ForgotPass />} />
+      <Route path="/resetPass/:token" element={<ResetPass />} />
+
+      {/* Protegidas */}
+      <Route
+        path="/coordenador"
+        element={
+          <PrivateRouter roles={["coordenador"]}>
+            <CoordenadorPage />
+          </PrivateRouter>
+        }
+      />
+    </Routes>
+  );
 }
 
-export default App
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+}
