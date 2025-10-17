@@ -1,11 +1,11 @@
-import User from '../models/User.js';
-import Disciplina from '../models/Disciplina.js';
-import Professor from '../models/Professor.js';
-import Turma from '../models/Turma.js';
-import Aluno from '../models/Aluno.js';
-import Pais from '../models/Pais.js';
+import User from '../../models/User.js';
+import Disciplina from '../../models/Disciplina.js';
+import Professor from '../../models/Professor.js';
+import Turma from '../../models/Turma.js';
+import Aluno from '../../models/Aluno.js';
+import Pais from '../../models/Pais.js';
 import { Request, Response } from 'express';
-import Logger from '../../config/logger.js';
+import Logger from '../../../config/logger.js';
 
 //CADASTRO DE PROFESSORES, ALUNOS, TURMAS E DISCIPLINAS ()
 
@@ -146,7 +146,7 @@ export const registerParents = async (req: Request, res: Response) => {
 
     //Criando novo responsável
     const newParent = await Pais.create({
-      userId,
+      user: userId,
     });
 
     //Atribuindo role de responsável ao usuário
@@ -384,3 +384,4 @@ export const studentToParent = async (req: Request, res: Response) => {
     Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
+

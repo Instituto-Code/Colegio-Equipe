@@ -17,8 +17,9 @@ import {
   studentToClass,
   registerParents,
   studentToParent,
-} from '../controllers/CoordenadorController.js';
+} from '../controllers/CoordenadorController/CoordenadorController.js';
 import { listEvents, registerEvent } from '../controllers/EventController.js';
+import { getDashboardOverview, listOneStudent, listOneTeacher, listStudents, listTeachers } from '../controllers/CoordenadorController/DataDashboard.js';
 
 //Configurações de rotas
 coordenadorRouter.post(
@@ -85,12 +86,18 @@ coordenadorRouter.post(
   '/create-event',
   authGuard,
   authorizeRole('coordenador'),
-  registerEvent
+  registerEvent,
 );
-coordenadorRouter.get(
-  '/list-events',
-  authGuard,
-  listEvents
-);
+coordenadorRouter.get('/list-events', authGuard, listEvents);
+
+coordenadorRouter.get('/getDashboardOverview', authGuard, authorizeRole('coordenador'), getDashboardOverview);
+
+coordenadorRouter.get('/list-students', authGuard, listStudents);
+
+coordenadorRouter.get('/list-student/:studentId', authGuard, listOneStudent);
+
+coordenadorRouter.get('/list-teachers', authGuard, authorizeRole('coordenador'), listTeachers);
+
+coordenadorRouter.get('/list-teacher/:teacherId', authGuard, authorizeRole('coordenador'), listOneTeacher);
 
 export default coordenadorRouter;

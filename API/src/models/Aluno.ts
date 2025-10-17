@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
+import { IPais } from './Pais.js';
 
 export interface INota {
   disciplina: Types.ObjectId;
@@ -25,7 +26,7 @@ export interface IAluno extends Document {
   matricula: string;
   dataNasc?: Date;
   turma?: Types.ObjectId;
-  parents: Types.ObjectId[];
+  parents: (Types.ObjectId | IPais)[];
   notas: INota[];
   frequencia: IFrequencia;
   anotacoes: IAnotacao[];
@@ -59,7 +60,7 @@ const AlunoSchema = new Schema<IAluno>(
     parents: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'Pais',
       },
     ],
 

@@ -1,7 +1,9 @@
 import mongoose, { Schema, Types, Document } from 'mongoose';
+import { IUser } from './User.js';
 
-interface IPais {
-  user: Types.ObjectId;
+export interface IPais {
+  _id?: Types.ObjectId;
+  user: Types.ObjectId | IUser;
   filhos: Types.ObjectId[];
 }
 
