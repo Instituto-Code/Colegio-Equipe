@@ -8,6 +8,7 @@ import professorRouter from './professorRoutes.js';
 import paisRouter from './paisRoutes.js';
 import adminRouter from './AdminRoutes.js';
 import noteRouter from './NotificacaoRoutes.js';
+import uploadRouter from './UploadRouter.js';
 
 //Config. pré-fixo de rotas
 router.use('/api/users', userRouter);
@@ -16,5 +17,6 @@ router.use('/api/professor', professorRouter);
 router.use('/api/pais', paisRouter);
 router.use('/api/admin', adminRouter);
 router.use('/api/note', noteRouter);
+router.use('/api/archive', uploadRouter);
 
 export default router;
