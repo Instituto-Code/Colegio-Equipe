@@ -5,11 +5,11 @@ import { SideBar } from "../Sidebar/SideBar";
 export default function DashboardLayout() {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen">
+      <div className="flex w-screen ">
         <SideBar />
-        <main className="flex-1 p-6">
+        <main className="flex flex-1 flex-col ">
           <SidebarTrigger />
-          <Outlet />
+          <Outlet/>
         </main>
       </div>
     </SidebarProvider>

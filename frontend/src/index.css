@@ -10,8 +10,7 @@ html{
   scroll-behavior: smooth;
 }
 
-@theme{
-  --shadow-md:     
+@theme{    
     --fonte-1:'Inter';
     --fonte-2:'Kumbh'
 }

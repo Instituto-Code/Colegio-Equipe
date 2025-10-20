@@ -2,8 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 // import { data, useParams } from "react-router-dom";
 
-// Criando contexto de autenticação e variável de ambiente.
-
+// Criando variável de ambiente.
 const api_url = import.meta.env.VITE_API_URL
 
 // Tipagem do usuario
@@ -15,6 +14,7 @@ export interface IUser {
     confirmPass?: string
 }
 
+// Interface para o AuthProvider
 interface IAuthContextProps {
     user: IUser | null,
     token: string | null,
@@ -28,6 +28,7 @@ interface IAuthContextProps {
     resetPass: (newPass: string, token: string) => Promise<void>
 }
 
+//contexto de autenticação
 const AuthContext = createContext<IAuthContextProps | undefined >(undefined)
 
 // Provider que encapsula a lógica de autenticação e prove funções e estados para os componentes filhos.
