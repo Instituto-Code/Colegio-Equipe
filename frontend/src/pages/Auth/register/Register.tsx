@@ -8,6 +8,8 @@ import { InputAuth } from '../../../components/Inputs/Inputs'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { AlertCircle } from 'lucide-react'
 
 // Tela para cadastro de usuário.
 export const SiginUser = () =>{
@@ -18,7 +20,7 @@ export const SiginUser = () =>{
     const [confirmPass, setConfirmPass] = useState("")
     const navigate = useNavigate()
 
-    const { register, loading, success } = useAuth()
+    const { register, loading, success, errorsRegister } = useAuth()
 
     //Enviando formulário de Registro
     const handleRegister = async (e: React.FormEvent<HTMLFormElement>)=>{
@@ -44,6 +46,22 @@ export const SiginUser = () =>{
                     Cadastre-se!
                 </div>
                 {success && <p className="text-green-600 font-bold">{success}</p>}
+
+                {errorsRegister.length > 0 && (
+                <Alert variant="destructive" className='border-0 flex flex-col justify-center items-center'>
+                    <div className='flex gap-1.5'>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Erro ao fazer login</AlertTitle>
+                    </div>
+                    <AlertDescription>
+                    <ul className="list-disc list-inside space-y-1 mt-2">
+                        {errorsRegister.map((err, index) => (
+                        <li key={index}>{err}</li>
+                        ))}
+                    </ul>
+                    </AlertDescription>
+                </Alert>
+                )}
 
                 <form onSubmit={handleRegister} id="form_login" className="flex flex-col w-1/2 gap-[3vb] max-md:w-4/5">
                     <InputAuth title={'Nome'} placeHolder={'Ex: João'} type={'text'} name={'nome'} value={name} onChange={(e) => setNome(e.target.value)} />
