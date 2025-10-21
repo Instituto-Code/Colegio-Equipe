@@ -1,5 +1,3 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
-
 import { MenuItems } from "@/configs/MenuItems"
 
 import {
@@ -33,16 +31,19 @@ export const SideBar = () => {
         <SidebarGroupLabel>Bem vindo(a), {user?.name}</SidebarGroupLabel>
         <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {items.map((item) => {
+                const Icon = item.icon 
+                return(
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <a href={item.url}>
-                      
+                        {Icon ? <Icon/> : <div>Tem não</div> }
                       <span>{item.title}</span>
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              ))}
+                )
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         <SidebarGroup />
