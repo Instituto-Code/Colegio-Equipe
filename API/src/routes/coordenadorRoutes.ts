@@ -19,7 +19,7 @@ import {
   studentToParent,
 } from '../controllers/CoordenadorController/CoordenadorController.js';
 import { listEvents, registerEvent } from '../controllers/EventController.js';
-import { getDashboardOverview, listOneStudent, listOneTeacher, listStudents, listTeachers } from '../controllers/CoordenadorController/DataDashboard.js';
+import { getDashboardOverview, listOneStudent, listOneTeacher, listStudents, listTeachers, listUsers } from '../controllers/CoordenadorController/DataDashboard.js';
 
 //Configurações de rotas
 coordenadorRouter.post(
@@ -99,5 +99,7 @@ coordenadorRouter.get('/list-student/:studentId', authGuard, listOneStudent);
 coordenadorRouter.get('/list-teachers', authGuard, authorizeRole('coordenador'), listTeachers);
 
 coordenadorRouter.get('/list-teacher/:teacherId', authGuard, authorizeRole('coordenador'), listOneTeacher);
+
+coordenadorRouter.get('/list-users', authGuard, authorizeRole('coordenador'), listUsers);
 
 export default coordenadorRouter;

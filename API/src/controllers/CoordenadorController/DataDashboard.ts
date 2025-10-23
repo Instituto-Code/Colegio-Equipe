@@ -4,6 +4,7 @@ import Turma from '../../models/Turma.js';
 import Disciplina from '../../models/Disciplina.js';
 import { Request, Response } from 'express';
 import { CustomRequest } from '../../middlewares/authGuard.js';
+import User from '../../models/User.js';
 
 //Contando documentos
 export const getDashboardOverview = async (req: Request, res: Response) => {
@@ -32,6 +33,55 @@ export const getDashboardOverview = async (req: Request, res: Response) => {
     });
   };
 };
+
+//Listando todos os usuários
+export const listUsers = async (req: CustomRequest, res: Response) => {
+    try{
+
+        //Configurando paginação
+        const { search = "", page = 1, limit = 10 } = req.query;
+
+        const skip = (Number(page) - 1) * Number(limit);
+
+        const usersQuery = search
+            ? { name: { $regex: search, $options: "i" } }
+            : {};
+
+        const allUsers = await User.find(usersQuery)
+            .skip(skip)
+            .limit(Number(limit))
+
+        const totalUsers = await User.countDocuments(usersQuery);
+
+        if(allUsers.length === 0){
+            return res.status(200).json({
+                users: [],
+                msg: "Nenhum usuário cadastrado."
+            });
+        };
+
+        const usersFormated = allUsers.map(u => ({
+            id: u._id,
+            nome: u.name,
+            email: u.email,
+            role: u.role,
+            active: u.active
+        }));
+
+        return res.status(200).json({
+            total: totalUsers,
+            page: Number(page),
+            limit: Number(limit),
+            users: usersFormated,
+        });
+
+    }
+    catch(error: any){
+        res.status(500).json({
+            error: "Erro interno do servidor"
+        });
+    }
+}
 
 //Listando alunos
 export const listStudents = async (req: CustomRequest, res: Response) => {
