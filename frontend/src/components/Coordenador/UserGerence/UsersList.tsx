@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   type ColumnDef,
   useReactTable,
@@ -22,39 +22,22 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { api_url } from "@/contexts/coordenadorContext";
+import { useAuth } from "@/contexts/authContext";
+import { Tools } from "./Tools";
+import { Spinner } from "@/components/ui/spinner";
 
 // Interface do usuário
 interface User {
   id: string;
-  name: string;
+  nome: string;
   email: string;
   role: string;
 }
 
-// Exemplo de dados
-const initialData: User[] = [
-  {
-    id: "1",
-    name: "Lucas Paulo",
-    email: "lucas@example.com",
-    role: "Coordenador",
-  },
-  {
-    id: "2",
-    name: "Maria Silva",
-    email: "maria@example.com",
-    role: "Professor",
-  },
-  { id: "3", name: "João Souza", email: "joao@example.com", role: "Aluno" },
-  { id: "3", name: "João Souza", email: "joao@example.com", role: "Aluno" },
-  { id: "3", name: "João Souza", email: "joao@example.com", role: "Aluno" },
-  { id: "3", name: "João Souza", email: "joao@example.com", role: "Aluno" },
-  { id: "3", name: "João Souza", email: "joao@example.com", role: "Aluno" },
-];
-
 // Colunas da tabela
 const columns: ColumnDef<User>[] = [
-  { accessorKey: "name", header: "Nome" },
+  { accessorKey: "nome", header: "Nome" },
   { accessorKey: "email", header: "E-mail" },
   { accessorKey: "role", header: "Cargo" },
   {
@@ -62,9 +45,7 @@ const columns: ColumnDef<User>[] = [
     header: "Ações",
     cell: ({ row }) => (
       <div className="flex gap-2">
-        <Button variant={"outline"} className="text-blue-500">
-          Editar
-        </Button>
+        <Tools nome={row.original.nome} role={row.original.role} />
         <Button variant={"outline"} className="text-red-500">
           Excluir
         </Button>
@@ -74,9 +55,41 @@ const columns: ColumnDef<User>[] = [
 ];
 
 export const UserTable: React.FC = () => {
-  const [data, setData] = useState<User[]>(initialData);
+  const [data, setData] = useState<User[]>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 5,
+  });
+
+  const { token } = useAuth();
+
+  // Buscando usuários no banco
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+
+        const res = await fetch(`${api_url}/api/coordenador/list-users`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const json = await res.json();
+
+        setData(json.users);
+      } catch (error: any) {
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const table = useReactTable({
     data,
@@ -84,9 +97,11 @@ export const UserTable: React.FC = () => {
     state: {
       globalFilter,
       sorting,
+      pagination,
     },
     onGlobalFilterChange: setGlobalFilter,
     onSortingChange: setSorting,
+    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -105,48 +120,57 @@ export const UserTable: React.FC = () => {
       />
 
       {/* Tabela */}
-      <div className="overflow-x-auto hidden md:flex">
-        <Table className="min-w-[600px] sm:min-w-full">
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    <button
-                      className="flex items-center gap-1"
-                      onClick={header.column.getToggleSortingHandler()}
+      <div className="overflow-x-auto hidden p-5 md:flex">
+        {loading ? (
+          <div className="h-100 w-full flex flex-col justify-center items-center">
+            <Spinner className="size-8 text-blue-500" />
+          </div>
+        ) : (
+          <Table className="min-w-[600px] sm:min-w-full">
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      <button
+                        className="flex items-center gap-1"
+                        onClick={header.column.getToggleSortingHandler()}
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                        {{
+                          asc: " 🔼",
+                          desc: " 🔽",
+                        }[header.column.getIsSorted() as string] ?? null}
+                      </button>
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell
+                      className="min-w-[100px] sm:min-w-[120px]"
+                      key={cell.id}
                     >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                      {{
-                        asc: " 🔼",
-                        desc: " 🔽",
-                      }[header.column.getIsSorted() as string] ?? null}
-                    </button>
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    className="min-w-[100px] sm:min-w-[120px]"
-                    key={cell.id}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </div>
 
       {/* Tabela para Celulares */}
@@ -154,7 +178,7 @@ export const UserTable: React.FC = () => {
         {table.getRowModel().rows.map((row) => (
           <div key={row.id} className="border p-2 rounded">
             <div>
-              <strong>Nome:</strong> {row.original.name}
+              <strong>Nome:</strong> {row.original.nome}
             </div>
             <div>
               <strong>Email:</strong> {row.original.email}
@@ -163,9 +187,7 @@ export const UserTable: React.FC = () => {
               <strong>Cargo:</strong> {row.original.role}
             </div>
             <div className="flex gap-2 mt-2">
-              <Button variant="outline" className="text-blue-500">
-                Editar
-              </Button>
+              <Tools nome={row.original.nome} role={row.original.role} />
               <Button variant="outline" className="text-red-500">
                 Excluir
               </Button>
@@ -175,25 +197,46 @@ export const UserTable: React.FC = () => {
       </div>
 
       {/* Paginação */}
-      <div className="flex items-center justify-between mt-2">
-        <button
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-          className="px-3 py-1 border rounded disabled:opacity-50"
-        >
-          Anterior
-        </button>
+      <div className="flex items-center mb-4 justify-between mt-2">
+        {/* Botões de próximo e anterior */}
+        <div className="flex flex-col md:flex-row gap-1.5">
+          <Button
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className="px-3 py-1 border rounded disabled:opacity-50"
+            variant={"outline"}
+          >
+            Anterior
+          </Button>
+          <Button
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className="px-3 py-1 border rounded disabled:opacity-50"
+            variant={"outline"}
+          >
+        
+            Próximo
+          </Button>
+        </div>
+
+        {/* Em qual página está */}
         <span>
           Página {table.getState().pagination.pageIndex + 1} de{" "}
           {table.getPageCount()}
         </span>
-        <button
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-          className="px-3 py-1 border rounded disabled:opacity-50"
+
+        {/* Selecionar a quantidade de usuário por página */}
+        <select
+          value={table.getState().pagination.pageSize}
+          onChange={(e) => table.setPageSize(Number(e.target.value))}
+          className="border p-1 rounded"
         >
-          Próximo
-        </button>
+          {[5, 10, 20, 50].map((size) => (
+            <option key={size} value={size}>
+              {size} por página
+            </option>
+          ))}
+        </select>
       </div>
     </div>
   );

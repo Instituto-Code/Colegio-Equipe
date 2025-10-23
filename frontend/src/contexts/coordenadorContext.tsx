@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 
-const api_url = import.meta.env.VITE_API_URL
+export const api_url = import.meta.env.VITE_API_URL
 
 // Interface para o Provider do coordenador
 interface ICoordenatorProps {
