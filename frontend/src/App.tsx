@@ -11,7 +11,7 @@ import { AuthProvider } from "./contexts/authContext";
 import { CoordenadorPage } from "./pages/coordenador/CoordenadorPage";
 import { PrivateRouter } from "./components/PrivateRoutes/PrivateRoutes";
 import DashboardLayout from "./components/Dasboard/DashboardLayout";
-import { UserGerence } from "./components/Coordenador/UserGerence";
+import { UserGerence } from "./components/Coordenador/UserGerence/UserGerence";
 import { Matriculas } from "./components/Coordenador/Matriculas";
 import { ProfessorPage } from "./pages/professor/ProfessroPage";
 import { GerenciarAlunos } from "./components/professor/GerenceStudents";
@@ -44,7 +44,7 @@ function AppContent() {
         <Route path="matriculas" element={<Matriculas />} />
       </Route>
 
-        {/* Rotas do professor */}
+      {/* Rotas do professor */}
       <Route
         path="/professor"
         element={

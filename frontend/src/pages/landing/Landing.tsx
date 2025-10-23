@@ -14,12 +14,12 @@ import { Slider1 } from "../../components/Sliders/Slider";
 import { Footer } from "../../components/Footer/Footer";
 import { useAuth } from "../../contexts/authContext";
 
-import { useState } from "react";
 import { Dropdown } from "@/components/Dropdown/Dropdown";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { ScrollLinked } from "@/components/Motions/ScrollProgress";
 import { AnimatedImage } from "@/components/Motions/ImageOpacity";
+import { CheckCircle } from "lucide-react";
 // import { DropdownMenu } from "@radix-ui/react-dropdown-menu"
 
 // Tela de landing page.
@@ -197,14 +197,26 @@ export const LandingPage = () => {
                 <div className="flex w-[4vw] aspect-[1/1] rounded-full bg-[#67E5DD] max-sm:hidden"></div>
               </div>
             </div>
-            <div className="my-[5vw] font-[Inter] font-normal text-[1.8vw] max-sm:text-[1.2rem] max-sm:p-[0_5vw] max-sm:text-center text-left">
+            <div className="my-[2vw] p-3 font-[Inter] font-normal text-[1.8vw] max-sm:text-[1.2rem] max-sm:p-[0_5vw] max-sm:text-center text-left">
               <ul>
-                <li>Amor pela educação</li>
-                <li>Ética</li>
-                <li>Respeito às diferenças</li>
-                <li>Diálogos e interações</li>
-                <li>Tradição com espírito inovador</li>
-                <li>Responsabilidade e solidariedade</li>
+                <li className="flex gap-1.5 items-center">
+                  <CheckCircle className="text-[#00968c]" /> Amor pela educação
+                </li>
+                <li className="flex gap-1.5 items-center">
+                  <CheckCircle className="text-[#00968c]" />Ética
+                </li>
+                <li className="flex gap-1.5 items-center">
+                  <CheckCircle className="text-[#00968c]" />Respeito às diferenças
+                </li>
+                <li className="flex gap-1.5 items-center">
+                  <CheckCircle className="text-[#00968c]" />Diálogos e interações
+                </li>
+                <li className="flex gap-1.5 items-center">
+                  <CheckCircle className="text-[#00968c]" />Tradição com espírito inovador
+                </li>
+                <li className="flex gap-1.5 items-center">
+                  <CheckCircle className="text-[#00968c]" />Responsabilidade e solidariedade
+                </li>
               </ul>
             </div>
           </div>
