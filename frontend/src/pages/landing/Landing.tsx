@@ -18,16 +18,16 @@ import { useState } from "react";
 import { Dropdown } from "@/components/Dropdown/Dropdown";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
+import { ScrollLinked } from "@/components/Motions/ScrollProgress";
+import { AnimatedImage } from "@/components/Motions/ImageOpacity";
 // import { DropdownMenu } from "@radix-ui/react-dropdown-menu"
 
 // Tela de landing page.
 export const LandingPage = () => {
+
   // Imagens para slider.
   const imagens_Slide1 = [imagem_1, imagem_2, imagem_3, imagem_4];
 
-  const [activeMenu, setActiveMenu] = useState<boolean>(false);
-
-  const buttonActive = () => setActiveMenu((prev) => !prev);
   //Funções do useAuth.
   const { user, logout, loading } = useAuth();
 
@@ -36,7 +36,7 @@ export const LandingPage = () => {
 
   return (
     <>
-      <header className="flex fixed mb-2.5 top-0 left-0 bg-white w-full justify-between items-center p-1">
+      <header className="flex fixed z-50 mb-2.5 top-0 left-0 bg-white w-full justify-between items-center p-1">
         <div className="flex">
           <Link to={"/"}>
             <img src={img_header} className="w-[7vw] max-sm:w-[25vw] " />
@@ -72,6 +72,8 @@ export const LandingPage = () => {
           )}
         </div>
       </header>
+      
+      <ScrollLinked />
 
       <Slider1 imagens={imagens_Slide1}>
         <div className="flex flex-col z-1 absolute items-center m-[5vw] p-5 text-center rounded-[30px] bg-[rgba(255,255,255,0.8)] sm:flex-row sm:justify-around sm:py-[6vw] sm:px-[5vw] sm:text-left [630px]:gap-[1vw]">
@@ -152,7 +154,8 @@ export const LandingPage = () => {
             </div>
           </div>
           <div className="mr-[10vw] max-sm:my-[7vw]">
-            <img src={alvo} className="w-[50vw] max-sm:w-[30vw]" />
+            {/* <img src={alvo} className="w-[50vw] max-sm:w-[30vw]" /> */}
+            <AnimatedImage src={alvo} className="w-[50vw] max-sm:w-[30vw]" />
           </div>
         </div>
       </section>
@@ -176,7 +179,8 @@ export const LandingPage = () => {
             </div>
           </div>
           <div className="mr-[10vw] max-sm:my-[7vw]">
-            <img src={visao} className="w-[50vw] max-sm:w-[30vw]" />
+            {/* <img src={visao} className="w-[50vw] max-sm:w-[30vw]" /> */}
+            <AnimatedImage src={visao} className="w-[50vw] max-sm:w-[30vw]" />
           </div>
         </div>
       </section>
@@ -205,7 +209,8 @@ export const LandingPage = () => {
             </div>
           </div>
           <div className="mr-[10vw] max-sm:my-[7vw]">
-            <img src={valor} className="w-[16vw] max-sm:w-[30vw]" />
+            {/* <img src={valor} className="w-[16vw] max-sm:w-[30vw]" /> */}
+            <AnimatedImage src={valor} className="w-[16vw] max-sm:w-[30vw]" />
           </div>
         </div>
       </section>
