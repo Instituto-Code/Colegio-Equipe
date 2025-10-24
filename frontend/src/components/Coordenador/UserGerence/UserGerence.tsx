@@ -2,6 +2,7 @@ import { CircleX, MenuIcon, Trash, Upload } from "lucide-react";
 import { Navbar } from "../../Navbar/Navbar";
 import { useState } from "react";
 import { UserTable } from "./UsersList";
+import { useCoordenador } from "@/contexts/coordenadorContext";
 
 export const UserGerence = () => {
   const [openTools, setOpenTools] = useState(false);
@@ -11,8 +12,6 @@ export const UserGerence = () => {
 
     console.log(open);
   };
-
-  const usuarios = 23;
 
   return (
     <div className="flex flex-col px-4 h-full">
@@ -37,7 +36,6 @@ export const UserGerence = () => {
                 : "hidden"
             }`}
         >
-          <span>Usuarios {usuarios}</span>
           <button className="flex text-blue-600 cursor-pointer gap-1">
             <Upload />
             <span>IMPORTAR USUÁRIOS</span>

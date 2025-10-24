@@ -16,6 +16,8 @@ import { Matriculas } from "./components/Coordenador/Matriculas";
 import { ProfessorPage } from "./pages/professor/ProfessroPage";
 import { GerenciarAlunos } from "./components/professor/GerenceStudents";
 import { GerenciarTurmas } from "./components/professor/GerenceClass";
+import { AcademicCalendar } from "./components/Coordenador/Calendar/Calendar";
+import { CalendarAcademic } from "./components/professor/Calendar/AcademicCalendar";
 
 function AppContent() {
   return (
@@ -42,6 +44,7 @@ function AppContent() {
         <Route index element={<CoordenadorPage />} />
         <Route path="gerenciar" element={<UserGerence />} />
         <Route path="matriculas" element={<Matriculas />} />
+        <Route path="calendar" element={<AcademicCalendar />} />
       </Route>
 
       {/* Rotas do professor */}
@@ -53,10 +56,11 @@ function AppContent() {
           </PrivateRouter>
         }
       >
-        {/* Rotas do coordenador */}
+        {/* Rotas do professor */}
         <Route index element={<ProfessorPage />} />
         <Route path="gerenciar-alunos" element={<GerenciarAlunos />} />
         <Route path="gerenciar-turmas" element={<GerenciarTurmas />} />
+        <Route path="calendar" element={<CalendarAcademic />} />
       </Route>
     </Routes>
   );

@@ -1,5 +1,6 @@
+import type { IEvent } from "@/components/Coordenador/Calendar/Calendar";
 import { createContext, useContext, useState, useEffect } from "react";
-import type { ReactNode } from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
 // import { data, useParams } from "react-router-dom";
 
 // Criando contexto de autenticação e variável de ambiente.
@@ -33,6 +34,9 @@ interface IAuthContextProps {
   resetPass: (newPass: string, token: string) => Promise<void>;
   errorsRegister: string[];
   errorsLogin: string[];
+  listEvents: () => Promise<any>
+  events: IEvent[];
+  setEvents: Dispatch<SetStateAction<IEvent[]>>;
 }
 
 const AuthContext = createContext<IAuthContextProps | undefined>(undefined);
@@ -45,6 +49,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [errorsLogin, setErrorsLogin] = useState<string[]>([]);
   const [success, setSuccess] = useState<string | "">("");
   const [loading, setLoading] = useState(true);
+  const [events, setEvents] = useState<IEvent[]>([]);
 
   // Verifica se já existe um token salvo no localStorage.
   useEffect(() => {
@@ -252,6 +257,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.log(error);
     }
   };
+
+  //Listagem de eventos do calendário acadêmico
+  const listEvents = async () => {
+    try{
+
+      const res = await fetch(`${api_url}/api/coordenador/list-events`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      const dataJson = await res.json();
+
+      if(res.ok){
+          const formatted = dataJson.map((e: IEvent) => ({
+          ...e,
+          data: new Date(e.data),
+        }));
+
+        setEvents(formatted);
+        return formatted;
+      };
+
+    }
+    catch(error){
+      console.log(error);
+    }
+  }
+
+
   // Retorno do contexto com as funções disponíveis.
   return (
     <AuthContext.Provider
@@ -259,6 +294,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         register,
         errorsRegister,
         errorsLogin,
+        setEvents,
+        listEvents,
+        events,
         login,
         resetPassMail,
         resetPass,

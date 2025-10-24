@@ -2,6 +2,9 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 
 export const api_url = import.meta.env.VITE_API_URL
 
+type TipoEvento = 'feriado'| 'reunião'| 'aviso'| 'férias'| 'prova';
+
+
 // Interface para o Provider do coordenador
 interface ICoordenatorProps {
     alunos: [] | null
@@ -16,6 +19,8 @@ interface ICoordenatorProps {
     Alunos: (customToken: string) => Promise<void>
     Professores: (customToken: string) => Promise<void>
     Overview: (customToken: string) => Promise<void>
+    registerEvent: (titulo: string, descricao: string, data: Date, tipo: TipoEvento) => Promise<void>
+    loading: boolean
 }
 
 // Contexto do coordenador
@@ -27,6 +32,7 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     const [alunos, setAlunos] = useState<[] | null>(null)
     const [professores, setProfessores] = useState<[] | null>(null)
     const [overview, setOverview] = useState(null)
+    const [loading, setLoading] = useState(false);
 
     // Efeito para pegar o token do localstorage se existir um token
     useEffect(() => {
@@ -107,9 +113,40 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
         }
     }
 
+    //Cadastro de eventos no calendário
+    const registerEvent = async (titulo: string, descricao: string, data: Date, tipo: TipoEvento) => {
+        try{
+            setLoading(true);
+            const res = await fetch(`${api_url}/api/coordenador/create-event`, {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ titulo, descricao, data, tipo })
+            });
+
+            const dataJson = await res.json();
+
+            if(dataJson.ok){
+               console.log("Evento cadastrado:", dataJson);
+               return dataJson;
+            };
+
+        }
+        catch(error){
+            console.log(error);
+            throw error;
+        }
+        finally{
+            setLoading(false);
+        }
+    }
+
+
     // Retorno do contexto com as funções disponíveis
     return (
-        <CoordenadorContext.Provider value={{ token, alunos, professores, overview, Alunos, Professores, Overview }}>
+        <CoordenadorContext.Provider value={{ token, loading, registerEvent, alunos, professores, overview, Alunos, Professores, Overview }}>
             {children}
         </CoordenadorContext.Provider>
     )
