@@ -1,4 +1,3 @@
-"use client";
 
 import * as React from "react";
 import { Calendar } from "@/components/ui/calendar";
@@ -53,7 +52,7 @@ export function AcademicCalendar() {
   const [open, setOpen] = useState(false);
 
   const { registerEvent, loading } = useCoordenador();
-  const { listEvents, events, setEvents } = useAuth();
+  const { listEvents, setEvents } = useAuth();
 
   const { register, handleSubmit, reset, setValue } = useForm<EventForm>();
 
