@@ -247,3 +247,49 @@ export const listOneTeacher = async (req: CustomRequest, res: Response) => {
     };
 };
 
+//Listagem de turmas
+export const listClasses = async (req: CustomRequest, res: Response) => {
+    try{
+
+        const turmas = await Turma.find()
+            .populate('professores', 'nome matricula') 
+            .populate('disciplinas', 'nome cargaHoraria') 
+            .populate('alunos', 'nome matricula');
+
+        if(turmas.length === 0){
+            res.status(200).json({
+                turmas: [],
+                msg: "Nenhuma turma cadastrada."
+            })
+        }
+
+        //Estruturando dados para mandar pela resposta
+        const formatedData = turmas.map((turma) => ({
+            id: turma._id,
+            nome: turma.nome,
+            turno: turma.turno,
+            anoLetivo: turma.anoLetivo,
+            totalProfessores: turma.professores.length,
+            totalAlunos: turma.alunos.length,
+            professores: turma.professores.map((p: any) => ({
+                id: p._id,
+                nome: p.nome,
+                matricula: p.matricula,
+            })),
+            disciplinas: turma.disciplinas.map((d: any) => ({
+                id: d._id,
+                nome: d.nome,
+                cargaHoraria: d.cargaHoraria,
+            })),
+        }));
+
+        res.status(200).json(formatedData);
+
+    }
+    catch(error: any){
+        res.status(500).json({
+            error: "Erro interno do servidor"
+        });
+    }
+}
+
