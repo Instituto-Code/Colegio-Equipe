@@ -12,7 +12,7 @@ interface IAddress {
 
 //Tipagem de usuário
 export interface IUser extends Document {
-  name: string;
+  name: string ;
   email: string;
   cpf?: string;
   dataNasc?: Date;
