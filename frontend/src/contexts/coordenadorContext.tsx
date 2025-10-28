@@ -5,12 +5,31 @@ export const api_url = import.meta.env.VITE_API_URL
 
 type TipoEvento = 'feriado'| 'reunião'| 'aviso'| 'férias'| 'prova';
 
+//Tipagem de turmas
 export interface Turma {
     _id?: string;
     nome: string;
     turno: string;
     anoLetivo: number;
 }
+
+//Tipagem de disciplina para professor
+interface IDisciplina {
+    id: string;
+    nome: string;
+    descricao: string;
+    cargaHoraria: string;
+}
+
+//Tipagem para professor
+export interface Professor {
+  id: string;
+  nome: string;
+  matricula: string;
+  formacaoAcademica?: string;
+  disciplinas: IDisciplina[];
+}
+
 
 
 // Interface para o Provider do coordenador
@@ -30,7 +49,7 @@ interface ICoordenatorProps {
     registerEvent: (titulo: string, descricao: string, data: Date, tipo: TipoEvento) => Promise<void>
     loading: boolean
     registerClasses: (nome: string, turno: string, anoLetivo: number) => Promise<any>
-    addStudentToClass: (studentId: string, classId: string) => Promise<void>
+    addStudentToClass: (studentId: string, classId: string) => Promise<any>
 }
 
 // Contexto do coordenador
@@ -41,7 +60,7 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     const [token, setToken] = useState<string | null>(null)
     const [alunos, setAlunos] = useState<[] | null>(null)
     const [classes, setClasses] = useState<Turma[]>([]);
-    const [professores, setProfessores] = useState<[] | null>(null)
+    const [professores, setProfessores] = useState<Professor[]>([])
     const [overview, setOverview] = useState(null)
     const [loading, setLoading] = useState(false);
 
@@ -206,9 +225,11 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
 
             const dataJson = await res.json();
 
-            if(!res.ok){
-                console.log("Erro ao requisitar ação: ");
-            };
+            if (!res.ok) {
+                console.log("Erro ao requisitar ação: ", dataJson);
+                // Lança o objeto de erro (que pode conter a mensagem do Express Validator)
+                throw dataJson; 
+            }
 
             return dataJson;
 

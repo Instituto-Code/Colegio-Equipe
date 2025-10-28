@@ -34,7 +34,7 @@ type Professor = {
 type Aluno = {
   id: string;
   nome: string;
-  cargaHoraria: number;
+  matricula: string;
 };
 
 export interface ITurma {
@@ -55,6 +55,17 @@ export const ClassGerence = () => {
   const [loading, setLoading] = useState(false);
   const [selectedClass, setSelectedClass] = useState<ITurma | null>(null);
   const [openDataToClass, setOpenDataToClass] = useState(false);
+
+  // Atualizar o componente filho, que tem os dados das turmas
+  const handleUpdateTurma = (updatedTurma: ITurma) => {
+    setData(prevData => 
+      prevData.map(t => 
+        t.id === updatedTurma.id ? updatedTurma : t
+      )
+    );
+
+    setSelectedClass(updatedTurma);
+  }
 
   // Colunas da tabela
 const columns: ColumnDef<ITurma>[] = [
@@ -213,6 +224,13 @@ const columns: ColumnDef<ITurma>[] = [
               <strong>Total de Alunos:</strong> {row.original.totalAlunos}
             </div>
             <div className="flex gap-2 mt-2">
+              <Button
+                  onClick={() => {
+                    setSelectedClass(row.original);
+                    setOpenDataToClass(true)
+                  }}
+                  className="bg-blue-400 hover:bg-blue-500 cursor-pointer"
+              >Gerenciar turma</Button>
               <Button variant="outline" className="text-red-500">
                 Excluir
               </Button>
@@ -226,6 +244,7 @@ const columns: ColumnDef<ITurma>[] = [
             turma={selectedClass}
             open={openDataToClass}
             onClose={() => setOpenDataToClass(false)}
+            onUpdateTurma={handleUpdateTurma}
           />
         )}
     </div>
