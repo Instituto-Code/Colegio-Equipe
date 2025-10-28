@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
+import { toast } from "sonner";
 
 export const api_url = import.meta.env.VITE_API_URL
 
@@ -29,6 +30,7 @@ interface ICoordenatorProps {
     registerEvent: (titulo: string, descricao: string, data: Date, tipo: TipoEvento) => Promise<void>
     loading: boolean
     registerClasses: (nome: string, turno: string, anoLetivo: number) => Promise<any>
+    addStudentToClass: (studentId: string, classId: string) => Promise<void>
 }
 
 // Contexto do coordenador
@@ -168,22 +170,51 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
             const data = await res.json();
 
             if (!res.ok) {
-                
+                toast(`Erro: ${data.errors[0]}`);
                 throw new Error(data.msg || `Erro HTTP: ${res.status}`); 
+                
             }
 
-            const newClass: Turma = data
+            const newClass: Turma = data;
 
             setClasses((prevClass) => [...prevClass, newClass]);
-
-            console.log(newClass);
 
             return newClass;
 
         }
-        catch(error){
+        catch(error: any){
             console.log(error);
             throw error;
+        }
+        finally{
+            setLoading(false);
+        }
+    }
+
+    //Adicionar aluno à turma
+    const addStudentToClass = async (studentId: string, classId: string) => {
+        setLoading(true)
+        try{
+            const res = await fetch(`${api_url}/api/coordenador/studentToClass`, {
+                method: "PATCH",
+                headers: {
+                    "Content-type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ studentId, classId })
+            });
+
+            const dataJson = await res.json();
+
+            if(!res.ok){
+                console.log("Erro ao requisitar ação: ");
+            };
+
+            return dataJson;
+
+        }
+        catch(error){
+            console.log(error);
         }
         finally{
             setLoading(false);
@@ -193,7 +224,7 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
 
     // Retorno do contexto com as funções disponíveis
     return (
-        <CoordenadorContext.Provider value={{ token, registerClasses, loading, registerEvent, alunos, professores, overview, Alunos, Professores, Overview }}>
+        <CoordenadorContext.Provider value={{ token, addStudentToClass, registerClasses, loading, registerEvent, alunos, professores, overview, Alunos, Professores, Overview }}>
             {children}
         </CoordenadorContext.Provider>
     )

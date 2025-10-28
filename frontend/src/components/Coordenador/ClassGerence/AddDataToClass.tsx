@@ -24,8 +24,10 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { ITurma } from "./ClassGerence";
 import { useEffect, useState } from "react";
-import { api_url } from "@/contexts/coordenadorContext";
+import { api_url, useCoordenador } from "@/contexts/coordenadorContext";
 import { useAuth } from "@/contexts/authContext";
+import { Spinner } from "@/components/ui/spinner";
+import { toast } from "sonner";
 
 interface AddDataToClassProps {
   turma: ITurma;
@@ -55,33 +57,50 @@ export const AddDataToClass = ({
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
 
-
   const { token } = useAuth();
+  const { addStudentToClass, loading } = useCoordenador();
 
   useEffect(() => {
     const fetchStudents = async () => {
-        try{
-            const res = await fetch(`${api_url}/api/coordenador/list-students`, {
-                headers: {
-                Authorization: `Bearer ${token}`,
-                },
-            });
+      try {
+        const res = await fetch(`${api_url}/api/coordenador/list-students`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-            if(!open){
-                setSelectedStudent(null);
-            }
-
-            const dataJson = await res.json();
-
-            setStudents(dataJson.alunos);
+        if (!open) {
+          setSelectedStudent(null);
         }
-        catch(error){
-            console.log(error);
-        }
+
+        const dataJson = await res.json();
+
+        setStudents(dataJson.alunos);
+      } catch (error) {
+        console.log(error);
+      }
     };
 
     fetchStudents();
   }, []);
+
+  //Adicionar aluna à turma
+  const handleAddStudent = async (
+    studentId: string | null,
+    classId: string
+  ) => {
+    try {
+      if (studentId === null) {
+        return "Id de aluno indefinido.";
+      }
+
+      await addStudentToClass(studentId, classId);
+      toast(`Aluno(a) adicionado(a) com sucesso.`);
+      console.log(`Aluno: ${studentId}, para a turma: ${classId}`);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -108,19 +127,29 @@ export const AddDataToClass = ({
                 <SelectContent>
                   <ScrollArea className="max-h-48">
                     {students.map((student) => (
-                       <SelectItem key={student.id} value={student.id} >
-                            <div className="text-sm p-1.5">{student.nome}</div>
-                            
-                        </SelectItem>
+                      <SelectItem key={student.id} value={student.id}>
+                        <div className="text-sm p-1.5">{student.nome}</div>
+                      </SelectItem>
                     ))}
                   </ScrollArea>
                 </SelectContent>
               </Select>
               <Button
                 disabled={!selectedStudent}
-                className={`${!selectedStudent ? "bg-neutral-400 cursor-not-allowed" : "bg-blue-400 cursor-pointer hover:bg-blue-500"}`}
+                className={`${
+                  !selectedStudent
+                    ? "bg-neutral-400 cursor-not-allowed"
+                    : "bg-blue-400 cursor-pointer hover:bg-blue-500"
+                }`}
+                onClick={() => handleAddStudent(selectedStudent, turma.id)}
               >
-                Adicionar
+                {loading ? (
+                  <span className="flex flex-row items-center gap-1.5">
+                    <Spinner /> Adicionando...
+                  </span>
+                ) : (
+                  <span>Adicionar</span>
+                )}
               </Button>
             </div>
 
@@ -135,7 +164,8 @@ export const AddDataToClass = ({
                 </TableHeader>
                 <TableBody>
                   <TableRow>
-                    <TableCell>João Silva</TableCell>
+                    <TableCell>Nome do aluno</TableCell>
+
                     <TableCell>2023101</TableCell>
                     <TableCell className="text-right">
                       <Button variant="destructive" size="sm">
@@ -171,7 +201,9 @@ export const AddDataToClass = ({
                 </SelectContent>
               </Select>
 
-              <Button className="bg-blue-400 hover:bg-blue-500 cursor-pointer">Vincular</Button>
+              <Button className="bg-blue-400 hover:bg-blue-500 cursor-pointer">
+                Vincular
+              </Button>
             </div>
 
             <ScrollArea className="h-[300px] rounded-md border p-2">

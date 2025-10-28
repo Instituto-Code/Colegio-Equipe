@@ -5,6 +5,7 @@ import { useCoordenador } from "@/contexts/coordenadorContext";
 import { cn } from "@/lib/utils";
 import { Calendar, Clock, School } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 //Interface do formulário
 interface IAddForm {
@@ -34,6 +35,7 @@ export const FormAdd = () => {
     //Enviando os dados para o backend
     const onSubmit = async (data: IAddForm) => {
         await registerClasses(data.nome, data.turno.toLocaleLowerCase(), data.anoLetivo);
+        toast(`Turma: "${data.nome}", criada com sucesso.`);
     }
 
     return(

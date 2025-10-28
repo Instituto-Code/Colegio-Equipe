@@ -48,8 +48,6 @@ export interface ITurma {
   alunos: Aluno[];
 }
 
-
-
 export const ClassGerence = () => {
   const [data, setData] = useState<ITurma[]>([]);
   const [globalFilter, setGlobalFilter] = useState("");

@@ -25,7 +25,6 @@ import { useAuth } from "@/contexts/authContext";
 import { Tools } from "./Tools";
 import { Spinner } from "@/components/ui/spinner";
 import { Input } from "@/components/ui/input";
-import { Trash } from "lucide-react";
 
 // Interface do usuário
 interface User {
@@ -187,8 +186,8 @@ export const UserTable: React.FC = () => {
                                 header.getContext()
                               )}
                           {{
-                            asc: " 🔼",
-                            desc: " 🔽",
+                            asc: "🔼",
+                            desc: "🔽",
                           }[header.column.getIsSorted() as string] ?? null}
                         </button>
                       </TableHead>
