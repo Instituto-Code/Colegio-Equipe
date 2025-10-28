@@ -15,7 +15,7 @@ export const Navbar = () => {
     }
 
     return (
-        <div className="flex fixed w-full justify-between items-center bg-indigo-200 py-2 shadow-md z-1">
+        <div className="flex sticky top-0 w-full justify-between items-center bg-indigo-200 py-2 shadow-md z-1">
             <div>
                 <img src={img_logo} className="w-[5vw] max-sm:w-15" alt="" />
             </div>

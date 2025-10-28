@@ -1,4 +1,4 @@
-import { DashCoordenador } from "@/components/Coordenador/DashCoordenador"
+import { DashCoordenador } from "@/components/Coordenador/Dashboard/DashCoordenador"
 import { Navbar } from "@/components/Navbar/Navbar"
 
 
