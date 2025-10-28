@@ -193,6 +193,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   //Dados de usuário
   const profile = async (customToken: string) => {
+    setLoading(true);
     try {
       const res = await fetch(`${api_url}/api/users/profile`, {
         headers: {
@@ -208,6 +209,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error) {
       console.log(error);
+    }
+    finally{
+      setLoading(false);
     }
   };
 

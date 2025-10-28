@@ -4,6 +4,13 @@ export const api_url = import.meta.env.VITE_API_URL
 
 type TipoEvento = 'feriado'| 'reunião'| 'aviso'| 'férias'| 'prova';
 
+export interface Turma {
+    _id?: string;
+    nome: string;
+    turno: string;
+    anoLetivo: number;
+}
+
 
 // Interface para o Provider do coordenador
 interface ICoordenatorProps {
@@ -21,6 +28,7 @@ interface ICoordenatorProps {
     Overview: (customToken: string) => Promise<void>
     registerEvent: (titulo: string, descricao: string, data: Date, tipo: TipoEvento) => Promise<void>
     loading: boolean
+    registerClasses: (nome: string, turno: string, anoLetivo: number) => Promise<any>
 }
 
 // Contexto do coordenador
@@ -30,6 +38,7 @@ const CoordenadorContext = createContext<ICoordenatorProps | undefined>(undefine
 export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     const [token, setToken] = useState<string | null>(null)
     const [alunos, setAlunos] = useState<[] | null>(null)
+    const [classes, setClasses] = useState<Turma[]>([]);
     const [professores, setProfessores] = useState<[] | null>(null)
     const [overview, setOverview] = useState(null)
     const [loading, setLoading] = useState(false);
@@ -143,10 +152,48 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
         }
     }
 
+    //Função para criar turmas
+    const registerClasses = async (nome: string, turno: string, anoLetivo: number) => {
+        try{    
+            setLoading(true);
+            const res = await fetch(`${api_url}/api/coordenador/register-classes`, {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ nome, turno, anoLetivo })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                
+                throw new Error(data.msg || `Erro HTTP: ${res.status}`); 
+            }
+
+            const newClass: Turma = data
+
+            setClasses((prevClass) => [...prevClass, newClass]);
+
+            console.log(newClass);
+
+            return newClass;
+
+        }
+        catch(error){
+            console.log(error);
+            throw error;
+        }
+        finally{
+            setLoading(false);
+        }
+    }
+
 
     // Retorno do contexto com as funções disponíveis
     return (
-        <CoordenadorContext.Provider value={{ token, loading, registerEvent, alunos, professores, overview, Alunos, Professores, Overview }}>
+        <CoordenadorContext.Provider value={{ token, registerClasses, loading, registerEvent, alunos, professores, overview, Alunos, Professores, Overview }}>
             {children}
         </CoordenadorContext.Provider>
     )

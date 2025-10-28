@@ -1,51 +1,82 @@
-
-import React, { useEffect, useState } from "react";
-import {
-  type ColumnDef,
-  useReactTable,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
-  getPaginationRowModel,
-  type SortingState,
-} from "@tanstack/react-table";
-
-import { flexRender } from "@tanstack/react-table";
-
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Table,
-  TableHeader,
   TableBody,
-  TableRow,
-  TableHead,
   TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { api_url } from "@/contexts/coordenadorContext";
 import { useAuth } from "@/contexts/authContext";
-import { Tools } from "./Tools";
-import { Spinner } from "@/components/ui/spinner";
+import { api_url, useCoordenador } from "@/contexts/coordenadorContext";
+import {
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  type ColumnDef,
+  type SortingState,
+} from "@tanstack/react-table";
+import { useEffect, useState } from "react";
+import { AddClass } from "./AddClass";
 import { Input } from "@/components/ui/input";
+import { AddDataToClass } from "./AddDataToClass";
 
-// Interface do usuário
-interface User {
+type Professor = {
   id: string;
   nome: string;
-  email: string;
-  role: string;
+  matricula: string;
+};
+
+type Aluno = {
+  id: string;
+  nome: string;
+  cargaHoraria: number;
+};
+
+export interface ITurma {
+  id: string;
+  nome: string;
+  turno: string;
+  anoLetivo: string;
+  totalProfessores: number;
+  totalAlunos: number;
+  professores: Professor[];
+  alunos: Aluno[];
 }
 
-// Colunas da tabela
-const columns: ColumnDef<User>[] = [
+
+
+export const ClassGerence = () => {
+  const [data, setData] = useState<ITurma[]>([]);
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedClass, setSelectedClass] = useState<ITurma | null>(null);
+  const [openDataToClass, setOpenDataToClass] = useState(false);
+
+  // Colunas da tabela
+const columns: ColumnDef<ITurma>[] = [
   { accessorKey: "nome", header: "Nome" },
-  { accessorKey: "email", header: "E-mail" },
-  { accessorKey: "role", header: "Cargo" },
+  { accessorKey: "turno", header: "Turno" },
+  { accessorKey: "totalProfessores", header: "Total de professores" },
+  { accessorKey: "totalAlunos", header: "Total de alunos" },
   {
     id: "actions",
     header: "Ações",
     cell: ({ row }) => (
       <div className="flex gap-2">
-        <Tools nome={row.original.nome} role={row.original.role} />
+        <Button
+          onClick={() => {
+            setSelectedClass(row.original);
+            setOpenDataToClass(true)
+          }}
+        >
+          Gerenciar
+        </Button>
         <Button variant={"outline"} className="text-red-500">
           Excluir
         </Button>
@@ -54,72 +85,64 @@ const columns: ColumnDef<User>[] = [
   },
 ];
 
-export const UserTable: React.FC = () => {
-  const [data, setData] = useState<User[]>([]);
-  const [globalFilter, setGlobalFilter] = useState("");
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [pagination, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: 5,
-  });
-
   const { token } = useAuth();
+  const { registerClasses } = useCoordenador();
 
-  // Buscando usuários no banco
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-
-        const res = await fetch(`${api_url}/api/coordenador/list-users?page=1&limit=11`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const json = await res.json();
-
-        setData(json.users);
-      } catch (error: any) {
-        setError(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, []);
-
+  // Mapeando tabela
   const table = useReactTable({
     data,
     columns,
     state: {
       globalFilter,
       sorting,
-      pagination,
     },
     onGlobalFilterChange: setGlobalFilter,
     onSortingChange: setSorting,
-    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
 
+  // Requisitando os dados
+  useEffect(() => {
+    const fetchClasses = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${api_url}/api/coordenador/list-turmas`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const dataJson = await res.json();
+
+        setData(dataJson);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClasses();
+  }, [registerClasses]);
+
   return (
-    <div className="space-y-4">
-      {/* Busca */}
+    <div className="p-2.5 mt-5">
+      <div className="flex flex-col md:flex-row justify-between">
+        <h1 className="text-3xl font-bold">Gerenciar turmas</h1>
+        <AddClass />
+      </div>
+
       <Input
         type="text"
-        placeholder="Buscar usuário..."
+        placeholder="Buscar Turmas..."
         value={globalFilter ?? ""}
         onChange={(e) => setGlobalFilter(e.target.value)}
-        className="p-2 border rounded w-full max-w-sm"
+        className="p-2 my-3.5 md:my-0 border rounded w-full max-w-sm"
       />
 
-      {/* Tabela */}
       <div className="overflow-x-auto hidden p-5 md:flex">
         {loading ? (
           <div className="h-100 w-full flex flex-col justify-center items-center">
@@ -181,13 +204,16 @@ export const UserTable: React.FC = () => {
               <strong>Nome:</strong> {row.original.nome}
             </div>
             <div>
-              <strong>Email:</strong> {row.original.email}
+              <strong>Turno:</strong> {row.original.turno}
             </div>
             <div>
-              <strong>Cargo:</strong> {row.original.role}
+              <strong>Total de professores:</strong>{" "}
+              {row.original.totalProfessores}
+            </div>
+            <div>
+              <strong>Total de Alunos:</strong> {row.original.totalAlunos}
             </div>
             <div className="flex gap-2 mt-2">
-              <Tools nome={row.original.nome} role={row.original.role} />
               <Button variant="outline" className="text-red-500">
                 Excluir
               </Button>
@@ -195,49 +221,14 @@ export const UserTable: React.FC = () => {
           </div>
         ))}
       </div>
-
-      {/* Paginação */}
-      <div className="flex items-center mb-4 justify-between mt-2">
-        {/* Botões de próximo e anterior */}
-        <div className="flex flex-col md:flex-row gap-1.5">
-          <Button
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-            className="px-3 py-1 border rounded disabled:opacity-50"
-            variant={"outline"}
-          >
-            Anterior
-          </Button>
-          <Button
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-            className="px-3 py-1 border rounded disabled:opacity-50"
-            variant={"outline"}
-          >
         
-            Próximo
-          </Button>
-        </div>
-
-        {/* Em qual página está */}
-        <span>
-          Página {table.getState().pagination.pageIndex + 1} de{" "}
-          {table.getPageCount()}
-        </span>
-
-        {/* Selecionar a quantidade de usuário por página */}
-        <select
-          value={table.getState().pagination.pageSize}
-          onChange={(e) => table.setPageSize(Number(e.target.value))}
-          className="border p-1 rounded"
-        >
-          {[5, 10, 20, 50].map((size) => (
-            <option key={size} value={size}>
-              {size} por página
-            </option>
-          ))}
-        </select>
-      </div>
+        {selectedClass && (
+          <AddDataToClass
+            turma={selectedClass}
+            open={openDataToClass}
+            onClose={() => setOpenDataToClass(false)}
+          />
+        )}
     </div>
   );
 };

@@ -18,6 +18,7 @@ import { GerenciarAlunos } from "./components/professor/GerenceStudents";
 import { GerenciarTurmas } from "./components/professor/GerenceClass";
 import { AcademicCalendar } from "./components/Coordenador/Calendar/Calendar";
 import { CalendarAcademic } from "./components/professor/Calendar/AcademicCalendar";
+import { ClassGerence } from "./components/Coordenador/ClassGerence/ClassGerence";
 
 function AppContent() {
   return (
@@ -45,6 +46,7 @@ function AppContent() {
         <Route path="gerenciar" element={<UserGerence />} />
         <Route path="matriculas" element={<Matriculas />} />
         <Route path="calendar" element={<AcademicCalendar />} />
+        <Route path="gerenciar-turmas" element={<ClassGerence />} />
       </Route>
 
       {/* Rotas do professor */}

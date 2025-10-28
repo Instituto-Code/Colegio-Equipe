@@ -29,10 +29,10 @@ export const LandingPage = () => {
   const imagens_Slide1 = [imagem_1, imagem_2, imagem_3, imagem_4];
 
   //Funções do useAuth.
-  const { user, logout, loading } = useAuth();
+  const { user, logout, loading, token } = useAuth();
 
   //Pegando o token do localStorege para renderizar ou não o nome do usuário.
-  const token = localStorage.getItem("token");
+  //const token = localStorage.getItem("token");
 
   return (
     <>
@@ -55,13 +55,16 @@ export const LandingPage = () => {
           >
             Propósitos
           </a>
-          {user && token ? (
+          {/* Se não tiver user e estiver buscando aparece o loading */}
+          {user ? (
             loading ? (
               <Spinner />
             ) : (
-              <Dropdown name={user.name} role={user.role} logout={logout} />
+              <Dropdown name={user!.name} role={user!.role} logout={logout} />
             )
           ) : (
+            loading ? (
+              <Spinner className="size-8 text-blue-500" /> ) : (
             <Link to="/register">
               <Button
                 className="font-normal text-[1.3vw] max-sm:text-[4.5vw] font-[Inter] bg-slate-100 text-black hover:bg-slate-50 border-0 rounded-[10px] cursor-pointer w-auto max-sm:w-[30vw] h-[2.4vw] max-sm:h-[10vw]"
@@ -69,6 +72,7 @@ export const LandingPage = () => {
                 Cadastre-se
               </Button>
             </Link>
+            )
           )}
         </div>
       </header>
