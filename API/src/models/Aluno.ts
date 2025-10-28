@@ -1,6 +1,8 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 import { IPais } from './Pais.js';
 
+type Sexo = 'masculino' | 'feminino';
+
 export interface INota {
   disciplina: Types.ObjectId;
   professor: string | Types.ObjectId;
@@ -25,6 +27,8 @@ export interface IAluno extends Document {
   nome: string;
   matricula: string;
   dataNasc?: Date;
+  cpf: string;
+  sexo: Sexo;
   turma?: Types.ObjectId;
   parents: (Types.ObjectId | IPais)[];
   notas: INota[];
@@ -45,6 +49,16 @@ const AlunoSchema = new Schema<IAluno>(
       type: String,
       unique: true,
       required: true,
+    },
+
+    cpf: {
+      type: String,
+      unique: true
+    },
+
+    sexo: {
+      type: String,
+      enum: ['masculino', 'feminino']
     },
 
     dataNasc: {

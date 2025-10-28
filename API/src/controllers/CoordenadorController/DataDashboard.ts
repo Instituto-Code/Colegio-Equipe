@@ -281,6 +281,11 @@ export const listClasses = async (req: CustomRequest, res: Response) => {
                 nome: d.nome,
                 cargaHoraria: d.cargaHoraria,
             })),
+            alunos: turma.alunos.map((a: any) => ({
+                id: a._id,
+                nome: a.nome,
+                matricula: a.matricula
+            }))
         }));
 
         res.status(200).json(formatedData);
