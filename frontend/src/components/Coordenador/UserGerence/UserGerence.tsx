@@ -14,40 +14,8 @@ export const UserGerence = () => {
   };
 
   return (
-    <div className="flex flex-col px-4 h-full">
-      {/* Cabeçalho */}
-      <Navbar />
-
-      {/* Menu de ferramentas */}
-      <div className="flex-col w-full mt-5 md:flex-row">
-        <span className="flex md:hidden w-full justify-center">
-          {openTools ? (
-            <CircleX color="red" onClick={() => handleOpenTools(!openTools)} />
-          ) : (
-            <MenuIcon onClick={() => handleOpenTools(!openTools)} />
-          )}
-        </span>
-
-        <div
-          className={`md:flex w-full justify-around 
-            ${
-              openTools
-                ? "flex mt-1.5 flex-col gap-5 justify-center rounded-2xl border-1 p-3"
-                : "hidden"
-            }`}
-        >
-          <button className="flex text-blue-600 cursor-pointer gap-1">
-            <Upload />
-            <span>IMPORTAR USUÁRIOS</span>
-          </button>
-          <button className="flex text-red-600 cursor-pointer gap-1">
-            <Trash />
-            <span>Excluir</span>
-          </button>
-        </div>
-      </div>
-
-      <div className="mt-5">
+    <div className="flex flex-1 flex-col h-full">
+      <div>
         <UserTable />
       </div>
     </div>

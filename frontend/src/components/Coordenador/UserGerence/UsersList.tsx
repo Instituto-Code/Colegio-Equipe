@@ -26,6 +26,7 @@ import { api_url } from "@/contexts/coordenadorContext";
 import { useAuth } from "@/contexts/authContext";
 import { Tools } from "./Tools";
 import { Spinner } from "@/components/ui/spinner";
+import { Trash } from "lucide-react";
 
 // Interface do usuário
 interface User {
@@ -109,15 +110,27 @@ export const UserTable: React.FC = () => {
   });
 
   return (
-    <div className="space-y-4">
-      {/* Busca */}
+    <div className="flex flex-col space-y-4">
+
+      <div className="flex justify-between my-5">
+        {/* Busca */}
       <input
         type="text"
         placeholder="Buscar usuário..."
         value={globalFilter ?? ""}
         onChange={(e) => setGlobalFilter(e.target.value)}
-        className="p-2 border rounded w-full max-w-sm"
+        className="flex p-2 border rounded w-1/2 mx-5 bg-gray-200"
       />
+
+      <button className="flex text-red-500 items-center gap-1 mr-5">
+            <Trash />
+            Excluir tudo
+          </button>
+
+
+      </div>
+
+      
 
       {/* Tabela */}
       <div className="overflow-x-auto hidden p-5 md:flex">
@@ -197,7 +210,7 @@ export const UserTable: React.FC = () => {
       </div>
 
       {/* Paginação */}
-      <div className="flex items-center mb-4 justify-between mt-2">
+      <div className="flex items-center mb-4 justify-between mt-2 px-5">
         {/* Botões de próximo e anterior */}
         <div className="flex flex-col md:flex-row gap-1.5">
           <Button

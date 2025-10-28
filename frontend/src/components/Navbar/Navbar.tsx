@@ -1,21 +1,34 @@
 import { useAuth } from "@/contexts/authContext"
 import { Button } from "../ui/button"
-
+import img_logo from "../../assets/Images/Logo-Equipe.png"
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
+import { Dropdown } from "../Dropdown/Dropdown"
+import { useLocation } from "react-router-dom"
+import { MenuItems } from "@/configs/MenuItems"
 export const Navbar = () => {
 
     const { user, logout } = useAuth()
 
-    return(
-        <div className="flex flex-col w-full">
-            <span className="text-[clamp(3vw,3.5vw,10vw)] text-center" >Coordenador</span>
-            <hr className="flex border-[0.3vw] border-[#8C8CF4] my-[2vw]"></hr>
-            <div className="flex justify-between px-5 items-center text-[2vw] max-sm:text-[3.5vw] max-lg:text-[2.3vw] max-sm:px-1 ">
-                <div>
-                    <span className="text-[#F20519]">Colégio </span><span className="text-[#040FD9]">Equipe</span>
-                    </div>
-                <span>{user?.name}</span>
-                <Button className="flex w-60 h-18 max-sm:w-18 max-sm:h-8 max-lg:w-30 max-lg:h-15 bg-red-600 text-center text-[2vw] max-sm:text-[4vw] " onClick={logout}>Sair</Button>
+    function capitalizeFirstLetter(str:string | undefined) {
+        if (!str) return "";
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    return (
+        <div className="flex fixed w-full justify-between items-center bg-indigo-200 py-2 shadow-md z-1">
+            <div>
+                <img src={img_logo} className="w-[5vw] max-sm:w-15" alt="" />
             </div>
+
+            <span className="text-3xl max-sm:text-[4vw] ">{capitalizeFirstLetter(user?.role)}</span>
+
+            {/* Avatar para Computador */}
+            <div className="flex justify-center items-center mr-10 ">
+                <Dropdown logout={logout} name={user?.name} />
+            </div>
+
+            
+
         </div>
     )
 }

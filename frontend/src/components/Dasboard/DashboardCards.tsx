@@ -1,19 +1,22 @@
+import type React from "react"
+
 interface Card {
-    icon: React.ComponentType | null
+    icon: React.ComponentType<{ size: number }> | string | null
     title: string | null
     valueText: number | null
 }
 
-
-export const Card = ({ title, icon: Icon, valueText,  }: Card) => {
+export const Card = ({ title, icon: Icon , valueText  }: Card) => {
     return (
-        <div className="flex flex-col items-center bg-blue-400 ">
-            <div className="flex flex-row-reverse gap-1 text-[1.9vw] justify-center items-center">
-                <span>{title}</span>
-                {Icon && <Icon/>}
-            </div>
-            <div className="text-[1.9vw]">
-                {valueText}
+        <div className="flex flex-col items-center p-15 bg-blue-400 ">
+            <div className="flex gap-10 text-[clamp(2vw,2.5vw,4vw)] justify-center items-center">
+                <div>
+                    {Icon && <Icon size={90} />}
+                </div>
+                <div className="flex flex-col items-center">
+                    <span>{title}</span>
+                    <span>{valueText}</span>
+                </div>
             </div>
 
         </div>
