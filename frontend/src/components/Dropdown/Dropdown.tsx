@@ -10,21 +10,22 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { LogOutIcon, Package, Package2Icon, Settings, User2 } from "lucide-react";
 
 interface IDropdownProps {
-  name: string;
-  role: string;
+  name?: string ;
+  role?: string ;
   logout: React.MouseEventHandler<HTMLDivElement>;
   imageUrl?: string;
+  pathname?: 'coordenador';
 }
 
 //imageUrl é a foto de perfil, como não tem vai a inicial
-export const Dropdown = ({ name, role, logout, imageUrl }: IDropdownProps) => {
+export const Dropdown = ({ name, role, logout, imageUrl, pathname }: IDropdownProps) => {
   const roleLinks: Record<string, { label: string; href: string }> = {
     coordenador: { label: "Página do Coordenador", href: "/coordenador" },
     responsavel: { label: "Meus Filhos", href: "/responsavel" },
     professor: { label: "Página do Professor", href: "/professor" },
   };
 
-  const userLink = roleLinks[role];
+  const userLink = role ? roleLinks[role] : undefined;
   const initial = name?.charAt(0).toUpperCase() || "?";
 
   return (
@@ -52,6 +53,13 @@ export const Dropdown = ({ name, role, logout, imageUrl }: IDropdownProps) => {
               <User2 />{userLink.label}
             </Link>
           </DropdownMenuItem>
+        )}
+
+        {pathname && (
+          <DropdownMenuItem>
+            
+          </DropdownMenuItem>
+
         )}
 
         <DropdownMenuItem className="hover:bg-gray-100 p-2 rounded text-[15px]">
