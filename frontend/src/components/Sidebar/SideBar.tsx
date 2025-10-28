@@ -11,7 +11,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { useAuth } from "@/contexts/authContext"
 
@@ -28,7 +27,7 @@ export const SideBar = () => {
       <SidebarHeader />
       <SidebarContent>
         <SidebarGroup />
-        <SidebarGroupLabel className="justify-between text-black">Bem vindo(a), {user?.name} </SidebarGroupLabel>
+        <SidebarGroupLabel className="justify-between text-black w-[250px]">Bem vindo(a), {user?.name} </SidebarGroupLabel>
         <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {

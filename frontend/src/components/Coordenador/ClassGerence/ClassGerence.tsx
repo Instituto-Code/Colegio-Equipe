@@ -74,6 +74,7 @@ const columns: ColumnDef<ITurma>[] = [
             setSelectedClass(row.original);
             setOpenDataToClass(true)
           }}
+          className="bg-blue-400 hover:bg-blue-500 cursor-pointer"
         >
           Gerenciar
         </Button>
@@ -129,7 +130,7 @@ const columns: ColumnDef<ITurma>[] = [
   }, [registerClasses]);
 
   return (
-    <div className="p-2.5 mt-5">
+    <div className="mt-5 p-10">
       <div className="flex flex-col md:flex-row justify-between">
         <h1 className="text-3xl font-bold">Gerenciar turmas</h1>
         <AddClass />

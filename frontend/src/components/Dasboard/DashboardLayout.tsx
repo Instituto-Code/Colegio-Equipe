@@ -12,8 +12,8 @@ export default function DashboardLayout() {
       <SidebarProvider>
         <div className="flex w-full ">
           <SideBar />
-          <main className="flex flex-1 flex-col justify-between ">
-            <SidebarTrigger className="sticky" />
+          <main className="flex flex-1 flex-col ">
+            <SidebarTrigger className="fixed top-20 md:top-14 bg-white" />
             <Outlet/>
           </main>
         </div>

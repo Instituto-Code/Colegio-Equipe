@@ -148,7 +148,7 @@ export const AddDataToClass = ({
             </ScrollArea>
           </TabsContent>
 
-          {/* --- ABA PROFESSORES / DISCIPLINAS --- */}
+          {/* ABA PROFESSORES / DISCIPLINAS */}
           <TabsContent value="professores" className="space-y-4 w-full">
             <div className="flex flex-col">
               <Select>
@@ -171,7 +171,7 @@ export const AddDataToClass = ({
                 </SelectContent>
               </Select>
 
-              <Button>Vincular</Button>
+              <Button className="bg-blue-400 hover:bg-blue-500 cursor-pointer">Vincular</Button>
             </div>
 
             <ScrollArea className="h-[300px] rounded-md border p-2">

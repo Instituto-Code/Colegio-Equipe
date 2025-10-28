@@ -44,7 +44,7 @@ export const Dropdown = ({ name, role, logout, imageUrl, pathname }: IDropdownPr
 
       <DropdownMenuContent
         align="end"
-        className="flex flex-col gap-2 bg-white p-4 shadow-[0_0px_6px_rgba(0,0,0,0.4)] rounded z-50 min-w-[220px]"
+        className="flex flex-col gap-2 bg-white mr-1.5 shadow-[0_0px_6px_rgba(0,0,0,0.4)] rounded z-50 min-w-[220px]"
       >
         
         {userLink && (

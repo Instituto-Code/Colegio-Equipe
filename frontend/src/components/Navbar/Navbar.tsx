@@ -23,7 +23,7 @@ export const Navbar = () => {
             <span className="text-3xl max-sm:text-[4vw] ">{capitalizeFirstLetter(user?.role)}</span>
 
             {/* Avatar para Computador */}
-            <div className="flex justify-center items-center mr-10 ">
+            <div className="flex justify-center items-center">
                 <Dropdown logout={logout} name={user?.name} />
             </div>
 
