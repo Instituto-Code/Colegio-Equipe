@@ -30,7 +30,7 @@ export interface IAluno extends Document {
   cpf: string;
   sexo: Sexo;
   status: 'ativo' | 'inativo' | 'suspenso',
-  turma?: Types.ObjectId;
+  turma?: Types.ObjectId[];
   parents: (Types.ObjectId | IPais)[];
   notas: INota[];
   frequencia: IFrequencia;
@@ -74,10 +74,10 @@ const AlunoSchema = new Schema<IAluno>(
     },
 
     //Turma
-    turma: {
+    turma: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Turma', // => relacionamento com o modela da turma
-    },
+    }],
 
     parents: [
       {

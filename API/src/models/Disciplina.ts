@@ -4,7 +4,6 @@ interface IDisciplina {
   nome: string;
   descrição: string;
   cargaHoraria: number;
-  professores: Types.ObjectId[];
 }
 
 const DisciplinaSchema = new Schema<IDisciplina>(
@@ -23,14 +22,6 @@ const DisciplinaSchema = new Schema<IDisciplina>(
       type: Number,
       required: true,
     },
-
-    //Professores que lecionam a disciplina
-    professores: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Teacher', //=> Relacionamento com os professores
-      },
-    ],
   },
   { timestamps: true },
 );

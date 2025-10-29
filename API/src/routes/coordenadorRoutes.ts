@@ -12,7 +12,6 @@ import {
   registerTeacher,
   registerDisciplines,
   classToTeacher,
-  disciplineToTeacher,
   disciplineToClass,
   studentToClass,
   registerParents,
@@ -57,37 +56,36 @@ coordenadorRouter.post(
   registerDisciplines,
 );
 coordenadorRouter.patch(
-  '/classToTeacher',
+  '/class/:classId/teacher/:teacherId',
   authGuard,
   authorizeRole('coordenador'),
   classToTeacher,
 );
-coordenadorRouter.patch(
-  '/disciplineToTeacher',
-  authGuard,
-  authorizeRole('coordenador'),
-  disciplineToTeacher,
-);
+
+//Pode sair mais pra frente
 coordenadorRouter.patch(
   '/disciplineToClass',
   authGuard,
   authorizeRole('coordenador'),
   disciplineToClass,
 );
+
 coordenadorRouter.patch(
-  '/studentToClass',
+  '/student/:studentId/class/:classId',
   authGuard,
   authorizeRole('coordenador'),
   studentToClass,
 );
+
 coordenadorRouter.patch(
   '/register-parent',
   authGuard,
   authorizeRole('coordenador'),
   registerParents,
 );
+
 coordenadorRouter.patch(
-  '/studentToParent',
+  '/student/:studentId/parent/:parentId',
   authGuard,
   authorizeRole('coordenador'),
   studentToParent,

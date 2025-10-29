@@ -6,6 +6,7 @@ import Aluno from '../../models/Aluno.js';
 import Pais from '../../models/Pais.js';
 import { Request, Response } from 'express';
 import Logger from '../../../config/logger.js';
+import mongoose from 'mongoose';
 
 //CADASTRO DE PROFESSORES, ALUNOS, TURMAS E DISCIPLINAS ()
 
@@ -43,7 +44,7 @@ export const registerClasses = async (req: Request, res: Response) => {
 
 //Cadastrando alunos
 export const registerStudent = async (req: Request, res: Response) => {
-  const { nome, matricula, dataNasc } = req.body;
+  const { nome, matricula, dataNasc, sexo, cpf } = req.body;
 
   try {
     const aluno = await Aluno.findOne({ matricula });
@@ -58,6 +59,8 @@ export const registerStudent = async (req: Request, res: Response) => {
       nome,
       matricula,
       dataNasc,
+      sexo,
+      cpf
     });
 
     res.status(201).json({
@@ -169,43 +172,39 @@ export const registerParents = async (req: Request, res: Response) => {
 //Atribuindo turma a um professor
 
 export const classToTeacher = async (req: Request, res: Response) => {
-  const { teacherId, classId } = req.body;
+  const { teacherId, classId } = req.params;
+
+  //Validando Ids
+  if(!mongoose.Types.ObjectId.isValid(teacherId) || !mongoose.Types.ObjectId.isValid(classId)){
+    return res.status(400).json({ errors: ["Ids inválidos."] });
+  };
 
   try {
     //Buscando e validando turma
-    const classroom = await Turma.findById(classId);
+    const [classroom, teacher] = await Promise.all([
+      Turma.findById(classId),
+      Professor.findById(teacherId)
+    ]);
 
     if (!classroom) {
       return res.status(404).json({ errors: ['Turma não encontrada!'] });
     }
 
-    //Buscando e validando Professor
-    const teacher = await Professor.findById(teacherId);
-
     if (!teacher) {
       return res.status(404).json({ errors: ['Professor não encontrado'] });
     }
 
-    //Verificando se o professor já está na turma
-    const isInClassroom = classroom.professores.includes(teacherId);
+    if(classroom.professores.map(p => p.toString()).includes(teacherId)){
+      return res.status(400).json({
+        error: "O professor já está na turma."
+      });
+    };
 
-    if (isInClassroom) {
-      return res
-        .status(422)
-        .json({ errors: ['O professor já está na turma!'] });
-    }
-
-    //Salvando professor na turma caso não esteja e inserindo id da turma no esquema do professor
-    classroom.professores.push(teacherId);
-
-    //Salvando turma
-    await classroom.save();
-
-    //Inserindo turma no esquema de professor
-    teacher.turmas.push(classId);
-
-    //Salvando professor
-    await teacher.save();
+    //Salvando
+    await Promise.all([
+      Turma.findByIdAndUpdate(classId, { $addToSet: { professores: teacherId } }),
+      Professor.findByIdAndUpdate(teacherId, { $addToSet: { turmas: classId } })
+    ]);
 
     res.status(201).json({
       msg: 'Turma atribuída ao professor com sucesso!',
@@ -216,54 +215,7 @@ export const classToTeacher = async (req: Request, res: Response) => {
   }
 };
 
-//Adicionando disciplinas ao professor
-
-export const disciplineToTeacher = async (req: Request, res: Response) => {
-  const { disciplineId, teacherId } = req.body;
-
-  try {
-    //Buscando disciplina
-    const discipline = await Disciplina.findById(disciplineId);
-
-    if (!discipline) {
-      return res.status(404).json({ errors: ['Disciplina não encontrada!'] });
-    }
-
-    //Buscando professor
-    const teacher = await Professor.findById(teacherId);
-
-    if (!teacher) {
-      return res.status(404).json({ errors: ['Professor não encontrado!'] });
-    }
-
-    //Validando se o professor já está registrado na disciplina
-    if (discipline.professores.includes(teacherId)) {
-      return res
-        .status(422)
-        .json({ errors: ['O professor já está registrado na disciplina!'] });
-    }
-
-    //Salvando professor na disciplina
-    discipline.professores.push(teacherId);
-
-    await discipline.save();
-
-    //Salvando disciplina no esquema do professor
-    teacher.disciplinas.push(disciplineId);
-
-    await teacher.save();
-
-    res.status(201).json({
-      msg: 'Disciplina atribuída ao professor com sucesso!',
-    });
-  } catch (error) {
-    res.status(500).json({ errors: ['Erro interno do servidor!'] });
-    Logger.error(`Erro interno do servidor: ${error}`);
-  }
-};
-
-//Adicionando disciplina a turma
-
+//Adicionando disciplina a turma ==> Pode sair mais pra frente
 export const disciplineToClass = async (req: Request, res: Response) => {
   const { disciplineId, classId } = req.body;
 
@@ -303,42 +255,47 @@ export const disciplineToClass = async (req: Request, res: Response) => {
 };
 
 //Adicionando aluno á turma
-
 export const studentToClass = async (req: Request, res: Response) => {
-  const { studentId, classId } = req.body;
+  const { studentId, classId } = req.params;
+
+  //Validando Ids
+  if(!mongoose.Types.ObjectId.isValid(studentId) || !mongoose.Types.ObjectId.isValid(classId)){
+    return res.status(400).json({ errors: ["Ids inválidos."] });
+  };
 
   try {
-    //Buscando aluno
-    const student = await Aluno.findById(studentId);
 
+    //Buscando documentos
+    const [student, classroom] = await Promise.all([
+      Aluno.findById(studentId),
+      Turma.findById(classId)
+    ]);
+
+    //Validando documentos
     if (!student) {
       return res.status(404).json({ errors: ['Aluno(a) não encontrado(a)!'] });
-    }
-
-    //Buscando turma
-    const classroom = await Turma.findById(classId);
+    };
 
     if (!classroom) {
       return res.status(404).json({ errors: ['Turma não encontrada!'] });
-    }
+    };
 
-    //Verificando se aluno não já está na turma
-    if (classroom.alunos.includes(studentId)) {
-      return res.status(442).json({ errors: ['Aluno(a) já está na turma!'] });
+    if(student.turma?.map(t => t.toString()).includes(classId)){
+      return res.status(400).json({
+        error: "O aluno já está na disciplina."
+      })
     }
 
     //Salvando
-    classroom.alunos.push(studentId);
-
-    await classroom.save();
-
-    student.turma = classId;
-
-    await student.save();
+    await Promise.all([
+      Turma.findByIdAndUpdate(classId, { $addToSet: { alunos: studentId } }),
+      Aluno.findByIdAndUpdate(studentId, { $add: { turma: classId } })
+    ]);
 
     res.status(201).json({
       msg: 'Aluno salvo na turma!',
     });
+
   } catch (error) {
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
     Logger.error(`Erro interno do servidor: ${error}`);
@@ -347,39 +304,48 @@ export const studentToClass = async (req: Request, res: Response) => {
 
 //Atribuindo aluno ao pai
 export const studentToParent = async (req: Request, res: Response) => {
-  const { studentId, parentId } = req.body;
+  const { studentId, parentId } = req.params;
+
+  if(!mongoose.Types.ObjectId.isValid(studentId) || !mongoose.Types.ObjectId.isValid(parentId)){
+    return res.status(400).json({
+      error: "Ids inválidos"
+    });
+  };
 
   try {
-    //Buscando aluno
-    const student = await Aluno.findById(studentId);
+
+    const [student, parent] = await Promise.all([
+      Aluno.findById(studentId),
+      Pais.findById(parentId)
+    ]);
 
     //Validação
     if (!student) {
       return res.status(404).json({ errors: ['Aluno não encontrado!'] });
-    }
-
-    //Buscando responsável
-    const parent = await Pais.findById(parentId);
+    };
 
     //Validação
     if (!parent) {
       return res.status(404).json({ errors: ['Responsável não encontrado!'] });
-    }
+    };
 
-    //Salvando aluno no schema do responsável
-    parent.filhos.push(studentId);
+    if(student.parents.map(p => p.toString()).includes(parentId)){
+      return res.status(400).json({
+        error: "Responsável já atribuído ao estudante."
+      });
+    };
 
-    await parent.save();
-
-    //Salvando responsável no schema do aluno
-    student.parents.push(parentId);
-
-    await student.save();
+    await Promise.all([
+      Aluno.findByIdAndUpdate(studentId, { $addToSet: { parents: parentId } }),
+      Pais.findByIdAndUpdate(parentId, { $addToSet: { filhos: studentId } })
+    ]);
 
     res.status(201).json({
       msg: 'Atribuição de responsável ao filho(a) feita com sucesso!',
     });
+
   } catch (error) {
+
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
     Logger.error(`Erro interno do servidor: ${error}`);
   }

@@ -31,13 +31,6 @@ const ProfessorSchema = new Schema<IProfessor>(
       type: String,
     },
 
-    disciplinas: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Disciplina',
-      },
-    ],
-
     turmas: [
       {
         type: mongoose.Schema.Types.ObjectId,
