@@ -58,6 +58,7 @@ export const ClassGerence = () => {
 
   // Atualizar o componente filho, que tem os dados das turmas
   const handleUpdateTurma = (updatedTurma: ITurma) => {
+    if (!updatedTurma) return;
     setData(prevData => 
       prevData.map(t => 
         t.id === updatedTurma.id ? updatedTurma : t

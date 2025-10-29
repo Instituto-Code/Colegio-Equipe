@@ -35,7 +35,7 @@ export interface Professor {
 // Interface para o Provider do coordenador
 interface ICoordenatorProps {
     alunos: [] | null
-    professores: [] | null
+    professores: Professor[] | null
     token: string | null
     overview: {
         totalAlunos: number
@@ -44,7 +44,7 @@ interface ICoordenatorProps {
         totalDisciplinas: number
     } | null
     Alunos: (customToken: string) => Promise<void>
-    Professores: (customToken: string) => Promise<void>
+    Professores: () => Promise<any>
     Overview: (customToken: string) => Promise<void>
     registerEvent: (titulo: string, descricao: string, data: Date, tipo: TipoEvento) => Promise<void>
     loading: boolean
@@ -123,11 +123,11 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     }
 
     //Função para pegar dados dos professores
-    const Professores = async (customToken: string) => {
+    const Professores = async () => {
         try {
             const res = await fetch(`${api_url}/api/coordenador/list-teachers`, {
                 headers: {
-                    Authorization: `Bearer ${customToken}`
+                    Authorization: `Bearer ${token}`
                 }
             })
 
@@ -227,7 +227,6 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
 
             if (!res.ok) {
                 console.log("Erro ao requisitar ação: ", dataJson);
-                // Lança o objeto de erro (que pode conter a mensagem do Express Validator)
                 throw dataJson; 
             }
 
