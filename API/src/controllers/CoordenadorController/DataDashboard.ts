@@ -28,6 +28,7 @@ export const getDashboardOverview = async (req: Request, res: Response) => {
     res.status(500).json({
       error: 'Erro interno do servidor',
     });
+     Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -74,6 +75,7 @@ export const listUsers = async (req: CustomRequest, res: Response) => {
     res.status(500).json({
       error: 'Erro interno do servidor',
     });
+     Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -108,6 +110,7 @@ export const listStudents = async (req: CustomRequest, res: Response) => {
     res.status(500).json({
       error: 'Erro interno do servidor',
     });
+     Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -152,6 +155,7 @@ export const listOneStudent = async (req: CustomRequest, res: Response) => {
     res.status(500).json({
       error: 'Erro interno do servidor',
     });
+     Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -205,6 +209,7 @@ export const listTeachers = async (req: CustomRequest, res: Response) => {
     res.status(500).json({
       error: 'Erro interno do servidor',
     });
+     Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -262,6 +267,7 @@ export const listOneTeacher = async (req: CustomRequest, res: Response) => {
     res.status(500).json({
       error: 'Erro interno do servidor',
     });
+     Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -310,5 +316,6 @@ export const listClasses = async (req: CustomRequest, res: Response) => {
     res.status(500).json({
       error: 'Erro interno do servidor',
     });
+     Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
