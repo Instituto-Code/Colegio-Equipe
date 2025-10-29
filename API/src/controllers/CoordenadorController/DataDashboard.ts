@@ -5,6 +5,7 @@ import Disciplina from '../../models/Disciplina.js';
 import { Request, Response } from 'express';
 import { CustomRequest } from '../../middlewares/authGuard.js';
 import User, { IUser } from '../../models/User.js';
+import Logger from '../../../config/logger.js';
 
 //Contando documentos
 export const getDashboardOverview = async (req: Request, res: Response) => {
