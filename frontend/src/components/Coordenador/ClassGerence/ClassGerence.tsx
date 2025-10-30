@@ -69,32 +69,32 @@ export const ClassGerence = () => {
   }
 
   // Colunas da tabela
-const columns: ColumnDef<ITurma>[] = [
-  { accessorKey: "nome", header: "Nome" },
-  { accessorKey: "turno", header: "Turno" },
-  { accessorKey: "totalProfessores", header: "Total de professores" },
-  { accessorKey: "totalAlunos", header: "Total de alunos" },
-  {
-    id: "actions",
-    header: "Ações",
-    cell: ({ row }) => (
-      <div className="flex gap-2">
-        <Button
-          onClick={() => {
-            setSelectedClass(row.original);
-            setOpenDataToClass(true)
-          }}
-          className="bg-blue-400 hover:bg-blue-500 cursor-pointer"
-        >
-          Gerenciar
-        </Button>
-        <Button variant={"outline"} className="text-red-500">
-          Excluir
-        </Button>
-      </div>
-    ),
-  },
-];
+  const columns: ColumnDef<ITurma>[] = [
+    { accessorKey: "nome", header: "Nome" },
+    { accessorKey: "turno", header: "Turno" },
+    { accessorKey: "totalProfessores", header: "Total de professores" },
+    { accessorKey: "totalAlunos", header: "Total de alunos" },
+    {
+      id: "actions",
+      header: "Ações",
+      cell: ({ row }) => (
+        <div className="flex gap-2">
+          <Button
+            onClick={() => {
+              setSelectedClass(row.original);
+              setOpenDataToClass(true)
+            }}
+            className="bg-blue-400 hover:bg-blue-500 cursor-pointer"
+          >
+            Gerenciar
+          </Button>
+          <Button variant={"outline"} className="text-red-500">
+            Excluir
+          </Button>
+        </div>
+      ),
+    },
+  ];
 
   const { token } = useAuth();
   const { registerClasses } = useCoordenador();
@@ -173,9 +173,9 @@ const columns: ColumnDef<ITurma>[] = [
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                         {{
                           asc: " 🔼",
                           desc: " 🔽",

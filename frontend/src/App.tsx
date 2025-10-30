@@ -12,7 +12,7 @@ import { CoordenadorPage } from "./pages/coordenador/CoordenadorPage";
 import { PrivateRouter } from "./components/PrivateRoutes/PrivateRoutes";
 import DashboardLayout from "./components/Dasboard/DashboardLayout";
 import { UserGerence } from "./components/Coordenador/UserGerence/UserGerence";
-import { Matriculas } from "./components/Coordenador/Matriculas";
+import { Matriculas } from "./components/Coordenador/Registration/Matriculas";
 import { ProfessorPage } from "./pages/professor/ProfessroPage";
 import { GerenciarAlunos } from "./components/professor/GerenceStudents";
 import { GerenciarTurmas } from "./components/professor/GerenceClass";

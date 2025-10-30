@@ -5,12 +5,22 @@ export const api_url = import.meta.env.VITE_API_URL
 
 type TipoEvento = 'feriado'| 'reunião'| 'aviso'| 'férias'| 'prova';
 
+type Sexo = 'masculino' | 'feminino'
+
 //Tipagem de turmas
 export interface Turma {
     _id?: string;
     nome: string;
     turno: string;
     anoLetivo: number;
+}
+
+interface IAluno {
+    nome: string
+    matricula: string
+    cpf: string
+    dataNasc: number
+    sexo: Sexo
 }
 
 //Tipagem de disciplina para professor
@@ -35,7 +45,7 @@ export interface Professor {
 
 // Interface para o Provider do coordenador
 interface ICoordenatorProps {
-    alunos: [] | null
+    alunos: IAluno[] 
     professores: Professor[] | null
     token: string | null
     overview: {
@@ -50,6 +60,7 @@ interface ICoordenatorProps {
     registerEvent: (titulo: string, descricao: string, data: Date, tipo: TipoEvento) => Promise<void>
     loading: boolean
     registerClasses: (nome: string, turno: string, anoLetivo: number) => Promise<any>
+    registerStudent: (nome:string, matricula: string, cpf: string, dataNasc: number, sexo: Sexo) => Promise<any>
     addStudentToClass: (studentId: string, classId: string) => Promise<any>
     addTeacherToClass: (classId: string, teacherId: string) => Promise<any>
 }
@@ -60,7 +71,7 @@ const CoordenadorContext = createContext<ICoordenatorProps | undefined>(undefine
 //Provider que encapsula a lógica do coordenador e prove funções e estados para os componentes filhos.
 export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     const [token, setToken] = useState<string | null>(null)
-    const [alunos, setAlunos] = useState<[] | null>(null)
+    const [alunos, setAlunos] = useState<IAluno[]>([])
     const [classes, setClasses] = useState<Turma[]>([]);
     const [professores, setProfessores] = useState<Professor[]>([])
     const [overview, setOverview] = useState(null)
@@ -111,13 +122,14 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
                 }
             })
 
-            const data = await res.json()
+            const data = await res.json() 
 
             if (res.ok) {
-                //console.log(data.alunos)
+                // console.log(data.alunos)
                 setAlunos(data.alunos)
+                return data.alunos
             }
-
+            // return null
         }
         catch (error) {
             console.log(error)
@@ -212,6 +224,38 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
         }
     }
 
+    //Função para registrar um aluno (matrícula)
+    const registerStudent = async (nome:string, matricula: string, cpf: string, dataNasc: number, sexo: Sexo) => {
+        setLoading(true)
+        try{
+            const res = await fetch(`${api_url}/api/coordenador/register-students`, {
+                method: 'POST',
+                headers:{
+                    'Content-Type' : 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ nome, matricula, cpf, dataNasc, sexo })
+            })
+
+            const data = await res.json()
+            console.log(data)
+
+            if(!res.ok){
+                toast(`Erro: ${data.errors[0]}`);
+                throw new Error(data.msg || `Erro HTTP: ${res.status}`); 
+            }
+
+            const newAluno: IAluno = data.aluno
+
+            setAlunos((prevAlunos) => [...prevAlunos, newAluno])
+
+            return newAluno
+        }
+        catch(error){
+            console.error(error)
+        }
+    }
+
     //Adicionar aluno à turma
     const addStudentToClass = async (studentId: string, classId: string) => {
         setLoading(true)
@@ -271,7 +315,7 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
 
     // Retorno do contexto com as funções disponíveis
     return (
-        <CoordenadorContext.Provider value={{ token, addTeacherToClass, addStudentToClass, registerClasses, loading, registerEvent, alunos, professores, overview, Alunos, Professores, Overview }}>
+        <CoordenadorContext.Provider value={{ token, addTeacherToClass, addStudentToClass, registerClasses, registerStudent, loading, registerEvent, alunos, professores, overview, Alunos, Professores, Overview }}>
             {children}
         </CoordenadorContext.Provider>
     )
