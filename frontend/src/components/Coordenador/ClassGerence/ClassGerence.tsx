@@ -209,7 +209,11 @@ export const ClassGerence = () => {
 
       {/* Tabela para Celulares */}
       <div className="block sm:hidden space-y-2">
-        {table.getRowModel().rows.map((row) => (
+        {loading ? (
+          <div className="h-100 w-full flex flex-col justify-center items-center">
+            <Spinner className="size-8 text-blue-500" />
+          </div>
+        ) : table.getRowModel().rows.map((row) => (
           <div key={row.id} className="border p-2 rounded">
             <div>
               <strong>Nome:</strong> {row.original.nome}
