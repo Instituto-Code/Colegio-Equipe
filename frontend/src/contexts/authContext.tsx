@@ -1,5 +1,5 @@
 import type { IEvent } from "@/components/Coordenador/Calendar/Calendar";
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 // import { data, useParams } from "react-router-dom";
 
@@ -263,32 +263,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   //Listagem de eventos do calendário acadêmico
-  const listEvents = async () => {
-    try{
+  const listEvents = 
+  useCallback(
+      async () => {
+      try{
 
-      const res = await fetch(`${api_url}/api/coordenador/list-events`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+        const res = await fetch(`${api_url}/api/coordenador/list-events`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
 
-      const dataJson = await res.json();
+        const dataJson = await res.json();
 
-      if(res.ok){
-          const formatted = dataJson.map((e: IEvent) => ({
-          ...e,
-          data: new Date(e.data),
-        }));
+        if(res.ok){
+            const formatted = dataJson.map((e: IEvent) => ({
+            ...e,
+            data: new Date(e.data),
+          }));
 
-        setEvents(formatted);
-        return formatted;
-      };
+          setEvents(formatted);
+          return formatted;
+        };
 
-    }
-    catch(error){
-      console.log(error);
-    }
-  }
+      }
+      catch(error){
+        console.log(error);
+      }
+    }, [api_url, token, setEvents]);
+  
 
 
   // Retorno do contexto com as funções disponíveis.

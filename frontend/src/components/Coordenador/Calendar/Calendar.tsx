@@ -81,6 +81,7 @@ export function AcademicCalendar() {
 
   //Função para listar eventos
   useEffect(() => {
+    console.log("Carregando eventos...");
     const fetchEvents = async () => {
       try {
         const data = await listEvents();

@@ -28,6 +28,7 @@ export interface Professor {
   matricula: string;
   formacaoAcademica?: string;
   disciplinas: IDisciplina[];
+  turmas: string[]
 }
 
 
@@ -50,6 +51,7 @@ interface ICoordenatorProps {
     loading: boolean
     registerClasses: (nome: string, turno: string, anoLetivo: number) => Promise<any>
     addStudentToClass: (studentId: string, classId: string) => Promise<any>
+    addTeacherToClass: (classId: string, teacherId: string) => Promise<any>
 }
 
 // Contexto do coordenador
@@ -214,24 +216,49 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     const addStudentToClass = async (studentId: string, classId: string) => {
         setLoading(true)
         try{
-            const res = await fetch(`${api_url}/api/coordenador/studentToClass`, {
+            const res = await fetch(`${api_url}/api/coordenador/student/${studentId}/class/${classId}`, {
                 method: "PATCH",
                 headers: {
-                    "Content-type": "application/json",
                     Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({ studentId, classId })
+                }
             });
 
             const dataJson = await res.json();
 
             if (!res.ok) {
-                console.log("Erro ao requisitar ação: ", dataJson);
-                throw dataJson; 
+                return toast.error(dataJson.error);
             }
-
+            toast.success("Aluno(a) adicionado(a) com sucesso.");
             return dataJson;
 
+        }
+        catch(error){
+            console.log(error);
+        }
+        finally{
+            setLoading(false);
+        }
+    }
+
+    //Adicionar professor a uma turma
+    const addTeacherToClass = async (classId: string, teacherId: string) => {
+        setLoading(true)
+        try{
+            const res = await fetch(`${api_url}/api/coordenador/class/${classId}/teacher/${teacherId}`, {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            const dataJson = await res.json();
+
+            if(!res.ok){
+                return toast.error(dataJson.error);
+            }
+
+            toast.success("Professor vinculado à turma com sucesso!");
+            return addTeacherToClass;
         }
         catch(error){
             console.log(error);
@@ -244,7 +271,7 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
 
     // Retorno do contexto com as funções disponíveis
     return (
-        <CoordenadorContext.Provider value={{ token, addStudentToClass, registerClasses, loading, registerEvent, alunos, professores, overview, Alunos, Professores, Overview }}>
+        <CoordenadorContext.Provider value={{ token, addTeacherToClass, addStudentToClass, registerClasses, loading, registerEvent, alunos, professores, overview, Alunos, Professores, Overview }}>
             {children}
         </CoordenadorContext.Provider>
     )

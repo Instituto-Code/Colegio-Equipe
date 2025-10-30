@@ -67,7 +67,7 @@ export const AddDataToClass = ({
   );
 
   const { token } = useAuth();
-  const { addStudentToClass, loading, professores, Professores } =
+  const { addStudentToClass, loading, professores, Professores, addTeacherToClass } =
     useCoordenador();
 
   // Recarrega os professores ao abrir o modal
@@ -137,7 +137,7 @@ export const AddDataToClass = ({
 
       setSelectedStudent(null);
       console.log(studentId, classId)
-      toast.success("Aluno(a) adicionado(a) com sucesso.");
+     
     } catch (error: any) {
       toast.error(error?.message || "Erro ao adicionar aluno.");
     }
@@ -148,13 +148,13 @@ export const AddDataToClass = ({
   };
 
   // Vincular professor à turma
-  const handleLinkProfessor = () => {
+  const handleLinkProfessor = async (classId: string) => {
     if (!selectedProfessor) {
       toast.error("Selecione um professor para vincular.");
       return;
     }
 
-    toast.success("Professor vinculado à turma com sucesso!");
+    await addTeacherToClass(classId, selectedProfessor);
     console.log("Professor vinculado:", selectedProfessor);
   };
 
@@ -191,7 +191,8 @@ export const AddDataToClass = ({
                         <SelectItem key={student.id} value={student.id}>
                           <div className="text-sm p-1.5">{student.nome}</div>
                         </SelectItem>
-                      ))}
+                      ))
+                    }
 
                   </ScrollArea>
                 </SelectContent>
@@ -271,22 +272,36 @@ export const AddDataToClass = ({
                   <SelectValue placeholder="Selecione um professor" />
                 </SelectTrigger>
                 <SelectContent>
-                  {professores &&
-                    professores.map((prof) => (
+                  { 
+                    professores &&  
+                    professores.filter(
+                      (p) => !localTurmas?.professores.some(t => t.id === p.id)
+                    )
+                    .map((prof) => (
                       <SelectItem key={prof.id} value={prof.id}>
                         {prof.nome}
                       </SelectItem>
-                    ))}
+                    ))
+                  }
                 </SelectContent>
               </Select>
 
               {/* Botão Vincular */}
               <Button
                 className="bg-blue-400 hover:bg-blue-500 cursor-pointer w-full"
-                disabled={!selectedProfessor}
-                onClick={handleLinkProfessor}
+                disabled={!selectedProfessor || loading}
+                onClick={() => handleLinkProfessor(localTurmas.id)}
               >
-                Vincular Professor à Turma
+                {
+                  loading ? (
+                    <span className="flex items-center justify-center gap-1.5">
+                      <Spinner />
+                      Vinculando...
+                    </span>
+                  ) : (
+                   <span> Vincular Professor à Turma</span>
+                  )
+                }
               </Button>
             </div>
           </TabsContent>
