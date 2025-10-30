@@ -171,37 +171,6 @@ export const listClasses = async (req: CustomRequest, res: Response) => {
   }
 };
 
-//Listagem de disciplinas que o professor leciona
-export const listDisciplines = async (req: CustomRequest, res: Response) => {
-  try {
-    //Buscando usuário logado
-    const user = req.user;
-
-    //Verificando se é professor
-    if (user.role !== 'professor') {
-      return res.status(422).json({ errors: ['Permissões insuficientes'] });
-    }
-
-    //Filtrando somente as disciplinas e populando os dados
-    const professor = await Professor.findOne({ user: user._id })
-      .select('disciplinas')
-      .populate('disciplinas');
-
-    if (!professor) {
-      return res.status(404).json({
-        error: 'Professor não encontrado.',
-      });
-    }
-
-    res.status(200).json({
-      listTurmas: professor.disciplinas,
-    });
-  } catch (error) {
-    res.status(500).json({ errors: ['Erro interno do servidor!'] });
-    Logger.error(`Erro interno do servidor: ${error}`);
-  }
-};
-
 //Funcionalidades de anotações sobre os alunos para os pais
 export const notes = async (req: CustomRequest, res: Response) => {
   const { studentId, anotacao } = req.body;

@@ -10,7 +10,6 @@ import {
   insertGrades,
   insertAttendance,
   listClasses,
-  listDisciplines,
   notes,
 } from '../controllers/ProfessorController.js';
 
@@ -32,12 +31,6 @@ professorRouter.get(
   authGuard,
   authorizeRole('professor'),
   listClasses,
-);
-professorRouter.get(
-  '/list-disciplines',
-  authGuard,
-  authorizeRole('professor'),
-  listDisciplines,
 );
 professorRouter.patch('/notes', authGuard, authorizeRole('professor'), notes);
 

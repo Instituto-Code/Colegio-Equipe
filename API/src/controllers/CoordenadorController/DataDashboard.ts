@@ -29,7 +29,7 @@ export const getDashboardOverview = async (req: Request, res: Response) => {
     res.status(500).json({
       error: 'Erro interno do servidor',
     });
-     Logger.error(`Erro interno do servidor: ${error}`);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -76,7 +76,7 @@ export const listUsers = async (req: CustomRequest, res: Response) => {
     res.status(500).json({
       error: 'Erro interno do servidor',
     });
-     Logger.error(`Erro interno do servidor: ${error}`);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -96,7 +96,7 @@ export const listStudents = async (req: CustomRequest, res: Response) => {
     const alunosFormatados = alunos.map((aluno) => ({
       id: aluno._id,
       nome: aluno.nome,
-      status: aluno.status || "ativo",
+      status: aluno.status || 'ativo',
       matricula: aluno.matricula,
       dataNasc: aluno.dataNasc,
       pais: aluno.parents.map((p: any) => ({
@@ -111,7 +111,7 @@ export const listStudents = async (req: CustomRequest, res: Response) => {
     res.status(500).json({
       error: 'Erro interno do servidor',
     });
-     Logger.error(`Erro interno do servidor: ${error}`);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -156,7 +156,7 @@ export const listOneStudent = async (req: CustomRequest, res: Response) => {
     res.status(500).json({
       error: 'Erro interno do servidor',
     });
-     Logger.error(`Erro interno do servidor: ${error}`);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -166,7 +166,6 @@ export const listTeachers = async (req: CustomRequest, res: Response) => {
   try {
     const professores = await Professor.find()
       .populate('user', 'name email active')
-      .populate('disciplinas', 'nome descrição cargaHoraria')
       .populate('turmas', 'nome turno anoLetivo');
 
     const professoresFormatados = professores.map((professor) => {
@@ -175,7 +174,11 @@ export const listTeachers = async (req: CustomRequest, res: Response) => {
       let active;
 
       // Se o user foi populado listar dados
-      if ( professor.user && typeof professor.user === 'object' && 'name' in professor.user) {
+      if (
+        professor.user &&
+        typeof professor.user === 'object' &&
+        'name' in professor.user
+      ) {
         nome = (professor.user as IUser).name;
         email = (professor.user as IUser).email;
         active = (professor.user as IUser).active;
@@ -188,18 +191,12 @@ export const listTeachers = async (req: CustomRequest, res: Response) => {
         active,
         matricula: professor.matricula,
         formacaoAcademica: professor.formacaoAcademica,
-        disciplinas: professor.disciplinas.map((d: any) => ({
-            id: d._id,
-            nome: d.nome,
-            descricao: d.descricao,
-            cargaHoraria: d.cargaHoraria,
+        turmas: professor.turmas.map((t: any) => ({
+          id: t._id,
+          nome: t.nome,
+          turno: t.turno,
+          anoLetivo: t.anoLetivo,
         })),
-            turmas: professor.turmas.map((t: any) => ({
-            id: t._id,
-            nome: t.nome,
-            turno: t.turno,
-            anoLetivo: t.anoLetivo
-        }))
       };
     });
 
@@ -210,7 +207,7 @@ export const listTeachers = async (req: CustomRequest, res: Response) => {
     res.status(500).json({
       error: 'Erro interno do servidor',
     });
-     Logger.error(`Erro interno do servidor: ${error}`);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -221,7 +218,6 @@ export const listOneTeacher = async (req: CustomRequest, res: Response) => {
 
     const professor = await Professor.findById(teacherId)
       .populate('user', 'name email active')
-      .populate('disciplinas', 'nome descrição cargaHoraria')
       .populate('turmas', 'nome turno anoLetivo');
 
     if (!professor) {
@@ -234,10 +230,14 @@ export const listOneTeacher = async (req: CustomRequest, res: Response) => {
     let email;
     let active;
 
-    if ( professor.user && typeof professor.user === 'object' && 'name' in professor.user) {
-        nome = (professor.user as IUser).name;
-        email = (professor.user as IUser).email;
-        active = (professor.user as IUser).active;
+    if (
+      professor.user &&
+      typeof professor.user === 'object' &&
+      'name' in professor.user
+    ) {
+      nome = (professor.user as IUser).name;
+      email = (professor.user as IUser).email;
+      active = (professor.user as IUser).active;
     }
 
     const teacherFormated = {
@@ -247,18 +247,12 @@ export const listOneTeacher = async (req: CustomRequest, res: Response) => {
       active,
       matricula: professor.matricula,
       formacaoAcademica: professor.formacaoAcademica,
-      disciplinas: professor.disciplinas.map((d: any) => ({
-        id: d._id,
-        nome: d.nome,
-        descrição: d.descrição,
-        cargaHoraria: d.cargaHoraria,
-      })),
       turmas: professor.turmas.map((t: any) => ({
         id: t._id,
         nome: t.nome,
         turno: t.turno,
-        anoLetivo: t.anoLetivo
-      }))
+        anoLetivo: t.anoLetivo,
+      })),
     };
 
     res.status(200).json({
@@ -268,7 +262,7 @@ export const listOneTeacher = async (req: CustomRequest, res: Response) => {
     res.status(500).json({
       error: 'Erro interno do servidor',
     });
-     Logger.error(`Erro interno do servidor: ${error}`);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
 
@@ -317,6 +311,6 @@ export const listClasses = async (req: CustomRequest, res: Response) => {
     res.status(500).json({
       error: 'Erro interno do servidor',
     });
-     Logger.error(`Erro interno do servidor: ${error}`);
+    Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
