@@ -2,7 +2,8 @@ import Notificacoes from "../models/Notificacoes.js";
 import { Response } from "express";
 
 import { CustomRequest } from "../middlewares/authGuard.js";
-import User from "../models/User.js";
+import User, { IUser } from "../models/User.js";
+import Logger from "../../config/logger.js";
 
 //Função de criar notificação
 export const createNote = async (req: CustomRequest, res: Response) => {
@@ -45,10 +46,10 @@ export const createNote = async (req: CustomRequest, res: Response) => {
         
     }
     catch(error){
-        res.status(500).json({
-            error: "Erro interno do servidor!"
+       res.status(500).json({
+            error: `Erro interno do servidor: ${error}`,
         });
-        console.error(error);
+        Logger.error(`Erro interno do servidor: ${error}`);
     }
 };
 
@@ -66,8 +67,10 @@ export const createNote = async (req: CustomRequest, res: Response) => {
         res.status(200).json({message: "Notificação excluída com sucesso!"});
     }
     catch (error) {
-        res.status(500).json({error: "Erro interno no servidor"});
-        console.error(error);
+        res.status(500).json({
+            error: `Erro interno do servidor: ${error}`,
+        });
+        Logger.error(`Erro interno do servidor: ${error}`);
     }
  }
 
@@ -124,8 +127,10 @@ export const createNote = async (req: CustomRequest, res: Response) => {
     }
 
     catch (error) {
-        res.status(500).json({error: "Erro interno no servidor"});
-        console.error(error);
+        res.status(500).json({
+            error: `Erro interno do servidor: ${error}`,
+        });
+        Logger.error(`Erro interno do servidor: ${error}`);
     }
  };
 
@@ -148,24 +153,37 @@ export const createNote = async (req: CustomRequest, res: Response) => {
         //populate: Pega os dados referente ao author da notificação e mostra o nome
         //sort: a notificação é listada da mais recente 
 
-        //OBS: os "+" antes das propriedades do select servem para forçar o mongoose
-        //a trazer os dados do usuário que fez a postagem também
         const notificacoes = await Notificacoes.find({
             tipo: "grupo",
             grupo: user.role,
         })
-        .populate({
+        .populate<{ author: IUser }>({
             path: "author",
-            select: "+nome +email"
+            select: "nome email"
         })
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: -1 });
 
-        return res.status(200).json(notificacoes);
+        const formatedData = notificacoes.map((n) => ({
+            id: n._id,
+            author: {
+              id: n.author._id,
+              nome: n.author.name,
+              email: n.author.email
+            },
+            conteudo: n.conteudo,
+            tipoEnvio: n.tipo,
+            receptor: n.grupo,
+            visto: n.visto
+        }));
+
+        return res.status(200).json(formatedData);
 
     }
     catch(error: any){
-        res.status(500).json({error: "Erro interno no servidor"});
-        console.error(error);    
+        res.status(500).json({
+            error: `Erro interno do servidor: ${error}`,
+        });
+        Logger.error(`Erro interno do servidor: ${error}`);
     }
  };
 
@@ -208,8 +226,10 @@ export const createNote = async (req: CustomRequest, res: Response) => {
         })
     }
     catch(error){
-        res.status(500).json({error: "Erro interno no servidor"});
-        console.error(error); 
+        res.status(500).json({
+            error: `Erro interno do servidor: ${error}`,
+        });
+        Logger.error(`Erro interno do servidor: ${error}`);
     }
  }
 
@@ -217,33 +237,91 @@ export const createNote = async (req: CustomRequest, res: Response) => {
  //Listando notificações por IDs
  export const listNotesByUser = async (req: CustomRequest, res: Response) => {
     try {
-        const { id } = req.params;
+        const { userId } = req.params;
 
-        const user = await User.findById(id);
+        const user = await User.findById(userId);
+
         if(!user) {
             return res.status(404).json({error: "Usuário não encontrado"});
         }
 
-        const notificacoes = await Notificacoes.find({
-            // Para garantir que a consulta retorne notificações onde o usuário seja autor ou destinatário
-            tipo: "pessoa",
-            $or: [
-                { author: id },
-                { pessoa: id }
-            ]
-        })
-        .populate({
+        const notificacoes = await Notificacoes.find({ pessoa: userId })
+        .populate<{ author: IUser }>({
             path: "author",
-            select: "+nome +email"
+            select: "nome email"
         })
+        .populate<{ pessoa: IUser }>("pessoa", "name email role")
         .sort({ createdAt: -1});
 
-        return res.status(200).json(notificacoes);
+        if(notificacoes.length === 0){
+            return res.status(200).json({
+                notificacoes: [],
+                msg: "Nenhuma notificação encontrada."
+            });
+        };
+
+        const formatedData = notificacoes.map((n) => ({
+            id: n._id,
+            author: {
+                id: n.author._id,
+                nome: n.author.name,
+                email: n.author.email,
+            },
+            conteudo: n.conteudo,
+            tipo: n.tipo,
+            receptor: {
+                id: n.pessoa._id,
+                nome: n.pessoa.name,
+                email: n.pessoa.email,
+                role: n.pessoa.role
+            },
+            visto: n.visto
+        }))
+
+        return res.status(200).json(formatedData);
     }
 
     catch (error) {
-        console.error(error);
-        return res.status(500).json({ error: "Erro interno no servidor"});
+        res.status(500).json({
+            error: `Erro interno do servidor: ${error}`,
+        });
+        Logger.error(`Erro interno do servidor: ${error}`);
+    }
+ }
+
+ //Listar todas as notificações para o coordenador (aba enviadas)
+ export const listAllNotes = async (req: CustomRequest, res: Response) => {
+    try{
+        const notes = await Notificacoes.find()
+            .populate<{ author: IUser }>("author", "name email")
+            .populate<{ pessoa: IUser }>("pessoa", "name email role");
+
+        const formatedData = notes.map((n) => ({
+            id: n._id,
+            author: {
+                id: n.author._id,
+                nome: n.author.name,
+                email: n.author.email
+            },
+            conteudo: n.conteudo,
+            tipo: n.tipo,
+            receptor: n.tipo === "grupo" 
+            ? n.grupo 
+            : {
+                id: n.pessoa._id,
+                nome: n.pessoa.name,
+                email: n.pessoa.email,
+                role: n.pessoa.role
+            }
+        }));
+
+        res.status(200).json(formatedData);
+    }
+    catch(error: any){
+        res.status(500).json({
+            error: `Erro interno do servidor: ${error}`,
+        });
+        Logger.error(`Erro interno do servidor: ${error}`);
     }
  }
 

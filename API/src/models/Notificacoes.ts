@@ -1,10 +1,11 @@
 import mongoose, { Schema, Types } from 'mongoose';
+import { IUser } from './User.js';
 
 interface INotificacao {
-  author: Types.ObjectId;
+  author: Types.ObjectId | IUser;
   conteudo: string;
   tipo: 'pessoa' | 'grupo';
-  pessoa?: Types.ObjectId;
+  pessoa?: Types.ObjectId | IUser;
   grupo?: 'aluno' | 'responsavel' | 'professor' | 'pendente';
   visto: Types.ObjectId[];
   createdAt: Date;
