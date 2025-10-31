@@ -10,13 +10,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   Bell,
   LogOutIcon,
-  Package,
-  Package2Icon,
   Settings,
   User2,
 } from "lucide-react";
 import { useState } from "react";
 import { NotificationsSend } from "../Coordenador/NotificationsSend/NotificationsSend";
+import { useAuth } from "@/contexts/authContext";
+import { NotificationReceived } from "../NotificationReceived/NotificationReceived";
+
 
 interface IDropdownProps {
   name?: string;
@@ -44,6 +45,8 @@ export const Dropdown = ({
 
   const userLink = role ? roleLinks[role] : undefined;
   const initial = name?.charAt(0).toUpperCase() || "?";
+
+  const { user } = useAuth();
 
   return (
     <>
@@ -78,16 +81,20 @@ export const Dropdown = ({
 
           {pathname && <DropdownMenuItem></DropdownMenuItem>}
 
-          <DropdownMenuItem
-            className="hover:bg-gray-100 p-2 rounded cursor-pointer text-[15px]"
-            onClick={(e) => {
-              e.stopPropagation();
-              setOpenNotes(true);
-            }}
-          >
-            <Bell />
-            Notificações
-          </DropdownMenuItem>
+          {user?.role === "coordenador" ? (
+            <DropdownMenuItem
+              className="hover:bg-gray-100 p-2 rounded cursor-pointer text-[15px]"
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenNotes(true);
+              }}
+            >
+              <Bell />
+              Notificações
+            </DropdownMenuItem>
+          ) : (
+            <NotificationReceived />
+          )}
 
           <DropdownMenuItem className="hover:bg-gray-100 p-2 rounded text-[15px]">
             <Link

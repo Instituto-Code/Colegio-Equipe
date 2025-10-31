@@ -1,6 +1,7 @@
 import type { IEvent } from "@/components/Coordenador/Calendar/Calendar";
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
+import { toast } from "sonner";
 // import { data, useParams } from "react-router-dom";
 
 // Criando contexto de autenticação e variável de ambiente.
@@ -19,6 +20,7 @@ export interface IUser {
 interface IAuthContextProps {
   user: IUser | null;
   token: string | null;
+  notes: any[] | null;
   loading: boolean;
   success: string | "";
   register: (
@@ -37,6 +39,7 @@ interface IAuthContextProps {
   listEvents: () => Promise<any>
   events: IEvent[];
   setEvents: Dispatch<SetStateAction<IEvent[]>>;
+  listNoteToPending: () => Promise<any[]>
 }
 
 const AuthContext = createContext<IAuthContextProps | undefined>(undefined);
@@ -50,6 +53,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [success, setSuccess] = useState<string | "">("");
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState<IEvent[]>([]);
+  const [notes, setNotes] = useState<any[]>([]);
 
   // Verifica se já existe um token salvo no localStorage.
   useEffect(() => {
@@ -64,6 +68,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
     fetchData();
   }, []);
+
+  //Buscando notificações apenas quando o token estiver definido
+  useEffect(() => {
+    const fetchNotes = async () => {
+      await listNoteToPending();
+    }
+
+    fetchNotes();
+  }, [token]);
 
   // Função de registro de um novo usuário;
   const register = async (
@@ -142,6 +155,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setToken(token);
         await profile(token);
         setLoading(false);
+        toast.success(`Bem vindo(a)!`)
       } 
       else {
         console.log("data de erro recebido:", data);
@@ -189,6 +203,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     setToken(null);
     localStorage.removeItem("token");
+    toast.info("Até logo!");
   };
 
   //Dados de usuário
@@ -291,6 +306,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.log(error);
       }
     }, [api_url, token, setEvents]);
+
+    //Listagem de notificações para pendentes
+    const listNoteToPending = async () => {
+      setLoading(true);
+      console.log(token)
+      try{
+        const res = await fetch(`${api_url}/api/note/list-note-groups`,{
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        const dataJson = await res.json();
+
+        if(!res.ok){
+          console.log(dataJson)
+        }
+
+        setNotes(dataJson);
+
+        console.log(dataJson)
+
+        return dataJson
+
+      }
+      catch(error){
+
+      }
+      finally{
+        setLoading(false);
+      }
+    }
   
 
 
@@ -299,7 +346,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     <AuthContext.Provider
       value={{
         register,
+        notes,
         errorsRegister,
+        listNoteToPending,
         errorsLogin,
         setEvents,
         listEvents,

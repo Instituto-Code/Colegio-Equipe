@@ -157,7 +157,7 @@ export const LandingPage = () => {
               fundamentada nos princípios morais, éticos e humanos.
             </div>
           </div>
-          <div className="mr-[10vw] max-sm:my-[7vw]">
+          <div className="p-5">
             {/* <img src={alvo} className="w-[50vw] max-sm:w-[30vw]" /> */}
             <AnimatedImage src={alvo} className="w-[50vw] max-sm:w-[30vw]" />
           </div>
@@ -182,7 +182,7 @@ export const LandingPage = () => {
               críticos-construtivos capazes de formar uma sociedade mais justa.
             </div>
           </div>
-          <div className="mr-[10vw] max-sm:my-[7vw]">
+          <div className="p-5">
             {/* <img src={visao} className="w-[50vw] max-sm:w-[30vw]" /> */}
             <AnimatedImage src={visao} className="w-[50vw] max-sm:w-[30vw]" />
           </div>
@@ -224,7 +224,7 @@ export const LandingPage = () => {
               </ul>
             </div>
           </div>
-          <div className="mr-[10vw] max-sm:my-[7vw]">
+          <div className="p-5">
             {/* <img src={valor} className="w-[16vw] max-sm:w-[30vw]" /> */}
             <AnimatedImage src={valor} className="w-[16vw] max-sm:w-[30vw]" />
           </div>

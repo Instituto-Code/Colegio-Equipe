@@ -24,6 +24,7 @@ import { useAuth } from "@/contexts/authContext";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 
+
 interface INotificationsProps {
   open: boolean;
   onOpenChange: (value: boolean) => void;
@@ -36,7 +37,7 @@ export function NotificationsSend({ open, onOpenChange }: INotificationsProps) {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const { token } = useAuth();
+  const { token, user } = useAuth();
 
   //Busca usuários do backend (quando for "pessoa")
   useEffect(() => {
@@ -62,8 +63,7 @@ export function NotificationsSend({ open, onOpenChange }: INotificationsProps) {
           ? { conteudo, tipo: "pessoa", pessoa: target }
           : { conteudo, tipo: "grupo", grupo: target };
 
-
-        console.log(body)
+      console.log(body);
 
       const res = await fetch(`${api_url}/api/note/create-note`, {
         method: "POST",
@@ -102,106 +102,121 @@ export function NotificationsSend({ open, onOpenChange }: INotificationsProps) {
 
         <Tabs defaultValue="enviar">
           <TabsList>
-            <TabsTrigger value="enviar">Mensagem</TabsTrigger>
-            <TabsTrigger value="enviadas">Enviadas</TabsTrigger>
+            {user?.role === "coordenador" ? (
+              <>
+                <TabsTrigger value="enviar">Mensagem</TabsTrigger>
+
+                <TabsTrigger value="enviadas">Enviadas</TabsTrigger>
+              </>
+            ) : (
+              <TabsTrigger value="mensagens">Mensagens</TabsTrigger>
+            )}
           </TabsList>
 
           {/* ABA DE ENVIAR */}
-          <TabsContent value="enviar">
-            <Card>
-              <CardContent className="grid gap-4">
-                {/* SELECT DE TIPO */}
-                <div className="grid gap-2">
-                  <Label>Tipo de envio</Label>
-                  <Select
-                    value={type}
-                    onValueChange={(v: "pessoa" | "grupo") => setType(v)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Escolha o tipo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pessoa">Pessoa</SelectItem>
-                      <SelectItem value="grupo">Grupo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+          {user?.role === "coordenador" && (
+            <>
+              {/* ABA DE ENVIAR */}
+              <TabsContent value="enviar">
+                <Card>
+                  <CardContent className="grid gap-4">
+                    {/* SELECT DE TIPO */}
+                    <div className="grid gap-2">
+                      <Label>Tipo de envio</Label>
+                      <Select
+                        value={type}
+                        onValueChange={(v: "pessoa" | "grupo") => setType(v)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Escolha o tipo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pessoa">Pessoa</SelectItem>
+                          <SelectItem value="grupo">Grupo</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                {/* SELECT DE DESTINO */}
-                <div className="grid gap-2">
-                  <Label>{type === "pessoa" ? "Pessoa" : "Grupo"}</Label>
-                  <Select value={target || ""} onValueChange={setTarget}>
-                    <SelectTrigger>
-                      <SelectValue
-                        placeholder={
-                          type === "pessoa"
-                            ? "Selecione uma pessoa"
-                            : "Selecione um grupo"
-                        }
+                    {/* SELECT DE DESTINO */}
+                    <div className="grid gap-2">
+                      <Label>{type === "pessoa" ? "Pessoa" : "Grupo"}</Label>
+                      <Select value={target || ""} onValueChange={setTarget}>
+                        <SelectTrigger>
+                          <SelectValue
+                            placeholder={
+                              type === "pessoa"
+                                ? "Selecione uma pessoa"
+                                : "Selecione um grupo"
+                            }
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {type === "pessoa" ? (
+                            Array.isArray(users) &&
+                            users.map((u) => (
+                              <SelectItem key={u.id} value={u.id}>
+                                {u.nome}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <>
+                              <SelectItem value="professor">
+                                Professores
+                              </SelectItem>
+                              <SelectItem value="responsavel">
+                                Responsáveis
+                              </SelectItem>
+                              <SelectItem value="aluno">Alunos</SelectItem>
+                              <SelectItem value="pendente">
+                                Pendentes
+                              </SelectItem>
+                            </>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* TEXTAREA */}
+                    <div className="grid gap-2">
+                      <Label>Mensagem</Label>
+                      <Textarea
+                        placeholder="Escreva sua mensagem..."
+                        value={conteudo}
+                        onChange={(e) => setConteudo(e.target.value)}
                       />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {type === "pessoa" ? (
-                        Array.isArray(users) &&
-                        users.map((u) => (
-                          <SelectItem key={u.id} value={u.id}>
-                            {u.nome}
-                          </SelectItem>
-                        ))
+                    </div>
+                  </CardContent>
+
+                  <CardFooter className="justify-end">
+                    <Button
+                      onClick={handleSubmit}
+                      className="bg-blue-500 cursor-pointer text-white hover:bg-blue-600"
+                    >
+                      {loading ? (
+                        <span className="flex items-center justify-center gap-1">
+                          <Spinner /> Enviando...
+                        </span>
                       ) : (
-                        <>
-                          <SelectItem value="professor">
-                            Professores
-                          </SelectItem>
-                          <SelectItem value="responsavel">
-                            Responsáveis
-                          </SelectItem>
-                          <SelectItem value="aluno">Alunos</SelectItem>
-                          <SelectItem value="pendente">Pendentes</SelectItem>
-                        </>
+                        <span className="flex gap-1 items-center justify-center">
+                          <Send className="mr-2 w-4 h-4" /> Enviar
+                        </span>
                       )}
-                    </SelectContent>
-                  </Select>
-                </div>
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </TabsContent>
 
-                {/* TEXTAREA */}
-                <div className="grid gap-2">
-                  <Label>Mensagem</Label>
-                  <Textarea
-                    placeholder="Escreva sua mensagem..."
-                    value={conteudo}
-                    onChange={(e) => setConteudo(e.target.value)}
-                  />
-                </div>
-              </CardContent>
-
-              <CardFooter className="justify-end">
-                <Button
-                  onClick={handleSubmit}
-                  className="bg-blue-500 cursor-pointer text-white hover:bg-blue-600"
-                >
-                  {loading ? (
-                    <span className="flex items-center justify-center gap-1">
-                      <Spinner /> Enviando...
-                    </span>
-                  ) : (
-                    <span className="flex gap-1 items-center justify-center">
-                      <Send className="mr-2 w-4 h-4" /> Enviar
-                    </span>
-                  )}
-                </Button>
-              </CardFooter>
-            </Card>
-          </TabsContent>
-
-          {/* ABA DE ENVIADAS */}
-          <TabsContent value="enviadas">
-            <Card>
-              <CardContent>
-                <p>Nenhuma mensagem enviada...</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              {/* ABA DE ENVIADAS */}
+              <TabsContent value="enviadas">
+                <Card>
+                  <CardContent>
+                    <p>Nenhuma mensagem enviada...</p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </>
+          )
+        }
         </Tabs>
       </DialogContent>
     </Dialog>
