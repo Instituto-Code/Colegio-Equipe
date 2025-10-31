@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
-interface ITurma extends Document {
+export interface ITurma extends Document {
   _id: Types.ObjectId;
   nome: string;
   turno: 'manhã' | 'tarde';

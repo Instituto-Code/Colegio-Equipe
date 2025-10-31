@@ -136,7 +136,13 @@ export const registerDisciplines = async (req: Request, res: Response) => {
 
 //Registrando pais
 export const registerParents = async (req: Request, res: Response) => {
-  const { userId } = req.body;
+  const { userId } = req.params;
+
+  if(!mongoose.Types.ObjectId.isValid(userId)){
+    return res.status(400).json({
+      error: "Id inválido"
+    });
+  }
 
   try {
     //Buscando usuário

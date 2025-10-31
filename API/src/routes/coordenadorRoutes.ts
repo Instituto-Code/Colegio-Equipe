@@ -20,15 +20,18 @@ import {
 
 import { listEvents, registerEvent } from '../controllers/EventController.js';
 
-import { 
-  getDashboardOverview, 
-  listOneStudent, 
-  listOneTeacher, 
-  listStudents, 
-  listTeachers, 
-  listClasses, 
-  listUsers 
+import {
+  getDashboardOverview,
+  listOneStudent,
+  listOneTeacher,
+  listStudents,
+  listTeachers,
+  listClasses,
+  listUsers,
+  listParents,
+  listParent,
 } from '../controllers/CoordenadorController/DataDashboard.js';
+import { deleteStudents, editStudents } from '../controllers/CoordenadorController/GerenceUsers.js';
 
 //Configurações de rotas
 coordenadorRouter.post(
@@ -78,7 +81,7 @@ coordenadorRouter.patch(
 );
 
 coordenadorRouter.patch(
-  '/register-parent',
+  '/register-parent/:userId',
   authGuard,
   authorizeRole('coordenador'),
   registerParents,
@@ -98,18 +101,70 @@ coordenadorRouter.post(
 );
 coordenadorRouter.get('/list-events', authGuard, listEvents);
 
-coordenadorRouter.get('/getDashboardOverview', authGuard, authorizeRole('coordenador'), getDashboardOverview);
+coordenadorRouter.get(
+  '/getDashboardOverview',
+  authGuard,
+  authorizeRole('coordenador'),
+  getDashboardOverview,
+);
 
 coordenadorRouter.get('/list-students', authGuard, listStudents);
 
 coordenadorRouter.get('/list-student/:studentId', authGuard, listOneStudent);
 
-coordenadorRouter.get('/list-teachers', authGuard, authorizeRole('coordenador'), listTeachers);
+coordenadorRouter.get(
+  '/list-teachers',
+  authGuard,
+  authorizeRole('coordenador'),
+  listTeachers,
+);
 
-coordenadorRouter.get('/list-teacher/:teacherId', authGuard, authorizeRole('coordenador'), listOneTeacher);
+coordenadorRouter.get(
+  '/list-teacher/:teacherId',
+  authGuard,
+  authorizeRole('coordenador'),
+  listOneTeacher,
+);
 
-coordenadorRouter.get('/list-users', authGuard, authorizeRole('coordenador'), listUsers);
+coordenadorRouter.get(
+  '/list-users',
+  authGuard,
+  authorizeRole('coordenador'),
+  listUsers,
+);
 
-coordenadorRouter.get('/list-turmas', authGuard, authorizeRole("coordenador"), listClasses);
+coordenadorRouter.get(
+  '/list-turmas',
+  authGuard,
+  authorizeRole('coordenador'),
+  listClasses,
+);
+
+coordenadorRouter.get(
+  '/list-parents',
+  authGuard,
+  listParents
+);
+
+coordenadorRouter.get(
+  '/list-parent/:parentId',
+  authGuard,
+  listParent
+);
+
+//Gerenciamento de usuário no geral
+coordenadorRouter.delete(
+  '/delete-student/:studentId',
+  authGuard,
+  authorizeRole('coordenador'),
+  deleteStudents,
+);
+
+coordenadorRouter.patch(
+  '/edit-student/:studentId',
+  authGuard,
+  authorizeRole('coordenador'),
+  editStudents
+)
 
 export default coordenadorRouter;

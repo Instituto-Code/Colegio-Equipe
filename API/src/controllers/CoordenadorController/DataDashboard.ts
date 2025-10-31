@@ -1,4 +1,4 @@
-import Aluno from '../../models/Aluno.js';
+import Aluno, { IAluno } from '../../models/Aluno.js';
 import Professor from '../../models/Professor.js';
 import Turma from '../../models/Turma.js';
 import Disciplina from '../../models/Disciplina.js';
@@ -6,6 +6,8 @@ import { Request, Response } from 'express';
 import { CustomRequest } from '../../middlewares/authGuard.js';
 import User, { IUser } from '../../models/User.js';
 import Logger from '../../../config/logger.js';
+import Pais, { IPais } from '../../models/Pais.js';
+import mongoose from 'mongoose';
 
 //Contando documentos
 export const getDashboardOverview = async (req: Request, res: Response) => {
@@ -90,7 +92,7 @@ export const listStudents = async (req: CustomRequest, res: Response) => {
         path: 'user',
         select: 'name email',
       },
-    });
+    }).populate("turma", "nome, turno, anoLetivo");
 
     //Editando dados que vão para o frontend
     const alunosFormatados = alunos.map((aluno) => ({
@@ -103,7 +105,7 @@ export const listStudents = async (req: CustomRequest, res: Response) => {
         id: p._id,
         nome: p.user?.name,
         email: p.user?.email,
-      })),
+      }))
     }));
 
     res.status(200).json({ alunos: alunosFormatados });
@@ -126,7 +128,7 @@ export const listOneStudent = async (req: CustomRequest, res: Response) => {
         path: 'user',
         select: 'name email numberTel cpf',
       },
-    });
+    }).populate("turma", "nome turno anoLetivo");
 
     if (!aluno) {
       return res.status(404).json({
@@ -147,6 +149,11 @@ export const listOneStudent = async (req: CustomRequest, res: Response) => {
         numberTel: p.user?.numberTel,
         cpf: p.user?.cpf,
       })),
+      turma: aluno.turma?.map((t: any) => ({
+        nome: t.nome,
+        turno: t.turno,
+        anoLetivo: t.anoLetivo
+      }))
     };
 
     res.status(200).json({
@@ -314,3 +321,99 @@ export const listClasses = async (req: CustomRequest, res: Response) => {
     Logger.error(`Erro interno do servidor: ${error}`);
   }
 };
+
+//List pais
+export const listParents = async (req: CustomRequest, res: Response) => {
+  try{
+    const parents = await Pais.find()
+      .populate<{user: IUser}>("user", "name email numberTel adress")
+      .populate<{filhos: IAluno[]}>("filhos", "nome matricula dataNasc status sexo cpf")
+
+    if(parents.length === 0){
+      res.status(200).json({
+        parents: [],
+        msg: "Lista de pais vazia."
+      });
+    };
+
+    const dataFormated = parents.map((p) => ({
+      id: p._id,
+      nome: p.user.name,
+      email: p.user.email,
+      numeroTel: p.user.numberTel,
+      endereco: p.user.adress,
+      filhos: p.filhos.map((f) => ({
+        id: f._id,
+        nome: f.nome,
+        matricula: f.matricula,
+        dataNasc: f.dataNasc,
+        status: f.status,
+        sexo: f.sexo,
+        cpf: f.cpf
+      }))
+    }));
+
+    res.status(200).json({
+      responsaveis: dataFormated
+    });
+
+  }
+  catch(error: any){
+    res.status(500).json({
+      error: 'Erro interno do servidor',
+    });
+    Logger.error(`Erro interno do servidor: ${error}`);
+  }
+}
+
+
+//listar um Responsável 
+export const listParent = async (req: CustomRequest, res: Response) => {
+  try{
+
+    const { parentId } = req.params;
+
+    if(!mongoose.Types.ObjectId.isValid(parentId)){
+      return res.status(400).json({ error: "ID inválido." });
+    };
+
+    const parent = await Pais.findById(parentId)
+      .populate<{ user: IUser }>("user", "name email numberTel adress")
+      .populate<{ filhos: IAluno[] }>("filhos", "nome matricula dataNasc status sexo cpf")
+
+    if(!parent){
+      return res.status(404).json({
+        error: "Responsável não encontrado."
+      });
+    };
+
+    const formatedData = {
+      id: parent._id,
+      nome: parent.user.name,
+      email: parent.user.email,
+      numeroTel: parent.user.numberTel,
+      endereco: parent.user.adress,
+      filhos: parent.filhos.map((f) => ({
+        id: f._id,
+        nome: f.nome,
+        matricula: f.matricula,
+        dataNasc: f.dataNasc,
+        status: f.status,
+        sexo: f.sexo,
+        cpf: f.cpf
+      }))
+    }
+
+    res.status(200).json({
+      responsavel: formatedData
+    });
+
+  }
+  catch(error: any){
+    res.status(500).json({
+      error: 'Erro interno do servidor',
+    });
+    Logger.error(`Erro interno do servidor: ${error}`);
+  }
+}
+

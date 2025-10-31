@@ -1,10 +1,11 @@
 import mongoose, { Schema, Types, Document } from 'mongoose';
 import { IUser } from './User.js';
+import { IAluno } from './Aluno.js';
 
 export interface IPais {
   _id?: Types.ObjectId;
   user: Types.ObjectId | IUser;
-  filhos: Types.ObjectId[];
+  filhos: (Types.ObjectId | IAluno)[];
 }
 
 const PaisSchema = new Schema<IPais>({

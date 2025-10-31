@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document, Types, trusted } from 'mongoose';
 import { IPais } from './Pais.js';
+import { ITurma } from './Turma.js';
 
 type Sexo = 'masculino' | 'feminino';
 
@@ -30,7 +31,7 @@ export interface IAluno extends Document {
   cpf: string;
   sexo: Sexo;
   status: 'ativo' | 'inativo' | 'suspenso',
-  turma?: Types.ObjectId[];
+  turma?: Types.ObjectId[] | ITurma[];
   parents: (Types.ObjectId | IPais)[];
   notas: INota[];
   frequencia: IFrequencia;

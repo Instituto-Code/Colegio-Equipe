@@ -26,7 +26,8 @@
     "mongoose": "^8.15.1",
     "morgan": "^1.10.1",
     "nodemailer": "^7.0.3",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
