@@ -39,19 +39,21 @@ export const getDashboardOverview = async (req: Request, res: Response) => {
 export const listUsers = async (req: CustomRequest, res: Response) => {
   try {
     //Configurando paginação
-    const { search = '', page = 1, limit = 10 } = req.query;
-
-    const skip = (Number(page) - 1) * Number(limit);
+    const { search = '', page = 1, limit } = req.query;
 
     const usersQuery = search
       ? { name: { $regex: search, $options: 'i' } }
       : {};
 
+    const totalUsers = await User.countDocuments(usersQuery);
+
+    const limitNumber = limit ? Number(limit) : totalUsers;
+
+    const skip = (Number(page) - 1) * limitNumber;
+
     const allUsers = await User.find(usersQuery)
       .skip(skip)
-      .limit(Number(limit));
-
-    const totalUsers = await User.countDocuments(usersQuery);
+      .limit(limitNumber);
 
     if (allUsers.length === 0) {
       return res.status(200).json({
@@ -71,7 +73,7 @@ export const listUsers = async (req: CustomRequest, res: Response) => {
     return res.status(200).json({
       total: totalUsers,
       page: Number(page),
-      limit: Number(limit),
+      limit: limitNumber,
       users: usersFormated,
     });
   } catch (error: any) {

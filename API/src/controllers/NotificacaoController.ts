@@ -298,22 +298,23 @@ export const createNote = async (req: CustomRequest, res: Response) => {
 
         const formatedData = notes.map((n) => ({
             id: n._id,
-            author: {
+            author: n.author ? {
                 id: n.author._id,
                 nome: n.author.name,
                 email: n.author.email
-            },
+            } : null,
             conteudo: n.conteudo,
             tipo: n.tipo,
             receptor: n.tipo === "grupo" 
-            ? n.grupo 
-            : {
-                id: n.pessoa._id,
-                nome: n.pessoa.name,
-                email: n.pessoa.email,
-                role: n.pessoa.role
-            }
+                ? n.grupo 
+                : n.pessoa ? {
+                    id: n.pessoa._id,
+                    nome: n.pessoa.name,
+                    email: n.pessoa.email,
+                    role: n.pessoa.role
+                } : null
         }));
+
 
         res.status(200).json(formatedData);
     }
