@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Send } from "lucide-react";
+import { MoveHorizontal, Send, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { api_url } from "@/contexts/coordenadorContext";
+import { api_url, useCoordenador, type INotes } from "@/contexts/coordenadorContext";
 import { useAuth } from "@/contexts/authContext";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
@@ -36,8 +36,9 @@ export function NotificationsSend({ open, onOpenChange }: INotificationsProps) {
   const [conteudo, setConteudo] = useState("");
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [noteSend, setNotesSend] = useState<INotes[] | []>([]);
 
-  const { token, user } = useAuth();
+  const { token, user, loading: loadingNotes } = useAuth();
 
   //Busca usuários do backend (quando for "pessoa")
   useEffect(() => {
@@ -90,6 +91,16 @@ export function NotificationsSend({ open, onOpenChange }: INotificationsProps) {
     }
   };
 
+  // const handleList = async () => {
+  //   const notes = await notesSend();
+
+  //   setNotesSend(notes);
+  // }
+
+  // useEffect(() => {
+  //   handleList();
+  // }, []);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -118,7 +129,7 @@ export function NotificationsSend({ open, onOpenChange }: INotificationsProps) {
             <>
               {/* ABA DE ENVIAR */}
               <TabsContent value="enviar">
-                <Card>
+                <Card className="h-90">
                   <CardContent className="grid gap-4">
                     {/* SELECT DE TIPO */}
                     <div className="grid gap-2">
@@ -208,9 +219,35 @@ export function NotificationsSend({ open, onOpenChange }: INotificationsProps) {
 
               {/* ABA DE ENVIADAS */}
               <TabsContent value="enviadas">
-                <Card>
+                <Card className="h-90 overflow-y-auto">
                   <CardContent>
-                    <p>Nenhuma mensagem enviada...</p>
+                    {
+                      
+                      loadingNotes ? (
+                        <Spinner />
+                      ) : (
+                        noteSend.length === 0 ? (
+                          <span>Nenhuma mensagem enviada...</span>
+                        ) :
+                        noteSend.map((n) => (
+                           <div
+                            key={n.id}
+                            className="flex items-start gap-3 border-b pb-3"
+                          >
+                            <User className="w-6 h-6 text-blue-500 mt-1" />
+                            <div className="flex flex-col">
+                              <span className="font-semibold flex items-center justify-between text-sm">
+                                Eu <MoveHorizontal /> { n.receptor.nome }
+                              </span>
+                              <span className="text-sm text-gray-600">
+                                {n.conteudo}
+                              </span>
+                            </div>
+                          </div>
+                        ))
+                      )
+                    }
+                    
                   </CardContent>
                 </Card>
               </TabsContent>

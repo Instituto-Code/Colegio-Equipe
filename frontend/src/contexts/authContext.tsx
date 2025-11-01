@@ -338,7 +338,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoading(false);
       }
     }
-  
 
 
   // Retorno do contexto com as funções disponíveis.
@@ -347,8 +346,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       value={{
         register,
         notes,
-        errorsRegister,
         listNoteToPending,
+        errorsRegister,
         errorsLogin,
         setEvents,
         listEvents,

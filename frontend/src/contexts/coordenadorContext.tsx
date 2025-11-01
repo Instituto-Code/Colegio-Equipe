@@ -41,7 +41,22 @@ export interface Professor {
   turmas: string[]
 }
 
-
+export interface INotes {
+    id: string,
+    author: {
+        id: string,
+        nome: string,
+        email: string
+    },
+    receptor: {
+        id: string;
+        nome: string;
+        email: string;
+        role: string;
+    }
+    conteudo: string,
+    visto: string[]
+}
 
 // Interface para o Provider do coordenador
 interface ICoordenatorProps {
@@ -311,6 +326,32 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
             setLoading(false);
         }
     }
+
+    // //Listagem de notificações enviadas
+    // const notesSend = async () => {
+    //     setLoading(true);
+    //     try{
+    //         const res = await fetch(`${api_url}/api/note/list-all-notes`, {
+    //             headers: {
+    //                 Authorization: `Bearer ${token}`
+    //             }
+    //         });
+
+    //         const dataJson = await res.json();
+
+    //         if(!res.ok){
+    //             return toast.error("Erro ao listar notificações.");
+    //         };
+
+    //         return dataJson
+    //     }
+    //     catch(error){
+    //         console.log(error);
+    //     }
+    //     finally{
+    //         setLoading(false);
+    //     }
+    // }
 
 
     // Retorno do contexto com as funções disponíveis

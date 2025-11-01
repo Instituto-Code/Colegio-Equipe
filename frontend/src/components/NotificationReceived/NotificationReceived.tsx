@@ -8,14 +8,11 @@ import {
 } from "@/components/ui/sheet"
 import { useAuth } from "@/contexts/authContext"
 import { Bell, User } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 export function NotificationReceived() {
-  const { notes, listNoteToPending } = useAuth()
+  const { notes } = useAuth()
   const [open, setOpen] = useState(false)
-
-
-
 
 
   return (
@@ -40,13 +37,13 @@ export function NotificationReceived() {
           {notes && notes?.length > 0 && notes.length > 0 ? (
             notes.map((n) => (
               <div
-                key={n._id}
+                key={n.id}
                 className="flex items-start gap-3 border-b pb-3"
               >
                 <User className="w-6 h-6 text-blue-500 mt-1" />
                 <div className="flex flex-col">
                   <span className="font-semibold text-sm">
-                    {n.author?.name ?? "Autor desconhecido"}
+                    {n.author.nome ?? "Autor desconhecido"}
                   </span>
                   <span className="text-sm text-gray-600">
                     {n.conteudo}
