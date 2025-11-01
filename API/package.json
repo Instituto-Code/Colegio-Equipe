@@ -7,7 +7,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "dev": "npx tsx watch src/app.ts",
+    "dev": "npx tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/src/app.js",
     "check:prettier": "npx prettier . --check",
@@ -26,6 +26,7 @@
     "mongoose": "^8.15.1",
     "morgan": "^1.10.1",
     "nodemailer": "^7.0.3",
+    "socket.io": "^4.8.1",
     "winston": "^3.17.0",
     "zod": "^4.1.12"
   },

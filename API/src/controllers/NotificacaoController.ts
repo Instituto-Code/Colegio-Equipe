@@ -1,6 +1,6 @@
 import Notificacoes from "../models/Notificacoes.js";
 import { Response } from "express";
-
+import { getConnectedUsers, getIO } from "../services/socket.js";
 import { CustomRequest } from "../middlewares/authGuard.js";
 import User, { IUser } from "../models/User.js";
 import Logger from "../../config/logger.js";
@@ -32,7 +32,7 @@ export const createNote = async (req: CustomRequest, res: Response) => {
         };
 
         //Criando notificações na base de dados
-        await Notificacoes.create({
+        const newNotification = await Notificacoes.create({
             author: authorId,
             conteudo,
             tipo,
@@ -40,8 +40,24 @@ export const createNote = async (req: CustomRequest, res: Response) => {
             grupo: tipo === "grupo" ? grupo : undefined           
         });
 
+        const io = getIO();
+        const connectedUsers = getConnectedUsers();
+
+        //Enviando notificação para pessoa específica
+        if(tipo === "pessoa" && pessoa){
+            const socketId = connectedUsers.get(pessoa);
+            if(socketId) io.to(socketId).emit("new_notification", newNotification.toObject());
+        }
+
+        //Enviando para pessoa que faz parte de um grupo
+        if(tipo === "grupo" && grupo){
+            console.log(`Emitindo notificação para o grupo: ${grupo}`);
+            io.to(grupo).emit("new_notification", newNotification.toObject());
+        }
+
         res.status(201).json({
-            message: "Notificação criada com sucesso!"
+            message: "Notificação criada com sucesso!",
+            note: newNotification
         });
         
     }
