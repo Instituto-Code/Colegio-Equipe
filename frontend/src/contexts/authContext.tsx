@@ -1,5 +1,11 @@
 import type { IEvent } from "@/components/Coordenador/Calendar/Calendar";
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { toast } from "sonner";
 // import { data, useParams } from "react-router-dom";
@@ -10,6 +16,7 @@ const api_url = import.meta.env.VITE_API_URL;
 
 // Tipagem do usuario
 export interface IUser {
+  _id: string;
   name: string;
   email: string;
   role: string;
@@ -36,10 +43,10 @@ interface IAuthContextProps {
   resetPass: (newPass: string, token: string) => Promise<void>;
   errorsRegister: string[];
   errorsLogin: string[];
-  listEvents: () => Promise<any>
+  listEvents: () => Promise<any>;
   events: IEvent[];
   setEvents: Dispatch<SetStateAction<IEvent[]>>;
-  listNoteToPending: () => Promise<any[]>
+  listNoteToPending: () => Promise<any[]>;
 }
 
 const AuthContext = createContext<IAuthContextProps | undefined>(undefined);
@@ -73,7 +80,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const fetchNotes = async () => {
       await listNoteToPending();
-    }
+    };
 
     fetchNotes();
   }, [token]);
@@ -155,9 +162,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setToken(token);
         await profile(token);
         setLoading(false);
-        toast.success(`Bem vindo(a)!`)
-      } 
-      else {
+        toast.success(`Bem vindo(a)!`);
+      } else {
         console.log("data de erro recebido:", data);
 
         let formattedErrors: string[] = [];
@@ -224,8 +230,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error) {
       console.log(error);
-    }
-    finally{
+    } finally {
       setLoading(false);
     }
   };
@@ -278,67 +283,61 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   //Listagem de eventos do calendário acadêmico
-  const listEvents = 
-  useCallback(
-      async () => {
-      try{
+  const listEvents = useCallback(async () => {
+    try {
+      const res = await fetch(`${api_url}/api/coordenador/list-events`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-        const res = await fetch(`${api_url}/api/coordenador/list-events`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+      const dataJson = await res.json();
 
-        const dataJson = await res.json();
+      if (res.ok) {
+        const formatted = dataJson.map((e: IEvent) => ({
+          ...e,
+          data: new Date(e.data),
+        }));
 
-        if(res.ok){
-            const formatted = dataJson.map((e: IEvent) => ({
-            ...e,
-            data: new Date(e.data),
-          }));
-
-          setEvents(formatted);
-          return formatted;
-        };
-
+        setEvents(formatted);
+        return formatted;
       }
-      catch(error){
-        console.log(error);
-      }
-    }, [api_url, token, setEvents]);
-
-    //Listagem de notificações para pendentes
-    const listNoteToPending = async () => {
-      setLoading(true);
-      console.log(token)
-      try{
-        const res = await fetch(`${api_url}/api/note/list-note-groups`,{
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
-        const dataJson = await res.json();
-
-        if(!res.ok){
-          console.log(dataJson)
-        }
-
-        setNotes(dataJson);
-
-        console.log(dataJson)
-
-        return dataJson
-
-      }
-      catch(error){
-
-      }
-      finally{
-        setLoading(false);
-      }
+    } catch (error) {
+      console.log(error);
     }
+  }, [api_url, token, setEvents]);
 
+  //Listagem de notificações para pendentes
+  const listNoteToPending = async () => {
+    if (!token) return [];
+
+    setLoading(true);
+    try {
+      const res = await fetch(`${api_url}/api/note/list-note-groups`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("Erro ao buscar notas:", errorData);
+        setNotes([]);
+        return [];
+      }
+
+      const dataJson = await res.json();
+
+      if (Array.isArray(dataJson)) setNotes(dataJson);
+      else setNotes([]);
+
+      return Array.isArray(dataJson) ? dataJson : [];
+    } catch (error) {
+      console.error("Erro ao buscar notas:", error);
+      setNotes([]);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Retorno do contexto com as funções disponíveis.
   return (

@@ -19,11 +19,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { api_url, useCoordenador, type INotes } from "@/contexts/coordenadorContext";
+import {
+  api_url,
+  useCoordenador,
+  type INotes,
+} from "@/contexts/coordenadorContext";
 import { useAuth } from "@/contexts/authContext";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
-
 
 interface INotificationsProps {
   open: boolean;
@@ -35,10 +38,12 @@ export function NotificationsSend({ open, onOpenChange }: INotificationsProps) {
   const [target, setTarget] = useState<string | null>(null);
   const [conteudo, setConteudo] = useState("");
   const [users, setUsers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingHere, setLoadingHere] = useState(false);
   const [noteSend, setNotesSend] = useState<INotes[] | []>([]);
+  const [activeTab, setActiveTab] = useState<"enviar" | "enviadas">("enviar");
 
-  const { token, user, loading: loadingNotes } = useAuth();
+  const { token, user } = useAuth();
+  const { notesSend, loading } = useCoordenador();
 
   //Busca usuários do backend (quando for "pessoa")
   useEffect(() => {
@@ -53,7 +58,7 @@ export function NotificationsSend({ open, onOpenChange }: INotificationsProps) {
   }, [type]);
 
   const handleSubmit = async () => {
-    setLoading(true);
+    setLoadingHere(true);
 
     try {
       if (!conteudo || !type || (!target && type === "pessoa"))
@@ -87,19 +92,21 @@ export function NotificationsSend({ open, onOpenChange }: INotificationsProps) {
     } catch (error) {
       console.log(error);
     } finally {
-      setLoading(false);
+      setLoadingHere(false);
     }
   };
 
-  // const handleList = async () => {
-  //   const notes = await notesSend();
+  const handleList = async () => {
+    const notes = await notesSend();
 
-  //   setNotesSend(notes);
-  // }
+    setNotesSend(notes);
+  };
 
-  // useEffect(() => {
-  //   handleList();
-  // }, []);
+  useEffect(() => {
+    if (activeTab === "enviadas" && token) {
+      handleList(); // busca as notas enviadas
+    }
+  }, [activeTab, token]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -111,7 +118,10 @@ export function NotificationsSend({ open, onOpenChange }: INotificationsProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="enviar">
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as "enviar" | "enviadas")}
+        >
           <TabsList>
             {user?.role === "coordenador" ? (
               <>
@@ -203,7 +213,7 @@ export function NotificationsSend({ open, onOpenChange }: INotificationsProps) {
                       onClick={handleSubmit}
                       className="bg-blue-500 cursor-pointer text-white hover:bg-blue-600"
                     >
-                      {loading ? (
+                      {loadingHere ? (
                         <span className="flex items-center justify-center gap-1">
                           <Spinner /> Enviando...
                         </span>
@@ -221,39 +231,48 @@ export function NotificationsSend({ open, onOpenChange }: INotificationsProps) {
               <TabsContent value="enviadas">
                 <Card className="h-90 overflow-y-auto">
                   <CardContent>
-                    {
-                      
-                      loadingNotes ? (
-                        <Spinner />
-                      ) : (
-                        noteSend.length === 0 ? (
-                          <span>Nenhuma mensagem enviada...</span>
-                        ) :
-                        noteSend.map((n) => (
-                           <div
-                            key={n.id}
-                            className="flex items-start gap-3 border-b pb-3"
-                          >
-                            <User className="w-6 h-6 text-blue-500 mt-1" />
-                            <div className="flex flex-col">
-                              <span className="font-semibold flex items-center justify-between text-sm">
-                                Eu <MoveHorizontal /> { n.receptor.nome }
-                              </span>
-                              <span className="text-sm text-gray-600">
-                                {n.conteudo}
-                              </span>
-                            </div>
+                    {loading ? (
+                      <div className="h-50 flex justify-center items-center w-100">
+                        <Spinner className="size-8 text-blue-500" />
+                      </div>
+                    ) : noteSend.length === 0 ? (
+                      <span>Nenhuma mensagem enviada...</span>
+                    ) : (
+                      noteSend.map((n) => (
+                        <div
+                          key={n.id}
+                          className="flex items-start gap-3 border-b pb-3"
+                        >
+                          <User className="w-6 h-6 text-blue-500 mt-1" />
+                          <div className="flex flex-col w-full">
+                            <span className="font-semibold flex items-center justify-between text-sm">
+                              { n.author.id === user._id ? "Eu" : n.author.nome } <MoveHorizontal />{" "}
+                              {n.tipo === "pessoa" ? (
+                                <span>
+                                  {typeof n.receptor === "object"
+                                    ? n.receptor?.nome
+                                    : "Desconhecido"}
+                                </span>
+                              ) : (
+                                <span>
+                                  {typeof n.receptor === "string"
+                                    ? n.receptor
+                                    : "Desconhecido"}
+                                </span>
+                              )}
+                            </span>
+                            <span className="text-sm text-gray-600">
+                              {n.conteudo}
+                            </span>
                           </div>
-                        ))
-                      )
-                    }
-                    
+                        </div>
+                      ))
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>
             </>
-          )
-        }
+          )}
         </Tabs>
       </DialogContent>
     </Dialog>

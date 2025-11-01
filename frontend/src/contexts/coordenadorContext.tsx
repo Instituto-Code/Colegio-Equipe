@@ -53,7 +53,8 @@ export interface INotes {
         nome: string;
         email: string;
         role: string;
-    }
+    },
+    tipo: string,
     conteudo: string,
     visto: string[]
 }
@@ -78,6 +79,7 @@ interface ICoordenatorProps {
     registerStudent: (nome:string, matricula: string, cpf: string, dataNasc: number, sexo: Sexo) => Promise<any>
     addStudentToClass: (studentId: string, classId: string) => Promise<any>
     addTeacherToClass: (classId: string, teacherId: string) => Promise<any>
+    notesSend: () => Promise<INotes[]>
 }
 
 // Contexto do coordenador
@@ -328,35 +330,35 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     }
 
     // //Listagem de notificações enviadas
-    // const notesSend = async () => {
-    //     setLoading(true);
-    //     try{
-    //         const res = await fetch(`${api_url}/api/note/list-all-notes`, {
-    //             headers: {
-    //                 Authorization: `Bearer ${token}`
-    //             }
-    //         });
+    const notesSend = async () => {
+        setLoading(true);
+        try{
+            const res = await fetch(`${api_url}/api/note/list-all-notes`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
 
-    //         const dataJson = await res.json();
+            const dataJson = await res.json();
 
-    //         if(!res.ok){
-    //             return toast.error("Erro ao listar notificações.");
-    //         };
+            if(!res.ok){
+                return toast.error("Erro ao listar notificações.");
+            };
 
-    //         return dataJson
-    //     }
-    //     catch(error){
-    //         console.log(error);
-    //     }
-    //     finally{
-    //         setLoading(false);
-    //     }
-    // }
+            return dataJson
+        }
+        catch(error){
+            console.log(error);
+        }
+        finally{
+            setLoading(false);
+        }
+    }
 
 
     // Retorno do contexto com as funções disponíveis
     return (
-        <CoordenadorContext.Provider value={{ token, addTeacherToClass, addStudentToClass, registerClasses, registerStudent, loading, registerEvent, alunos, professores, overview, Alunos, Professores, Overview }}>
+        <CoordenadorContext.Provider value={{ token, notesSend, addTeacherToClass, addStudentToClass, registerClasses, registerStudent, loading, registerEvent, alunos, professores, overview, Alunos, Professores, Overview }}>
             {children}
         </CoordenadorContext.Provider>
     )
