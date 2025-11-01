@@ -75,7 +75,7 @@ export const UserTable: React.FC = () => {
       setLoading(true);
 
       try {
-        const res = await fetch(`${api_url}/api/coordenador/list-users?page=1&limit=11`, {
+        const res = await fetch(`${api_url}/api/coordenador/list-users`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

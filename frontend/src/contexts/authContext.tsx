@@ -225,7 +225,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const data = await res.json();
 
       if (res.ok) {
-        console.log(data);
         setUser(data);
       }
     } catch (error) {

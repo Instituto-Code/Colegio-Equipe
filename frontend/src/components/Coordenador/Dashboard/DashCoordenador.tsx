@@ -5,6 +5,7 @@ import { Card } from "@/components/Coordenador/Dashboard/DashboardCards"
 import { FaChalkboardTeacher, FaGraduationCap } from "react-icons/fa";
 import { IoBookSharp } from "react-icons/io5";
 import { SiGoogleclassroom } from "react-icons/si";
+import { Spinner } from "@/components/ui/spinner";
 
 // Importação dos icones para o dashboard.
 // import Class from "../../assets/Icons/Class.png" 
@@ -14,22 +15,19 @@ import { SiGoogleclassroom } from "react-icons/si";
 
 export const DashCoordenador = () => {
 
-  const { overview } = useCoordenador()
+  const { overview, loading } = useCoordenador()
 
-  if (!overview) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <span>Carregando...</span>
-      </div>
-    )
-  }
+  if (!overview) return
 
 
   return (
     <div className="flex flex-col h-full gap-15 max-sm:pt-[12vw] ">
       {/* <Navbar /> */}
-      
-        <div className="flex h-full flex-col ">
+      {
+        overview === null && loading ? (
+          <Spinner className="size-8 text-blue-500" />
+        ) : (
+          <div className="flex h-full flex-col ">
           <span className="flex items-center justify-center text-[6vw] md:text-[3vw]">Visão Geral</span>
           <div className="flex flex-col h-full items-center md:flex-row flex-wrap justify-around">
             <Card icon={FaGraduationCap} title={"Alunos"} valueText={overview?.totalAlunos} />
@@ -39,6 +37,9 @@ export const DashCoordenador = () => {
           </div>
           
         </div>
+        )
+      }
+        
 
       
     </div>

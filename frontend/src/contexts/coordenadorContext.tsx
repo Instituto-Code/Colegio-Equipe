@@ -110,6 +110,7 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
 
 
     const Overview = async (customToken: string) => {
+        setLoading(true)
         try {
             const res = await fetch(`${api_url}/api/coordenador/getDashboardOverview`, {
                 headers: {
@@ -120,12 +121,14 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
             const data = await res.json()
 
             if (res.ok) {
-                console.log(data)
                 setOverview(data)
             }
         }
         catch (error) {
             console.log(error)
+        }
+        finally{
+            setLoading(false);
         }
     }
 
