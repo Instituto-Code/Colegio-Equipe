@@ -6,7 +6,7 @@ import { LoginUser } from "./pages/Auth/login/Login";
 import { SiginUser } from "./pages/Auth/register/Register";
 import { ForgotPass } from "./pages/Auth/resetPass/ForgortPass";
 import { ResetPass } from "./pages/Auth/resetPass/ResetPass";
-import { AuthProvider } from "./contexts/authContext";
+import { AuthProvider, useAuth } from "./contexts/authContext";
 
 import { CoordenadorPage } from "./pages/coordenador/CoordenadorPage";
 import { PrivateRouter } from "./components/PrivateRoutes/PrivateRoutes";
@@ -19,8 +19,15 @@ import { GerenciarTurmas } from "./components/professor/GerenceClass";
 import { AcademicCalendar } from "./components/Coordenador/Calendar/Calendar";
 import { CalendarAcademic } from "./components/professor/Calendar/AcademicCalendar";
 import { ClassGerence } from "./components/Coordenador/ClassGerence/ClassGerence";
+import { useNotifications } from "./components/NotificationReceived/useNotifications";
 
 function AppContent() {
+
+  const { user } = useAuth();
+
+  useNotifications(user?._id as string, user ? user.role : "");
+
+
   return (
     <Routes>
       {/* Públicas */}
