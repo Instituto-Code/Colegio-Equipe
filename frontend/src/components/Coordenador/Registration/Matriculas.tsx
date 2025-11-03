@@ -22,10 +22,11 @@ import React, { useEffect, useState } from "react"
 import { useAuth } from "@/contexts/authContext"
 import { Spinner } from "@/components/ui/spinner";
 import { Input } from "@/components/ui/input";
-import { ModalEdit } from "./ModalEdit";
+import { MenuParents } from "./Tools";
 
-
-interface Aluno {
+// Interface para os dados do aluno.
+export interface IAluno {
+    id: string
     nome: string
     matricula: string
     cpf: string,
@@ -37,18 +38,16 @@ interface Aluno {
 export const Matriculas = () => {
 
     const [loading, setLoading] = useState(false);
-    const [data, setData] = React.useState<Aluno[]>([])
+    const [data, setData] = React.useState<IAluno[]>([])
     const [globalFilter, setGlobalFilter] = useState("")
     const [sorting, setSorting] = useState<SortingState>([]);
-    const [selectedAluno, setSelectedAluno] = useState<Aluno | null>(null)
-    const [modalEdit, setModalEdit] = useState(false)
+    const [openAssStudent, setOpenAssStudent ] = useState(false)
 
     const { alunos, registerStudent } = useCoordenador()
-    
-    console.log(alunos)
 
     const { token } = useAuth()
 
+    // Carregamento da lista de alunos, carrega novamente ao adicionar um novo aluno.
     useEffect(() => {
         const getAlunos = async () => {
             setLoading(true)
@@ -56,13 +55,13 @@ export const Matriculas = () => {
                 const res = await fetch(`${api_url}/api/coordenador/list-students`, {
                     headers: {
                         Authorization: `Bearer ${token}`
-                    }
+                    },
                 })
 
                 const dataJson = await res.json()
-
+                
                 setData(dataJson.alunos)
-                console.log(dataJson.alunos)
+                console.log(dataJson.alunos)             
             }
             catch (error) {
                 console.error(error)
@@ -78,24 +77,15 @@ export const Matriculas = () => {
 
 
     // Colunas da tabela
-    const columns: ColumnDef<Aluno>[] = [
+    const columns: ColumnDef<IAluno>[] = [
         { accessorKey: "nome", header: "Nome" },
         { accessorKey: "matricula", header: "Matrícula" },
         { accessorKey: "status", header: "Status" },
         {
             id: "actions",
-            header: "Ações",
             cell: ({ row }) => (
                 <div className="flex gap-2">
-                    <Button
-                        onClick={() => {
-                            setSelectedAluno(row.original)
-                            setModalEdit(true)
-                            console.log("click", modalEdit)
-                        }}
-                        className="bg-blue-400 hover:bg-blue-500 cursor-pointer">
-                        Editar
-                    </Button>
+                    <MenuParents openDialog={openAssStudent} idAluno={row.original.id} nome={row.original.nome}/>
                 </div>
             ),
         },
@@ -126,6 +116,7 @@ export const Matriculas = () => {
                     <AddStudent />
                 </div>
 
+                {/* Input para a busca de alunos */}
                 <Input
                     type="text"
                     placeholder="Buscar Alunos..."
@@ -143,7 +134,6 @@ export const Matriculas = () => {
                         // Tabela para Computador
                         <ScrollArea className="w-full">
                             <Table className="w-full">
-                                {/* <TableCaption>A list of your recent invoices.</TableCaption> */}
                                 <TableHeader>
                                     {table.getHeaderGroups().map((headerGroup) => (
                                         <TableRow key={headerGroup.id}>
@@ -183,12 +173,6 @@ export const Matriculas = () => {
                                         </TableRow>
                                     ))}
                                 </TableBody>
-                                {/* <TableFooter>
-                                <TableRow>
-                                    <TableCell colSpan={3}>Total</TableCell>
-                                    <TableCell className="text-right">$2,500.00</TableCell>
-                                </TableRow>
-                            </TableFooter> */}
                             </Table>
                         </ScrollArea>
                         
@@ -209,25 +193,15 @@ export const Matriculas = () => {
                                 <strong>Status: </strong>{row.original.status}
                             </div>
                             <div className="flex mt-2">
-                                <Button 
-                                onClick={()=> setModalEdit(true)}
-                                className="bg-blue-400 hover:bg-blue-500 cursor-pointer">
-                                    Editar
-                                </Button>
+                                <MenuParents openDialog={openAssStudent} idAluno={row.original.id} nome={row.original.nome}/>
                             </div>
                         </div>
                     ))}
 
                 </div>
 
-                {modalEdit && (
-                    <ModalEdit
-                        onClose={() => setModalEdit(false)}
-                    />
-                )}
-
-
                 <Toaster />
+
             </div>
         </div>
     )

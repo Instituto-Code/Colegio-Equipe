@@ -1,9 +1,9 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react"
 import { toast } from "sonner";
 
 export const api_url = import.meta.env.VITE_API_URL
 
-type TipoEvento = 'feriado'| 'reunião'| 'aviso'| 'férias'| 'prova';
+type TipoEvento = 'feriado' | 'reunião' | 'aviso' | 'férias' | 'prova';
 
 type Sexo = 'masculino' | 'feminino'
 
@@ -33,12 +33,12 @@ interface IDisciplina {
 
 //Tipagem para professor
 export interface Professor {
-  id: string;
-  nome: string;
-  matricula: string;
-  formacaoAcademica?: string;
-  disciplinas: IDisciplina[];
-  turmas: string[]
+    id: string;
+    nome: string;
+    matricula: string;
+    formacaoAcademica?: string;
+    disciplinas: IDisciplina[];
+    turmas: string[]
 }
 
 export interface INotes {
@@ -61,7 +61,7 @@ export interface INotes {
 
 // Interface para o Provider do coordenador
 interface ICoordenatorProps {
-    alunos: IAluno[] 
+    alunos: IAluno[]
     professores: Professor[] | null
     token: string | null
     overview: {
@@ -76,9 +76,10 @@ interface ICoordenatorProps {
     registerEvent: (titulo: string, descricao: string, data: Date, tipo: TipoEvento) => Promise<void>
     loading: boolean
     registerClasses: (nome: string, turno: string, anoLetivo: number) => Promise<any>
-    registerStudent: (nome:string, matricula: string, cpf: string, dataNasc: number, sexo: Sexo) => Promise<any>
+    registerStudent: (nome: string, matricula: string, cpf: string, dataNasc: number, sexo: Sexo) => Promise<any>
     addStudentToClass: (studentId: string, classId: string) => Promise<any>
     addTeacherToClass: (classId: string, teacherId: string) => Promise<any>
+    relationParentStudent: (parentId: string, studentId: string) => Promise<any>
     notesSend: () => Promise<INotes[]>
 }
 
@@ -127,7 +128,7 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
         catch (error) {
             console.log(error)
         }
-        finally{
+        finally {
             setLoading(false);
         }
     }
@@ -142,7 +143,7 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
                 }
             })
 
-            const data = await res.json() 
+            const data = await res.json()
 
             if (res.ok) {
                 // console.log(data.alunos)
@@ -179,7 +180,7 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
 
     //Cadastro de eventos no calendário
     const registerEvent = async (titulo: string, descricao: string, data: Date, tipo: TipoEvento) => {
-        try{
+        try {
             setLoading(true);
             const res = await fetch(`${api_url}/api/coordenador/create-event`, {
                 method: "POST",
@@ -192,24 +193,24 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
 
             const dataJson = await res.json();
 
-            if(dataJson.ok){
-               console.log("Evento cadastrado:", dataJson);
-               return dataJson;
+            if (dataJson.ok) {
+                console.log("Evento cadastrado:", dataJson);
+                return dataJson;
             };
 
         }
-        catch(error){
+        catch (error) {
             console.log(error);
             throw error;
         }
-        finally{
+        finally {
             setLoading(false);
         }
     }
 
     //Função para criar turmas
     const registerClasses = async (nome: string, turno: string, anoLetivo: number) => {
-        try{    
+        try {
             setLoading(true);
             const res = await fetch(`${api_url}/api/coordenador/register-classes`, {
                 method: "POST",
@@ -224,8 +225,8 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
 
             if (!res.ok) {
                 toast(`Erro: ${data.errors[0]}`);
-                throw new Error(data.msg || `Erro HTTP: ${res.status}`); 
-                
+                throw new Error(data.msg || `Erro HTTP: ${res.status}`);
+
             }
 
             const newClass: Turma = data;
@@ -235,51 +236,51 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
             return newClass;
 
         }
-        catch(error: any){
+        catch (error: any) {
             console.log(error);
             throw error;
         }
-        finally{
+        finally {
             setLoading(false);
         }
     }
 
     //Função para registrar um aluno (matrícula)
-    const registerStudent = async (nome:string, matricula: string, cpf: string, dataNasc: number, sexo: Sexo) => {
+    const registerStudent = async (nome: string, matricula: string, cpf: string, dataNasc: number, sexo: Sexo) => {
         setLoading(true)
-        try{
+        try {
             const res = await fetch(`${api_url}/api/coordenador/register-students`, {
                 method: 'POST',
-                headers:{
-                    'Content-Type' : 'application/json',
+                headers: {
+                    'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({ nome, matricula, cpf, dataNasc, sexo })
             })
 
             const data = await res.json()
-            console.log(data)
 
-            if(!res.ok){
-                toast(`Erro: ${data.errors[0]}`);
-                throw new Error(data.msg || `Erro HTTP: ${res.status}`); 
+            if (!res.ok) {
+                throw new Error(data.errors?.[0] || "Erro desconhecido")
             }
 
             const newAluno: IAluno = data.aluno
-
             setAlunos((prevAlunos) => [...prevAlunos, newAluno])
 
-            return newAluno
+            return data
         }
-        catch(error){
-            console.error(error)
+        catch (error: any) {
+            throw new Error(error.message || 'Erro ao comunicar com o servidor')
+        }
+        finally {
+            setLoading(false)
         }
     }
 
     //Adicionar aluno à turma
     const addStudentToClass = async (studentId: string, classId: string) => {
         setLoading(true)
-        try{
+        try {
             const res = await fetch(`${api_url}/api/coordenador/student/${studentId}/class/${classId}`, {
                 method: "PATCH",
                 headers: {
@@ -296,10 +297,10 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
             return dataJson;
 
         }
-        catch(error){
+        catch (error) {
             console.log(error);
         }
-        finally{
+        finally {
             setLoading(false);
         }
     }
@@ -307,7 +308,7 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     //Adicionar professor a uma turma
     const addTeacherToClass = async (classId: string, teacherId: string) => {
         setLoading(true)
-        try{
+        try {
             const res = await fetch(`${api_url}/api/coordenador/class/${classId}/teacher/${teacherId}`, {
                 method: "PATCH",
                 headers: {
@@ -317,25 +318,54 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
 
             const dataJson = await res.json();
 
-            if(!res.ok){
+            if (!res.ok) {
                 return toast.error(dataJson.error);
             }
 
             toast.success("Professor vinculado à turma com sucesso!");
             return addTeacherToClass;
         }
-        catch(error){
+        catch (error) {
             console.log(error);
         }
-        finally{
+        finally {
             setLoading(false);
         }
+    }
+
+    // Relacionar aluno a um pai
+    const relationParentStudent = async (studentId: string, parentId: string) => {
+        setLoading(true)
+        try {
+            const res = await fetch(`${api_url}/api/coordenador/student/${studentId}/parent/${parentId}`, {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            const dataJson = await res.json()
+
+            console.log(dataJson)
+
+            return dataJson
+
+
+        }
+        catch (error) {
+            console.error(error)
+            throw error
+        }
+        finally {
+            setLoading(false)
+        }
+
     }
 
     // //Listagem de notificações enviadas
     const notesSend = async () => {
         setLoading(true);
-        try{
+        try {
             const res = await fetch(`${api_url}/api/note/list-all-notes`, {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -344,16 +374,16 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
 
             const dataJson = await res.json();
 
-            if(!res.ok){
+            if (!res.ok) {
                 return toast.error("Erro ao listar notificações.");
             };
 
             return dataJson
         }
-        catch(error){
+        catch (error) {
             console.log(error);
         }
-        finally{
+        finally {
             setLoading(false);
         }
     }
@@ -361,7 +391,25 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
 
     // Retorno do contexto com as funções disponíveis
     return (
-        <CoordenadorContext.Provider value={{ token, notesSend, addTeacherToClass, addStudentToClass, registerClasses, registerStudent, loading, registerEvent, alunos, professores, overview, Alunos, Professores, Overview }}>
+        // <CoordenadorContext.Provider value={{ token, notesSend, addTeacherToClass, addStudentToClass, registerClasses, registerStudent, loading, registerEvent, alunos, professores, overview, Alunos, Professores, Overview }}>
+        <CoordenadorContext.Provider
+            value={{
+                token,
+                notesSend,
+                addTeacherToClass,
+                addStudentToClass,
+                registerClasses,
+                registerStudent,
+                loading,
+                registerEvent,
+                relationParentStudent,
+                alunos,
+                professores,
+                overview,
+                Alunos,
+                Professores,
+                Overview
+            }}>
             {children}
         </CoordenadorContext.Provider>
     )

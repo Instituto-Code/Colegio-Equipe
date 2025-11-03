@@ -16,12 +16,22 @@ import { useForm } from "react-hook-form"
 import { toast, Toaster } from "sonner"
 
 export const Modal = () => {
+    // const [isEditing, setIsEditing] = useState(false)
 
     const { registerStudent, loading } = useCoordenador()
 
     const currentYear = new Date().getFullYear()
 
     //Inteface do Aluno
+    interface IAluno {
+        nome: string
+        matricula: string
+        cpf: string,
+        dataNasc: number
+        sexo: "masculino" | "feminino"
+    }
+
+    // React Hook Form
     const {
         register,
         handleSubmit,
@@ -36,31 +46,26 @@ export const Modal = () => {
         }
     })
 
-    interface IAluno {
-        nome: string
-        matricula: string
-        cpf: string,
-        dataNasc: number
-        sexo: "masculino" | "feminino"
-    }
-
+    // Mensagem para exibir no toast
     const onSubmit = async (data: IAluno) => {
         try {
-            await registerStudent(data.nome, data.matricula, data.cpf, data.dataNasc, data.sexo)
-            toast.success("Aluno matriculado com sucesso")
+            const res = await registerStudent(data.nome, data.matricula, data.cpf, data.dataNasc, data.sexo)
+
+            toast.success(res.msg)
         }
-        catch (error) {
-            toast.error("Erro ao matricular o aluno")
+        catch (error: any) {
+            toast.error(error.message);
+            console.error(error);
         }
     }
 
 
     return (
-        
+
         <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex w-full flex-col gap-[3vb] max-md:w-4/5">
-              
+            className="flex w-full flex-col gap-[3vb] max-sm:gap-[1vb] max-md:w-4/5">
+
             {/* Campo nome */}
             <div className="flex flex-col gap-2">
                 <label htmlFor="nome">
@@ -76,7 +81,7 @@ export const Modal = () => {
                             : "border-gray-300 "
                     )}
                     {...register("nome", {
-                        required: "o nome é obrigatório"
+                        required: "O nome é obrigatório"
                     })}
                 />
                 {errors.nome && (
@@ -101,7 +106,7 @@ export const Modal = () => {
                             : "border-gray-300 "
                     )}
                     {...register("matricula", {
-                        required: "a matricula é obrigatória"
+                        required: "A matricula é obrigatória"
                     })}
                 />
                 {errors.nome && (
@@ -126,7 +131,7 @@ export const Modal = () => {
                             : "border-gray-300 "
                     )}
                     {...register("cpf", {
-                        required: "a matricula é obrigatória"
+                        required: "O CPF é obrigatório"
                     })}
                 />
                 {errors.nome && (
@@ -151,7 +156,7 @@ export const Modal = () => {
                             : "border-gray-300 "
                     )}
                     {...register("dataNasc", {
-                        required: "a data de nascimento é obrigatória"
+                        required: "A data de nascimento é obrigatória"
                     })}
                 />
                 {errors.nome && (
@@ -172,7 +177,7 @@ export const Modal = () => {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectGroup>
-                            <SelectLabel>Fruits</SelectLabel>
+                            <SelectLabel>Sexo</SelectLabel>
                             <SelectItem value="masculino">Masculino</SelectItem>
                             <SelectItem value="feminino">Feminino</SelectItem>
                         </SelectGroup>
@@ -193,7 +198,7 @@ export const Modal = () => {
             >
                 {loading ? (
                     <span className="flex gap-1.5 items-center">
-                        <Spinner /> Criando turma...
+                        <Spinner /> Criando matrícula ...
                     </span>
                 ) : (
                     "Criar Matrícula"

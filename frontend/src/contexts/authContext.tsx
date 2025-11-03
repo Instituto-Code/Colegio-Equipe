@@ -81,7 +81,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const fetchNotes = async () => {
       await listNoteToPending();
     };
-
     fetchNotes();
   }, [token]);
 
@@ -289,15 +288,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           Authorization: `Bearer ${token}`,
         },
       });
-
+  
       const dataJson = await res.json();
-
+  
       if (res.ok) {
         const formatted = dataJson.map((e: IEvent) => ({
           ...e,
           data: new Date(e.data),
         }));
-
+  
         setEvents(formatted);
         return formatted;
       }
@@ -305,7 +304,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.log(error);
     }
   }, [api_url, token, setEvents]);
-
+  
   //Listagem de notificações para pendentes
   const listNoteToPending = async () => {
     if (!token) return [];

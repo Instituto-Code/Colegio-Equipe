@@ -12,7 +12,7 @@ export const AddStudent = () => {
                         Adicionar
                     </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="">
                     <DialogTitle>Adicione um novo Aluno</DialogTitle>
                     <DialogDescription>Informe aqui os dados referentes ao aluno!</DialogDescription>
                     <Modal />
