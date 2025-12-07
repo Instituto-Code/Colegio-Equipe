@@ -22,7 +22,9 @@ export const useNotifications = (userId: string, grupos: string) => {
         });
 
         socket.on("new_notification", (data) => {
-            toast.info(`Nova notificação: ${data.conteudo}`);
+            toast.info(`Nova notificação: ${data.conteudo}`, {
+                duration: 10000
+            });
         })
 
         return () => {

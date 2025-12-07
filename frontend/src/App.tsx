@@ -28,7 +28,7 @@ function AppContent() {
   useNotifications(user?._id as string, user ? user.role : "");
 
 
-  return (
+ return (
     <Routes>
       {/* Públicas */}
       <Route path="/" element={<LandingPage />} />
