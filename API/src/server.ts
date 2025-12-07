@@ -1,12 +1,11 @@
-// src/server.ts
-import config from "config";
-import Logger from "../config/logger.js";
-import dbConnection from "../config/db.js";
-import app from "./app.js";
-import { initSocket } from "./services/socket.js";
-import http from "http";
+import config from 'config';
+import Logger from '../config/logger.js';
+import dbConnection from '../config/db.js';
+import app from './app.js';
+import { initSocket } from './configs/socket.js';
+import http from 'http';
 
-const PORT = config.get<number>("port") || 3000;
+const PORT = config.get<number>('port') || 3000;
 
 const startServer = async () => {
   try {
@@ -20,9 +19,8 @@ const startServer = async () => {
 
     // inicializa o socket no servidor http
     initSocket(server);
-
   } catch (err) {
-    console.log("Erro ao conectar ao MongoDB:", err);
+    console.log('Erro ao conectar ao MongoDB:', err);
     process.exit(1);
   }
 };

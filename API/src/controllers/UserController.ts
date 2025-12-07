@@ -1,97 +1,67 @@
 import User from '../models/User.js';
 import { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
-import { sendResetPass } from '../services/sendEmail.js';
+import { sendResetPass } from '../configs/sendEmail.js';
 import crypto from 'crypto';
 import { CustomRequest } from '../middlewares/authGuard.js';
 import Logger from '../../config/logger.js';
+import { RegisterUserService } from '../services/user/RegisterUserService.js';
+import { LoginUserService } from '../services/user/LoginUserService.js';
+import { ProfileUserService } from '../services/user/ProfileUserService.js';
+import { UpdateUserService } from '../services/user/UpdateUserService.js';
+import { SendResetPassMailService } from '../services/user/SendResetMailService.js';
+import { ResetPasswordService } from '../services/user/ResetPasswordService.js';
 dotenv.config();
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
-//Função para geração de token a partir do id de usuário
-const generateToken = (id: string) => {
-  if (!JWT_SECRET) {
-    Logger.error("Variável de ambiente 'JWT_SECRET' indefinida!");
-    return null;
-  }
-  return jwt.sign(
-    { id },
-    JWT_SECRET, //O token é inserido no token aqui!!
-    { expiresIn: '7d' },
-  );
-};
-
-//Função para registrar usuário
+// Registrar usuário
 export const register = async (req: CustomRequest, res: Response) => {
-  //Pegando dados da requisição
   const { name, email, password } = req.body;
 
   try {
-    //Validações
-    const user = await User.findOne({ email });
+    const result = await RegisterUserService({ name, email, password });
 
-    //Verificando se o usuário já existe
-    if (user) {
-      return res.status(401).json({ errors: ['Usuário já existe!'] });
+    return res.status(201).json(result);
+  } catch (error: any) {
+    if (error?.message) {
+      Logger.warn(`Erro de registro: ${error.message}`);
+      return res.status(400).json({ errors: [error.message] });
     }
 
-    //Criptografia de senha
-    const salt = await bcrypt.genSalt();
-    const hashPass = await bcrypt.hash(password, salt);
-
-    //Criando usuário no bd
-    const newUser = await User.create({
-      name,
-      email,
-      password: hashPass, //Recebendo a senha criptografada
-    });
-
-    //Resposta com o id e token de usuário
-    res.status(200).json({
-      _id: newUser._id,
-      token: generateToken(newUser._id as string),
-    });
-  } catch (error) {
-    Logger.error(`Erro interno do servidor: ${error}`);
+    Logger.error(`Erro interno no registro: ${error}`);
     res.status(500).json({ msg: 'Erro interno do servidor!' });
   }
 };
 
+// Login de usuário
 export const login = async (req: CustomRequest, res: Response) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const result = await LoginUserService({ email, password });
 
-    //Verificando se o usuário existe
-    if (!user) {
-      return res.status(404).json({ errors: ['Usuário não encontrado!'] });
+    return res.status(200).json(result);
+  } catch (error: any) {
+    if (error?.message) {
+      Logger.warn(`Erro de login: ${error.message}`);
+      return res.status(400).json({ errors: [error.message] });
     }
 
-    //Comparando senha
-    if (!(await bcrypt.compare(password, user.password))) {
-      return res.status(422).json({ errors: ['Senha incorreta!'] });
-    }
-
-    //Retornando usuário logado
-    res.status(200).json({
-      _id: user._id,
-      token: generateToken(user._id as string),
-    });
-  } catch (error) {
-    Logger.error(`Erro interno do servidor: ${error}`);
-    res.status(500).json({ errors: ['Erro interno do servidor!'] });
+    // Erro inesperado
+    Logger.error(`Erro interno no login: ${error}`);
+    return res.status(500).json({ errors: ['Erro interno do servidor'] });
   }
 };
 
 //Acessando usuário logado
 export const getCurentUser = async (req: CustomRequest, res: Response) => {
-  const user = req.user;
-  console.log(user);
-  res.status(200).json(user);
+  try {
+    const result = await ProfileUserService(req);
+    res.status(200).json(result);
+  } catch (error: any) {
+    Logger.error(`Erro ao obter usuário logado: ${error}`);
+    return res.status(500).json({ errors: ['Erro interno do servidor!'] });
+  }
 };
 
 //Edição de nome e senha de usuário (pode mudar as possibilidades futuramente)
@@ -99,47 +69,17 @@ export const updateUser = async (req: CustomRequest, res: Response) => {
   const { name, password, cpf, numberTel, dataNasc, adress } = req.body;
 
   try {
-    const userLogged = req.user;
-    const user = await User.findById(userLogged.id);
+    const result = await UpdateUserService({
+      name,
+      password,
+      cpf,
+      numberTel,
+      dataNasc,
+      adress,
+      req,
+    });
 
-    if (!user) {
-      return res.status(404).json({
-        error: 'Usuário não encontrado.',
-      });
-    }
-
-    //Atualizando nome
-    if (name) {
-      user.name = name;
-    }
-
-    //Atualizando senha
-    if (password) {
-      const salt = await bcrypt.genSalt();
-      const newPass = await bcrypt.hash(password, salt);
-      user.password = newPass;
-    }
-
-    if (cpf) {
-      user.cpf = cpf;
-    }
-
-    if (numberTel) {
-      user.numberTel = numberTel;
-    }
-
-    if (dataNasc) {
-      user.dataNasc = dataNasc;
-    }
-
-    if (adress) {
-      user.adress = adress;
-    }
-
-    //salvando usuário
-    await user.save();
-
-    res.status(201).json(user);
+    res.status(201).json(result);
   } catch (error) {
     Logger.error(`Erro interno do servidor: ${error}`);
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
@@ -150,82 +90,27 @@ export const updateUser = async (req: CustomRequest, res: Response) => {
 
 //Pegando dados e enviando email
 export const resetPassMail = async (req: Request, res: Response) => {
-  const { email } = req.body;
-
   try {
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(404).json({
-        errors: ['Usuário não encontrado!'],
-      });
-    }
-
-    //Gerando token com o crypto
-    const resetToken = crypto.randomBytes(32).toString('hex');
-
-    //Criando o hash do token
-    const tokenHash = crypto
-      .createHash('sha256')
-      .update(resetToken)
-      .digest('hex');
-
-    //Salvando no schema do usuário
-    user.resetPassToken = tokenHash;
-    user.resetPassTokenExpires = new Date(Date.now() + 15 * 60 * 1000);
-    await user.save();
-
-    const resetLink = `${process.env.FRONTEND_URL}/resetPass/${resetToken}`;
-
-    //Enviando dados para a função de envio de email
-    sendResetPass(email, resetLink);
-
-    res.status(200).json({
-      msg: 'E-mail de redefinição enviado com sucesso!',
-    });
-  } catch (error) {
-    Logger.error(`Erro interno do servidor: ${error}`);
-    res.status(500).json({ errors: ['Erro interno do servidor!'] });
+    const { email } = req.body;
+    const result = await SendResetPassMailService(email);
+    return res.status(200).json(result);
+  } catch (error: any) {
+    return res.status(400).json({ errors: [error.message] });
   }
 };
 
 //Rota que modifica a senha
-export const resetPass = async (req: Request, res: Response) => {
-  const { newPass } = req.body;
-  const { token } = req.params;
-
+export const resetPass = async (req: CustomRequest, res: Response) => {
   try {
-    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-
-    const user = await User.findOne({
-      resetPassToken: tokenHash,
-      resetPassTokenExpires: { $gt: Date.now() },
-    });
+    const user = await ResetPasswordService(req.params.token, req.body.newPass);
 
     if (!user) {
-      return res.status(404).json({
-        errors: ['Token expirado!'],
-      });
+      return res.status(400).json({ errors: ["Token inválido ou expirado!"] });
     }
 
-    //criptografando senha
-    const salt = await bcrypt.genSalt();
-    const passHash = await bcrypt.hash(newPass, salt);
-
-    //Salvando nova senha
-    user.password = passHash;
-
-    //Limpando dados de redefinição do banco
-    user.resetPassToken = undefined;
-    user.resetPassTokenExpires = undefined;
-
-    await user.save();
-
-    res.status(201).json({
-      msg: 'Senha redefinida com sucesso!',
-    });
-  } catch (error) {
-    Logger.error(`Erro interno do servidor: ${error}`);
-    res.status(500).json({ errors: ['Erro interno do servidor!'] });
+    res.status(201).json({ msg: "Senha redefinida com sucesso!" });
+  } catch (err) {
+    Logger.error(err);
+    res.status(500).json({ errors: ["Erro interno do servidor!"] });
   }
 };

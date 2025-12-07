@@ -21,7 +21,7 @@ import { userLoginValidations } from '../middlewares/userValidations.js';
 userRouter.post('/register', userValidations(), validate, register);
 userRouter.post('/login', userLoginValidations(), validate, login);
 userRouter.get('/profile', authGuard, getCurentUser);
-userRouter.put('/updateUser', authGuard, validate, updateUser);
+userRouter.patch('/updateUser', authGuard, validate, updateUser);
 userRouter.post('/send-reset', resetPassMail);
 userRouter.patch('/reset-pass/:token', resetPass);
 
