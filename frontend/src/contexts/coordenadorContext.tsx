@@ -1,3 +1,4 @@
+import { tr } from "date-fns/locale";
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react"
 import { toast } from "sonner";
 
@@ -15,6 +16,7 @@ export interface Turma {
     anoLetivo: number;
 }
 
+// Tipagem de Aluno
 interface IAluno {
     nome: string
     matricula: string
@@ -77,6 +79,8 @@ interface ICoordenatorProps {
     loading: boolean
     registerClasses: (nome: string, turno: string, anoLetivo: number) => Promise<any>
     registerStudent: (nome: string, matricula: string, cpf: string, dataNasc: number, sexo: Sexo) => Promise<any>
+    registerParent: (userID: string) => Promise<any>
+    registerTeacher: (userID: string, matricula: string, formacao: string) => Promise<void>
     addStudentToClass: (studentId: string, classId: string) => Promise<any>
     addTeacherToClass: (classId: string, teacherId: string) => Promise<any>
     relationParentStudent: (parentId: string, studentId: string) => Promise<any>
@@ -277,6 +281,59 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
         }
     }
 
+    // Função para registrar um Professor. 
+    const registerTeacher = async(user: string, matricula: string, formacao: string) =>{
+        try{
+            const res = await fetch(`${api_url}/api/coordenador/register-teacher`,{
+                method: 'POST',
+                headers: {
+                    'Content-Type': "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ user, matricula, formacao })
+            })
+
+            const data = await res.json()
+
+            if(!res.ok){
+                throw new Error(data.errors?.[0] || "Erro desconhecido")
+            }
+
+            return data
+        }   
+        catch(error: any){
+            throw new Error(error.message || 'Erro ao comunicar com o servidor')
+        }
+    }
+
+    // Função para registrar um pai
+    const registerParent = async(userId: string) =>{
+        setLoading(true)
+        try{
+            const res = await fetch(`${api_url}/api/coordenador/register-parent/${userId}`,{
+                method: 'PATCH',
+                headers:{
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            const data = await res.json()
+
+            if(!res.ok){
+                return toast.error('Pai não cadastrado')
+            }
+
+            toast.success("Parente cadastrado com sucesso")
+            return data
+        }
+        catch(error: any){
+            throw new Error(error.message || 'Erro ao comunicar com o servidor')
+        }
+        finally{
+            setLoading(false)
+        }
+    }
+
     //Adicionar aluno à turma
     const addStudentToClass = async (studentId: string, classId: string) => {
         setLoading(true)
@@ -400,6 +457,8 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
                 addStudentToClass,
                 registerClasses,
                 registerStudent,
+                registerParent,
+                registerTeacher,
                 loading,
                 registerEvent,
                 relationParentStudent,

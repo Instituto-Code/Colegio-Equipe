@@ -44,7 +44,7 @@ const columns: ColumnDef<User>[] = [
     header: "Ações",
     cell: ({ row }) => (
       <div className="flex gap-2">
-        <Tools nome={row.original.nome} role={row.original.role} />
+        <Tools nome={row.original.nome} role={row.original.role} id={row.original.id} />
         <Button variant={"outline"} className="text-red-500">
           Excluir
         </Button>
@@ -239,7 +239,7 @@ export const UserTable: React.FC = () => {
                             <strong>Cargo:</strong> {row.original.role}
                         </div>
                         <div className="flex gap-2 mt-2">
-                            <Tools nome={row.original.nome} role={row.original.role} />
+                            <Tools nome={row.original.nome} role={row.original.role} id={row.original.id} />
                             <Button variant="outline" className="text-red-500">
                                 Excluir
                             </Button>
