@@ -4,7 +4,7 @@ import { TeacherRepository } from "../teacher.repository.js";
 
 export async function ListClasses(user: IUser){
 
-    const teacher = await TeacherRepository.findByUser(user._id as string) ;
+    const teacher = await TeacherRepository.findByUser(user._id as unknown as string) ;
 
     if(!teacher) throw new Error("Professor não encontrado.");
 

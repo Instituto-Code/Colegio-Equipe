@@ -1,4 +1,6 @@
 import { Document, Types } from "mongoose";
+import { ITurma } from "../../models/Turma.js";
+import { IPais } from "../../modules/Parents/parents.model.js";
 
 type Sexo = 'masculino' | 'feminino';
 

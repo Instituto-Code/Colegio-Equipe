@@ -18,7 +18,7 @@ import {
   studentToParent,
 } from '../controllers/CoordenadorController/CoordenadorController.js';
 
-import { listEvents, registerEvent } from '../controllers/EventController.js';
+import { listEvents, registerEvent } from '../modules/Events/event.controller.js';
 
 import {
   getDashboardOverview,
