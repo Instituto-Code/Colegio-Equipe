@@ -12,7 +12,7 @@ export const Navbar = () => {
     }
 
     return (
-        <div className="flex sticky top-0 w-full justify-between items-center bg-indigo-200 py-2 shadow-md z-1">
+        <div className="flex sticky z-40 top-0 w-full justify-between items-center bg-indigo-200 py-2 shadow-md z-1">
             <div>
                 <Link to={"/"}>
                     <img src={img_logo} className="w-[5vw] max-sm:w-15" alt="" />

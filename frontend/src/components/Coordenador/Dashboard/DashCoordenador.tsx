@@ -27,13 +27,16 @@ export const DashCoordenador = () => {
         overview === null && loading ? (
           <Spinner className="size-8 text-blue-500" />
         ) : (
-          <div className="flex h-full flex-col ">
+          <div className="flex h-full flex-col">
+            <div className="h-full md:h-auto">
+              <img className="flex h-full md:h-auto opacity-20 top-28 absolute z-10" src="/school.svg" alt="" />
+            </div>
           <span className="flex items-center justify-center text-[6vw] md:text-[3vw]">Visão Geral</span>
-          <div className="flex flex-col h-full items-center md:flex-row flex-wrap justify-around">
-            <Card icon={FaGraduationCap} title={"Alunos"} valueText={overview?.totalAlunos} />
-            <Card icon={FaChalkboardTeacher} title={"Professores"} valueText={overview?.totalProfessores ?? null} />
-            <Card icon={IoBookSharp} title={"Disciplinas"} valueText={overview.totalDisciplinas ?? null} />
-            <Card icon={SiGoogleclassroom} title={"Turmas"} valueText={overview.totalTurmas ?? null} />
+          <div className="flex z-20 flex-col gap-3.5 md:gap-0 h-full items-center md:flex-row flex-wrap justify-around">
+            <Card type="alunos" icon={FaGraduationCap} title={"Alunos"} valueText={overview?.totalAlunos} />
+            <Card type="professores" icon={FaChalkboardTeacher} title={"Professores"} valueText={overview?.totalProfessores ?? null} />
+            <Card type="disciplinas" icon={IoBookSharp} title={"Disciplinas"} valueText={overview.totalDisciplinas ?? null} />
+            <Card type="turmas" icon={SiGoogleclassroom} title={"Turmas"} valueText={overview.totalTurmas ?? null} />
           </div>
           
         </div>
