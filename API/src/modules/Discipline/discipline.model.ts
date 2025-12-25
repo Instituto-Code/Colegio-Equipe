@@ -1,10 +1,5 @@
-import mongoose, { Schema, Types, Document } from 'mongoose';
-
-interface IDisciplina {
-  nome: string;
-  descrição: string;
-  cargaHoraria: number;
-}
+import mongoose, { Schema } from 'mongoose';
+import { IDisciplina } from '../../shared/types/discipline.type.js';
 
 const DisciplinaSchema = new Schema<IDisciplina>(
   {

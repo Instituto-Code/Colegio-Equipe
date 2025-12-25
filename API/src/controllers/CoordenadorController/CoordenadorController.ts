@@ -1,9 +1,9 @@
-import User from '../../models/User.js';
-import Disciplina from '../../models/Disciplina.js';
-import Professor from '../../models/Professor.js';
+import userModel from '../../modules/User/user.model.js';
+import disciplineModel from '../../modules/Discipline/discipline.model.js';
+import teacherModel from '../../modules/Teacher/teacher.model.js';
 import Turma from '../../models/Turma.js';
-import Aluno from '../../models/Aluno.js';
-import Pais from '../../models/Pais.js';
+import studentModel from '../../modules/Student/student.model.js';
+import parentsModel from '../../modules/Parents/parents.model.js';
 import { Request, Response } from 'express';
 import Logger from '../../../config/logger.js';
 import mongoose from 'mongoose';
@@ -47,7 +47,7 @@ export const registerStudent = async (req: Request, res: Response) => {
   const { nome, matricula, dataNasc, sexo, cpf } = req.body;
 
   try {
-    const aluno = await Aluno.findOne({ matricula });
+    const aluno = await studentModel.findOne({ matricula });
 
     //Validações
     if (aluno) {
@@ -55,7 +55,7 @@ export const registerStudent = async (req: Request, res: Response) => {
     }
 
     //Criando novo estudante
-    const newAluno = await Aluno.create({
+    const newAluno = await studentModel.create({
       nome,
       matricula,
       dataNasc,
@@ -79,7 +79,7 @@ export const registerTeacher = async (req: Request, res: Response) => {
 
   try {
     //Buscando professor pela matrícula
-    const professor = await Professor.findOne({ matricula });
+    const professor = await teacherModel.findOne({ matricula });
 
     //Validando se o professor já foi cadastrado
     if (professor) {
@@ -87,7 +87,7 @@ export const registerTeacher = async (req: Request, res: Response) => {
     }
 
     //Criando professor no banco de dados
-    const newProfessor = await Professor.create({
+    const newProfessor = await teacherModel.create({
       user,
       matricula,
       nome: user.nome,
@@ -110,7 +110,7 @@ export const registerDisciplines = async (req: Request, res: Response) => {
 
   try {
     //Buscar disciplina por nome
-    const disciplina = await Disciplina.findOne({ nome });
+    const disciplina = await disciplineModel.findOne({ nome });
 
     //Não permite salvar duas disciplinas com o mesmo nome
     if (disciplina) {
@@ -118,7 +118,7 @@ export const registerDisciplines = async (req: Request, res: Response) => {
     }
 
     //Salvando disciplina
-    const newDiscipline = await Disciplina.create({
+    const newDiscipline = await disciplineModel.create({
       nome,
       descrição,
       cargaHoraria,
@@ -146,7 +146,7 @@ export const registerParents = async (req: Request, res: Response) => {
 
   try {
     //Buscando usuário
-    const user = await User.findById(userId).select('-password');
+    const user = await userModel.findById(userId).select('-password');
 
     //Validações
     if (!user) {
@@ -154,7 +154,7 @@ export const registerParents = async (req: Request, res: Response) => {
     }
 
     //Criando novo responsável
-    const newParent = await Pais.create({
+    const newParent = await parentsModel.create({
       user: userId,
     });
 
@@ -189,7 +189,7 @@ export const classToTeacher = async (req: Request, res: Response) => {
     //Buscando e validando turma
     const [classroom, teacher] = await Promise.all([
       Turma.findById(classId),
-      Professor.findById(teacherId)
+      teacherModel.findById(teacherId)
     ]);
 
     if (!classroom) {
@@ -209,7 +209,7 @@ export const classToTeacher = async (req: Request, res: Response) => {
     //Salvando
     await Promise.all([
       Turma.findByIdAndUpdate(classId, { $addToSet: { professores: teacherId } }),
-      Professor.findByIdAndUpdate(teacherId, { $addToSet: { turmas: classId } })
+      teacherModel.findByIdAndUpdate(teacherId, { $addToSet: { turmas: classId } })
     ]);
 
     res.status(201).json({
@@ -227,7 +227,7 @@ export const disciplineToClass = async (req: Request, res: Response) => {
 
   try {
     //Buscando disciplina
-    const discipline = await Disciplina.findById(disciplineId);
+    const discipline = await disciplineModel.findById(disciplineId);
 
     if (!discipline) {
       return res.status(404).json({ errors: ['Disciplina não encontrada!'] });
@@ -273,7 +273,7 @@ export const studentToClass = async (req: Request, res: Response) => {
 
     //Buscando documentos
     const [student, classroom] = await Promise.all([
-      Aluno.findById(studentId),
+      studentModel.findById(studentId),
       Turma.findById(classId)
     ]);
 
@@ -295,7 +295,7 @@ export const studentToClass = async (req: Request, res: Response) => {
     //Salvando
     await Promise.all([
       Turma.findByIdAndUpdate(classId, { $addToSet: { alunos: studentId } }),
-      Aluno.findByIdAndUpdate(studentId, { $add: { turma: classId } })
+      studentModel.findByIdAndUpdate(studentId, { $add: { turma: classId } })
     ]);
 
     res.status(201).json({
@@ -321,8 +321,8 @@ export const studentToParent = async (req: Request, res: Response) => {
   try {
 
     const [student, parent] = await Promise.all([
-      Aluno.findById(studentId),
-      Pais.findById(parentId)
+      studentModel.findById(studentId),
+      parentsModel.findById(parentId)
     ]);
 
     //Validação
@@ -342,8 +342,8 @@ export const studentToParent = async (req: Request, res: Response) => {
     };
 
     await Promise.all([
-      Aluno.findByIdAndUpdate(studentId, { $addToSet: { parents: parentId } }),
-      Pais.findByIdAndUpdate(parentId, { $addToSet: { filhos: studentId } })
+      studentModel.findByIdAndUpdate(studentId, { $addToSet: { parents: parentId } }),
+      parentsModel.findByIdAndUpdate(parentId, { $addToSet: { filhos: studentId } })
     ]);
 
     res.status(201).json({

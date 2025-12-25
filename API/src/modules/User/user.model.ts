@@ -1,35 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import { IUser } from '../../shared/types/user.type.js';
 
-//Tipagem de endereço
-interface IAddress {
-  rua?: string;
-  numero?: string;
-  bairro?: string;
-  cidade?: string;
-  estado?: string;
-  cep?: string;
-}
 
-//Tipagem de usuário
-export interface IUser extends Document {
-  name: string ;
-  email: string;
-  cpf?: string;
-  dataNasc?: Date;
-  numberTel?: string;
-  password: string;
-  adress?: IAddress;
-  resetPassToken?: string;
-  resetPassTokenExpires?: Date;
-  role?:
-    | 'coordenador'
-    | 'aluno'
-    | 'responsavel'
-    | 'professor'
-    | 'pendente'
-    | 'admin';
-  active?: boolean;
-}
 
 const UserSchema = new Schema<IUser>(
   {

@@ -1,15 +1,5 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
-import { IUser } from './User.js';
-
-export interface IProfessor extends Document {
-  _id: Types.ObjectId | string;
-  user?: Types.ObjectId | IUser;
-  nome?: string;
-  matricula: string;
-  formacaoAcademica?: string;
-  disciplinas: Types.ObjectId[];
-  turmas: Types.ObjectId[];
-}
+import { IProfessor } from '../../shared/types/teacher.type.js';
 
 //Modelo de professores
 const ProfessorSchema = new Schema<IProfessor>(

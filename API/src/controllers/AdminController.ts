@@ -1,6 +1,6 @@
 import Logger from '../../config/logger.js';
 import { CustomRequest } from '../middlewares/authGuard.js';
-import User from '../models/User.js';
+import userModel from '../modules/User/user.model.js';
 import { Request, Response } from 'express';
 
 export const modifyDataUser = async (req: CustomRequest, res: Response) => {
@@ -10,7 +10,7 @@ export const modifyDataUser = async (req: CustomRequest, res: Response) => {
   const rolesPermited = ['professor', 'coordenador', 'pendente', 'admin'];
 
   try {
-    const admin = await User.findById(adminId);
+    const admin = await userModel.findById(adminId);
 
     if (!admin) {
       return res.status(404).json({
@@ -18,7 +18,7 @@ export const modifyDataUser = async (req: CustomRequest, res: Response) => {
       });
     }
 
-    const user = await User.findById(userId).select('-password');
+    const user = await userModel.findById(userId).select('-password');
 
     if (!user) {
       return res.status(404).json({

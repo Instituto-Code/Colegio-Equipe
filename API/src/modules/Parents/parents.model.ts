@@ -1,6 +1,6 @@
 import mongoose, { Schema, Types, Document } from 'mongoose';
-import { IUser } from './User.js';
-import { IAluno } from './Aluno.js';
+import { IUser } from '../../shared/types/user.type.js';
+import { IAluno } from '../../shared/types/student.type.js';
 
 export interface IPais {
   _id?: Types.ObjectId;

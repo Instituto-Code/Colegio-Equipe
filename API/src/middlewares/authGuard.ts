@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
 import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
+import { UserRepository } from '../modules/User/user.repository.js';
 
 dotenv.config();
 
@@ -31,7 +31,7 @@ export const authGuard = async (
     }
 
     const verification = jwt.verify(token, JWT_SECRET) as { id: string }; // Verificação do token
-    const user = await User.findById(verification.id).select('-password');
+    const user = await UserRepository.findById(verification.id)
 
     if (!user) {
       return res.status(422).json({

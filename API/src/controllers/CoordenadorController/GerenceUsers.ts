@@ -1,8 +1,8 @@
 import Logger from '../../../config/logger.js';
 import { CustomRequest } from '../../middlewares/authGuard.js';
 import { Response } from 'express';
-import Aluno from '../../models/Aluno.js';
-import User from '../../models/User.js';
+import studentModel from '../../modules/Student/student.model.js';
+import userModel from '../../modules/User/user.model.js';
 import mongoose from 'mongoose';
 
 //Excluindo alunos
@@ -10,7 +10,7 @@ export const deleteStudents = async (req: CustomRequest, res: Response) => {
   try {
     const { studentId } = req.params;
 
-    const student = await Aluno.findByIdAndDelete(studentId);
+    const student = await studentModel.findByIdAndDelete(studentId);
 
     if (!student) {
       return res.status(404).json({
@@ -39,7 +39,7 @@ export const editStudents = async (req: CustomRequest, res: Response) => {
         return res.status(400).json({ error: "ID inválido." });
     }
 
-    const student = await Aluno.findById(studentId);
+    const student = await studentModel.findById(studentId);
 
     if (!student) {
       return res.status(404).json({
@@ -97,7 +97,7 @@ export const editUser = async (req: CustomRequest, res: Response) => {
       return res.status(400).json({ error: "ID inválido." });
     };
 
-    const user = await User.findById(userId);
+    const user = await userModel.findById(userId);
 
     if(!user){
       return res.status(404).json({

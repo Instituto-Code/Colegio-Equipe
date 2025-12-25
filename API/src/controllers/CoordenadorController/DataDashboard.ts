@@ -1,23 +1,25 @@
-import Aluno, { IAluno } from '../../models/Aluno.js';
-import Professor from '../../models/Professor.js';
+import studentModel from '../../modules/Student/student.model.js';
+import teacherModel from '../../modules/Teacher/teacher.model.js';
 import Turma from '../../models/Turma.js';
-import Disciplina from '../../models/Disciplina.js';
+import disciplineModel from '../../modules/Discipline/discipline.model.js';
 import { Request, Response } from 'express';
 import { CustomRequest } from '../../middlewares/authGuard.js';
-import User, { IUser } from '../../models/User.js';
+import userModel from '../../modules/User/user.model.js';
 import Logger from '../../../config/logger.js';
-import Pais, { IPais } from '../../models/Pais.js';
+import parentsModel from '../../modules/Parents/parents.model.js';
 import mongoose from 'mongoose';
+import { IUser } from '../../shared/types/user.type.js';
+import { IAluno } from '../../shared/types/student.type.js';
 
 //Contando documentos
 export const getDashboardOverview = async (req: Request, res: Response) => {
   try {
     const [totalAlunos, totalProfessores, totalTurmas, totalDisciplinas] =
       await Promise.all([
-        Aluno.countDocuments(),
-        Professor.countDocuments(),
+        studentModel.countDocuments(),
+        teacherModel.countDocuments(),
         Turma.countDocuments(),
-        Disciplina.countDocuments(),
+        disciplineModel.countDocuments(),
       ]);
 
     //Retornando quantidade de dados
@@ -45,13 +47,13 @@ export const listUsers = async (req: CustomRequest, res: Response) => {
       ? { name: { $regex: search, $options: 'i' } }
       : {};
 
-    const totalUsers = await User.countDocuments(usersQuery);
+    const totalUsers = await userModel.countDocuments(usersQuery);
 
     const limitNumber = limit ? Number(limit) : totalUsers;
 
     const skip = (Number(page) - 1) * limitNumber;
 
-    const allUsers = await User.find(usersQuery)
+    const allUsers = await userModel.find(usersQuery)
       .skip(skip)
       .limit(limitNumber);
 
@@ -88,7 +90,7 @@ export const listUsers = async (req: CustomRequest, res: Response) => {
 export const listStudents = async (req: CustomRequest, res: Response) => {
   try {
     //Buscando alunos e populando dados dos parentes
-    const alunos = await Aluno.find().populate({
+    const alunos = await studentModel.find().populate({
       path: 'parents',
       populate: {
         path: 'user',
@@ -124,7 +126,7 @@ export const listOneStudent = async (req: CustomRequest, res: Response) => {
   try {
     const { studentId } = req.params;
 
-    const aluno = await Aluno.findById(studentId).populate({
+    const aluno = await studentModel.findById(studentId).populate({
       path: 'parents',
       populate: {
         path: 'user',
@@ -173,7 +175,7 @@ export const listOneStudent = async (req: CustomRequest, res: Response) => {
 
 export const listTeachers = async (req: CustomRequest, res: Response) => {
   try {
-    const professores = await Professor.find()
+    const professores = await teacherModel.find()
       .populate('user', 'name email active')
       .populate('turmas', 'nome turno anoLetivo');
 
@@ -225,7 +227,7 @@ export const listOneTeacher = async (req: CustomRequest, res: Response) => {
   try {
     const { teacherId } = req.params;
 
-    const professor = await Professor.findById(teacherId)
+    const professor = await teacherModel.findById(teacherId)
       .populate('user', 'name email active')
       .populate('turmas', 'nome turno anoLetivo');
 
@@ -327,7 +329,7 @@ export const listClasses = async (req: CustomRequest, res: Response) => {
 //List pais
 export const listParents = async (req: CustomRequest, res: Response) => {
   try{
-    const parents = await Pais.find()
+    const parents = await parentsModel.find()
       .populate<{user: IUser}>("user", "name email numberTel adress")
       .populate<{filhos: IAluno[]}>("filhos", "nome matricula dataNasc status sexo cpf")
 
@@ -379,7 +381,7 @@ export const listParent = async (req: CustomRequest, res: Response) => {
       return res.status(400).json({ error: "ID inválido." });
     };
 
-    const parent = await Pais.findById(parentId)
+    const parent = await parentsModel.findById(parentId)
       .populate<{ user: IUser }>("user", "name email numberTel adress")
       .populate<{ filhos: IAluno[] }>("filhos", "nome matricula dataNasc status sexo cpf")
 

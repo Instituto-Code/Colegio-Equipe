@@ -1,7 +1,7 @@
 import { CustomRequest } from "../middlewares/authGuard.js";
 import { Response } from "express";
 import Event from "../models/Event.js";
-import User from "../models/User.js";
+import userModel from "../modules/User/user.model.js";
 
 //Registro de Eventos
 export const registerEvent = async (req: CustomRequest, res: Response) => {
@@ -11,7 +11,7 @@ export const registerEvent = async (req: CustomRequest, res: Response) => {
 
         const userId = req.user._id;
 
-        const user = await User.findById(userId)
+        const user = await userModel.findById(userId)
             .select("-password");
 
         if(!user){
