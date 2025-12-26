@@ -114,7 +114,7 @@ export const viewNotes = async (req: CustomRequest, res: Response) => {
 //Listando notificações por IDs
 export const listNotesByUser = async (req: CustomRequest, res: Response) => {
     try {
-        const { userId } = req.params;
+        const { userId } = req.user._id;
 
         const result = await ListNotificationByUser(userId);
 

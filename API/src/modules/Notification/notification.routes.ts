@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authGuard } from "../../middlewares/authGuard.js";
-import { createNote, deleteNote, listNotesGroup, updateNote, viewNotes } from "./notification.controller.js";
+import { createNote, deleteNote, listAllNotes, listNotesByUser, listNotesGroup, updateNote, viewNotes } from "./notification.controller.js";
 import { authorizeRole } from "../../middlewares/authorizeRole.js";
 const notificationRouter = Router();
 
@@ -14,6 +14,10 @@ notificationRouter.patch("/update-note/:id", authGuard, authorizeRole('coordenad
 notificationRouter.get('/list-note-groups', authGuard, listNotesGroup);
 
 notificationRouter.patch('/view/:noteId', authGuard, viewNotes);
+
+notificationRouter.get("/list-note/:userId/user", authGuard, listNotesByUser);
+
+notificationRouter.get("/list-all/notifications", authGuard, listAllNotes);
 
 
 export default notificationRouter;

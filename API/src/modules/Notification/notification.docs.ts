@@ -38,7 +38,7 @@
 
 /**
  * @swagger
- * /api/note/list-childrens:
+ * /api/note/delete-note/:id:
  *   delete:
  *     summary: Deletar notificação
  *     tags: [Notification]
@@ -79,7 +79,7 @@
  *                 type: string
  *     responses:
  *       200:
- *         description: Listagem de notificações.
+ *         description: Listagem de notificações por grupo.
  */
 
 /**
@@ -105,4 +105,46 @@
  *     responses:
  *       200:
  *         description: Listagem de notificações.
+ */
+
+/**
+ * @swagger
+ * /api/note/list-note/:userId/user:
+ *   patch:
+ *     summary: Listar notificações de um usuário
+ *     tags: [Notification]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [userId]
+ *             properties:
+ *               userId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Listagem de notificações do usuário logado.
+ */
+
+/**
+ * @swagger
+ * /api/note/list-all/notifications:
+ *   patch:
+ *     summary: Listar todas as notificações
+ *     tags: [Notification]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: Listagem de notificações do usuário logado.
  */

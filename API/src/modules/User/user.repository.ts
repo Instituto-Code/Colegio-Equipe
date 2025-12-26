@@ -16,5 +16,9 @@ export const UserRepository = {
 
     async update(userId: string, data: UpdateUser){
         return await userModel.findByIdAndUpdate(userId, { data });
+    },
+
+    async deleteOne(userId: string){
+        return await userModel.findByIdAndDelete(userId);
     }
 }

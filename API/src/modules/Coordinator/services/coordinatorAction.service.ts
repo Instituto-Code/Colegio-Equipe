@@ -1,5 +1,6 @@
 import { SchoolClassRepository } from "../../schoolClass/schoolClass.repository.js";
 import { StudentRepository } from "../../Student/student.repository.js";
+import { UserRepository } from "../../User/user.repository.js";
 
 type DataRequestRegister = {
     nome: string,
@@ -62,4 +63,36 @@ export async function RegisterStudentService(data: DataRequestStudent) {
     }
 }
 
+//Deletar usuário
+export async function DeleteUserService(userId: string){
+    const user = await UserRepository.findById(userId);
+
+    if(!user) throw new Error("Usuário não encontrado.");
+
+    if(user.role === "admin") throw new Error("Permissões insuficientes.");
+
+    await UserRepository.deleteOne(userId);
+
+    return {
+        msg: "Usuário deletado com sucesso."
+    }
+}
+
+// Remover aluno de turma
+export async function RemoveStudentByClassService(studentId: string, className: string){
+    const student = await StudentRepository.findById(studentId);
+
+    if(!student) throw new Error("Aluno não encontrado.");
+
+    const classroom = await SchoolClassRepository.findByName(className);
+
+    if (!classroom) throw new Error("Turma não encontrada.");
+
+    await SchoolClassRepository.removeByClass(studentId, className);
+
+    return {
+        msg: "Aluno removido com sucesso."
+    }
+
+}
 

@@ -11,5 +11,5 @@ export const StudentRepository = {
 
     async create(data: any){
         return await studentModel.create(data);
-    }
+    },
 }

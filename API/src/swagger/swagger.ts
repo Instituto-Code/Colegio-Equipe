@@ -1,4 +1,4 @@
-import swaggerJSDoc from "swagger-jsdoc"
+import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from 'swagger-ui-express';
 import { Express } from 'express';
 
@@ -10,9 +10,15 @@ const options: swaggerJSDoc.Options = {
       version: '1.0.0',
       description: 'Documentação da API de gerenciamento escolar',
     },
+    // Correção: Cada servidor é um objeto separado com sua própria propriedade 'url'
     servers: [
       {
-        url: 'http://localhost:8080', 
+        url: 'http://localhost:8080',
+        description: 'Ambiente de Desenvolvimento (Local)',
+      },
+      {
+        url: 'https://colegio-equipe.onrender.com',
+        description: 'Servidor de Produção (Render)',
       },
     ],
   },

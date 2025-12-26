@@ -1,11 +1,19 @@
 import schoolClassModel from "./schoolClass.model.js";
 
 export const SchoolClassRepository = {
-    async findByName(className: string){
+    async findByName(className: string) {
         return await schoolClassModel.findOne({ nome: className });
     },
 
-    async create(data: any){
+    async create(data: any) {
         return await schoolClassModel.create(data);
+    },
+
+    async removeByClass(studentId: string, className: string) {
+        return await schoolClassModel.findOneAndUpdate(
+            { nome: className },
+            { $pull: { alunos: studentId } },
+            { new: true }
+        )
     }
 }
