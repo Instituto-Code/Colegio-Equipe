@@ -1,14 +1,5 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
-
-export interface ITurma extends Document {
-  _id: Types.ObjectId;
-  nome: string;
-  turno: 'manhã' | 'tarde';
-  anoLetivo: number;
-  alunos: Types.ObjectId[];
-  professores: Types.ObjectId[];
-  disciplinas: Types.ObjectId[];
-}
+import { ITurma } from '../../shared/types/schoolClass.type.js';
 
 const TurmaSchema = new Schema<ITurma>(
   {

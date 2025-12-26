@@ -1,77 +1,17 @@
 import userModel from '../../modules/User/user.model.js';
 import disciplineModel from '../../modules/Discipline/discipline.model.js';
 import teacherModel from '../../modules/Teacher/teacher.model.js';
-import Turma from '../../models/Turma.js';
+import schoolClassModel from '../../modules/schoolClass/schoolClass.model.js';
 import studentModel from '../../modules/Student/student.model.js';
 import parentsModel from '../../modules/Parents/parents.model.js';
 import { Request, Response } from 'express';
 import Logger from '../../../config/logger.js';
 import mongoose from 'mongoose';
+import { RegisterClassesService, RegisterStudentService } from '../../modules/Coordinator/services/coordinatorAction.service.js';
 
 //CADASTRO DE PROFESSORES, ALUNOS, TURMAS E DISCIPLINAS ()
 
-//Cadastrar as turmas
-export const registerClasses = async (req: Request, res: Response) => {
-  const { nome, turno, anoLetivo } = req.body;
 
-  try {
-    //Filtrando turma por nome
-    const turma = await Turma.findOne({ nome });
-
-    //Validações
-    if (turma) {
-      return res
-        .status(422)
-        .json({ errors: ['Já existe uma turma com esse nome!'] });
-    }
-
-    //Criando a turma
-    const newTurma = await Turma.create({
-      nome,
-      turno,
-      anoLetivo,
-    });
-
-    res.status(201).json({
-      msg: 'Turma criada com sucesso!',
-      turma: newTurma,
-    });
-  } catch (error) {
-    res.status(500).json({ errors: ['Erro interno do servidor!'] });
-    Logger.error(`Erro interno do servidor: ${error}`);
-  }
-};
-
-//Cadastrando alunos
-export const registerStudent = async (req: Request, res: Response) => {
-  const { nome, matricula, dataNasc, sexo, cpf } = req.body;
-
-  try {
-    const aluno = await studentModel.findOne({ matricula });
-
-    //Validações
-    if (aluno) {
-      return res.status(422).json({ errors: ['Estudante já matriculado!'] });
-    }
-
-    //Criando novo estudante
-    const newAluno = await studentModel.create({
-      nome,
-      matricula,
-      dataNasc,
-      sexo,
-      cpf
-    });
-
-    res.status(201).json({
-      msg: 'Aluno matriculado com sucesso!',
-      aluno: newAluno,
-    });
-  } catch (error) {
-    res.status(500).json({ errors: ['Erro interno do servidor!'] });
-    Logger.error(`Erro interno do servidor: ${error}`);
-  }
-};
 
 //Cadastrar os professores
 export const registerTeacher = async (req: Request, res: Response) => {
@@ -188,7 +128,7 @@ export const classToTeacher = async (req: Request, res: Response) => {
   try {
     //Buscando e validando turma
     const [classroom, teacher] = await Promise.all([
-      Turma.findById(classId),
+      schoolClassModel.findById(classId),
       teacherModel.findById(teacherId)
     ]);
 
@@ -208,7 +148,7 @@ export const classToTeacher = async (req: Request, res: Response) => {
 
     //Salvando
     await Promise.all([
-      Turma.findByIdAndUpdate(classId, { $addToSet: { professores: teacherId } }),
+      schoolClassModel.findByIdAndUpdate(classId, { $addToSet: { professores: teacherId } }),
       teacherModel.findByIdAndUpdate(teacherId, { $addToSet: { turmas: classId } })
     ]);
 
@@ -234,7 +174,7 @@ export const disciplineToClass = async (req: Request, res: Response) => {
     }
 
     //Buscando Turma
-    const classroom = await Turma.findById(classId);
+    const classroom = await schoolClassModel.findById(classId);
 
     if (!classroom) {
       return res.status(404).json({ errors: ['Turma não encontrada!'] });
@@ -274,7 +214,7 @@ export const studentToClass = async (req: Request, res: Response) => {
     //Buscando documentos
     const [student, classroom] = await Promise.all([
       studentModel.findById(studentId),
-      Turma.findById(classId)
+      schoolClassModel .findById(classId)
     ]);
 
     //Validando documentos
@@ -294,7 +234,7 @@ export const studentToClass = async (req: Request, res: Response) => {
 
     //Salvando
     await Promise.all([
-      Turma.findByIdAndUpdate(classId, { $addToSet: { alunos: studentId } }),
+      schoolClassModel.findByIdAndUpdate(classId, { $addToSet: { alunos: studentId } }),
       studentModel.findByIdAndUpdate(studentId, { $add: { turma: classId } })
     ]);
 

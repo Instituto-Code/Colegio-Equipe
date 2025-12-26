@@ -3,11 +3,11 @@ const router = express.Router();
 
 //Rotas
 import userRouter from '../modules/User/user.routes.js';
-import coordenadorRouter from './coordenadorRoutes.js';
 import TeacherRouter from '../modules/Teacher/teacher.routes.js';
 import parentsRouter from '../modules/Parents/parents.routes.js';
 import notificationRouter from '../modules/Notification/notification.routes.js';
 import adminRouter from '../modules/Admin/admin.routes.js';
+import coordenadorRouter from '../modules/Coordinator/coordinator.routes.js';
 
 //Config. pré-fixo de rotas
 router.use('/api/users', userRouter);

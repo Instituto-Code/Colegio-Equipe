@@ -2,36 +2,17 @@ import express from 'express';
 const coordenadorRouter = express.Router();
 
 //Middlewares
-import { authGuard } from '../middlewares/authGuard.js';
-import { authorizeRole } from '../middlewares/authorizeRole.js';
+import { authGuard } from '../../middlewares/authGuard.js';
+import { authorizeRole } from '../../middlewares/authorizeRole.js';
+import { registerClasses, registerStudent } from './coordinator.controller.js';
+import { classToTeacher, disciplineToClass, registerDisciplines, registerParents, registerTeacher, studentToClass, studentToParent } from '../../controllers/CoordenadorController/CoordenadorController.js';
+import { ListAllEventsService } from '../Events/services/eventList.service.js';
+import { getDashboardOverview, listClasses, listOneStudent, listOneTeacher, listParent, listParents, listStudents, listTeachers, listUsers } from '../../controllers/CoordenadorController/DataDashboard.js';
+import { RegisterEventService } from '../Events/services/eventAction.service.js';
+import { deleteStudents, editStudents } from '../../controllers/CoordenadorController/GerenceUsers.js';
 
 //Rotas
-import {
-  registerClasses,
-  registerStudent,
-  registerTeacher,
-  registerDisciplines,
-  classToTeacher,
-  disciplineToClass,
-  studentToClass,
-  registerParents,
-  studentToParent,
-} from '../controllers/CoordenadorController/CoordenadorController.js';
 
-import { listEvents, registerEvent } from '../modules/Events/event.controller.js';
-
-import {
-  getDashboardOverview,
-  listOneStudent,
-  listOneTeacher,
-  listStudents,
-  listTeachers,
-  listClasses,
-  listUsers,
-  listParents,
-  listParent,
-} from '../controllers/CoordenadorController/DataDashboard.js';
-import { deleteStudents, editStudents } from '../controllers/CoordenadorController/GerenceUsers.js';
 
 //Configurações de rotas
 coordenadorRouter.post(
@@ -97,9 +78,9 @@ coordenadorRouter.post(
   '/create-event',
   authGuard,
   authorizeRole('coordenador'),
-  registerEvent,
+  RegisterEventService,
 );
-coordenadorRouter.get('/list-events', authGuard, listEvents);
+coordenadorRouter.get('/list-events', authGuard, ListAllEventsService);
 
 coordenadorRouter.get(
   '/getDashboardOverview',

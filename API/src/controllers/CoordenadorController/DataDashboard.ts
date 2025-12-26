@@ -1,6 +1,6 @@
 import studentModel from '../../modules/Student/student.model.js';
 import teacherModel from '../../modules/Teacher/teacher.model.js';
-import Turma from '../../models/Turma.js';
+import schoolClassModel from '../../modules/schoolClass/schoolClass.model.js';
 import disciplineModel from '../../modules/Discipline/discipline.model.js';
 import { Request, Response } from 'express';
 import { CustomRequest } from '../../middlewares/authGuard.js';
@@ -18,7 +18,7 @@ export const getDashboardOverview = async (req: Request, res: Response) => {
       await Promise.all([
         studentModel.countDocuments(),
         teacherModel.countDocuments(),
-        Turma.countDocuments(),
+        schoolClassModel.countDocuments(),
         disciplineModel.countDocuments(),
       ]);
 
@@ -280,7 +280,7 @@ export const listOneTeacher = async (req: CustomRequest, res: Response) => {
 //Listagem de turmas
 export const listClasses = async (req: CustomRequest, res: Response) => {
   try {
-    const turmas = await Turma.find()
+    const turmas = await schoolClassModel.find()
       .populate('professores', 'nome matricula')
       .populate('disciplinas', 'nome cargaHoraria')
       .populate('alunos', 'nome matricula');
