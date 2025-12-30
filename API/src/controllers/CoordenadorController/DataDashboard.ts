@@ -340,7 +340,9 @@ export const listParents = async (req: CustomRequest, res: Response) => {
       });
     };
 
-    const dataFormated = parents.map((p) => ({
+    const dataFormated = parents
+    .filter(p => p.user !== null)
+    .map((p) => ({
       id: p._id,
       nome: p.user.name,
       email: p.user.email,
