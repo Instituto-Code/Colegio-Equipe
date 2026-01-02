@@ -17,12 +17,14 @@ import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, Tabl
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { AddStudent } from "./AddStudent"
-import { Toaster } from "sonner"
+import { toast, Toaster } from "sonner"
 import React, { useEffect, useState } from "react"
 import { useAuth } from "@/contexts/authContext"
 import { Spinner } from "@/components/ui/spinner";
 import { Input } from "@/components/ui/input";
 import { MenuParents } from "./Tools";
+import { Trash } from "lucide-react";
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 // Interface para os dados do aluno.
 export interface IAluno {
@@ -41,9 +43,11 @@ export const Matriculas = () => {
     const [data, setData] = React.useState<IAluno[]>([])
     const [globalFilter, setGlobalFilter] = useState("")
     const [sorting, setSorting] = useState<SortingState>([]);
-    const [openAssStudent, setOpenAssStudent ] = useState(false)
+    const [openAssStudent, setOpenAssStudent] = useState(false)
+    const [openDelete, setOpenDelete] = useState(false)
+    const [studentToDelete, setStudentToDelete] = useState<string | null>(null)
 
-    const { alunos, registerStudent } = useCoordenador()
+    const { Alunos, registerStudent } = useCoordenador()
 
     const { token } = useAuth()
 
@@ -59,9 +63,9 @@ export const Matriculas = () => {
                 })
 
                 const dataJson = await res.json()
-                
+
                 setData(dataJson.alunos)
-                console.log(dataJson.alunos)             
+                console.log(dataJson.alunos)
             }
             catch (error) {
                 console.error(error)
@@ -72,28 +76,68 @@ export const Matriculas = () => {
 
         }
         getAlunos()
-        console.log("RegisterStudents foi chamado")
     }, [registerStudent])
 
 
     // Colunas da tabela
-    const columns: ColumnDef<IAluno>[] = [
-        { accessorKey: "nome", header: "Nome" },
-        { accessorKey: "matricula", header: "Matrícula" },
-        { accessorKey: "status", header: "Status" },
-        {
-            id: "actions",
-            cell: ({ row }) => (
-                <div className="flex gap-2">
-                    <MenuParents openDialog={openAssStudent} idAluno={row.original.id} nome={row.original.nome}/>
-                </div>
-            ),
-        },
-    ];
+    const columns = (
+        onDelete: (idStudent: string) => void
+    ): ColumnDef<IAluno>[] => [
+            { accessorKey: "nome", header: "Nome" },
+            { accessorKey: "matricula", header: "Matrícula" },
+            { accessorKey: "status", header: "Status" },
+            {
+                id: "actions",
+                cell: ({ row }) => (
+                    <div className="flex gap-2">
+                        <MenuParents openDialog={openAssStudent} idAluno={row.original.id} nome={row.original.nome} />
+                        <Button
+                            onClick={() => {
+                                setOpenDelete(true)
+                                setStudentToDelete(row.original.id)
+                            }
+                        }
+                            variant={"outline"}
+                            className="cursor-pointer text-red-500">
+                            Excluir
+                        </Button>
+                    </div>
+                ),
+            },
+        ];
+
+    // Rota para deletar um aluno
+    const deleteStudent = async (idStudent: string) => {
+        setLoading(true)
+        try {
+            const res = await fetch(`${api_url}/api/coordenador/delete-student/${idStudent}`, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            const data = await res.json()
+
+            if (!res.ok) {
+                toast.error("Não foi possível excluir o aluno")
+                throw new Error(data.error)
+            }
+
+            toast.success("Aluno excluido com sucesso")
+            setData((prev) => prev.filter((student) => student.id !== idStudent))
+        }
+        catch (error: any) {
+            console.error(error)
+        }
+        finally {
+            setLoading(false)
+        }
+    }
 
     // Mapeando a tabela
     const table = useReactTable({
-        columns,
+        columns: columns(deleteStudent),
         data,
         getCoreRowModel: getCoreRowModel(),
         state: {
@@ -132,7 +176,7 @@ export const Matriculas = () => {
                         </div>
                     ) : (
                         // Tabela para Computador
-                        <ScrollArea className="w-full">
+                        <ScrollArea className="w-full ">
                             <Table className="w-full">
                                 <TableHeader>
                                     {table.getHeaderGroups().map((headerGroup) => (
@@ -175,7 +219,7 @@ export const Matriculas = () => {
                                 </TableBody>
                             </Table>
                         </ScrollArea>
-                        
+
                     )}
                 </div>
 
@@ -193,7 +237,7 @@ export const Matriculas = () => {
                                 <strong>Status: </strong>{row.original.status}
                             </div>
                             <div className="flex mt-2">
-                                <MenuParents openDialog={openAssStudent} idAluno={row.original.id} nome={row.original.nome}/>
+                                <MenuParents openDialog={openAssStudent} idAluno={row.original.id} nome={row.original.nome} />
                             </div>
                         </div>
                     ))}
@@ -201,6 +245,36 @@ export const Matriculas = () => {
                 </div>
 
                 <Toaster />
+
+                {/* Modal para confirmar a exclusão do aluno */}
+                <Dialog open={openDelete} onOpenChange={setOpenDelete}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Confirmar exclusão</DialogTitle>
+                        </DialogHeader>
+
+                        <p>Tem certeza que deseja excluir este registro?</p>
+
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button variant="outline">Cancelar</Button>
+                            </DialogClose>
+
+                            <Button
+                                variant="destructive"
+                                onClick={() => {
+                                    if(studentToDelete){
+                                        deleteStudent(studentToDelete)
+                                        setStudentToDelete(null)
+                                        setOpenDelete(false)
+                                    }
+                                }}
+                            >
+                                Excluir
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
 
             </div>
         </div>

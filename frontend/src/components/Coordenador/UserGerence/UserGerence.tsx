@@ -14,7 +14,7 @@ export const UserGerence = () => {
   };
 
   return (
-    <div className="flex flex-1 flex-col h-full">
+    <div className="">
       <div>
         <UserTable />
       </div>

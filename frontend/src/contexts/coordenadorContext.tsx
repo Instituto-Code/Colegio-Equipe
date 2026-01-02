@@ -72,7 +72,7 @@ interface ICoordenatorProps {
         totalTurmas: number
         totalDisciplinas: number
     } | null
-    Alunos: (customToken: string) => Promise<void>
+    Alunos: () => Promise<void>
     Professores: () => Promise<any>
     Overview: (customToken: string) => Promise<void>
     registerEvent: (titulo: string, descricao: string, data: Date, tipo: TipoEvento) => Promise<void>
@@ -80,7 +80,7 @@ interface ICoordenatorProps {
     registerClasses: (nome: string, turno: string, anoLetivo: number) => Promise<any>
     registerStudent: (nome: string, matricula: string, cpf: string, dataNasc: number, sexo: Sexo) => Promise<any>
     registerParent: (userID: string) => Promise<any>
-    registerTeacher: (userID: string, matricula: string, formacao: string) => Promise<void>
+    registerTeacher: (userID: string, matricula: string, formacao: string) => Promise<any>
     addStudentToClass: (studentId: string, classId: string) => Promise<any>
     addTeacherToClass: (classId: string, teacherId: string) => Promise<any>
     relationParentStudent: (parentId: string, studentId: string) => Promise<any>
@@ -113,7 +113,7 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
         fetchData();
     }, [])
 
-
+    // Função para pegar os dados do overview do dashboard
     const Overview = async (customToken: string) => {
         setLoading(true)
         try {
@@ -139,11 +139,11 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
 
 
     //  Função para pegar dados dos alunos.
-    const Alunos = async (customtoken: string) => {
+    const Alunos = async () => {
         try {
             const res = await fetch(`${api_url}/api/coordenador/list-students`, {
                 headers: {
-                    Authorization: `Bearer ${customtoken}`
+                    Authorization: `Bearer ${token}`
                 }
             })
 
@@ -282,9 +282,9 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     }
 
     // Função para registrar um Professor. 
-    const registerTeacher = async(user: string, matricula: string, formacao: string) =>{
-        try{
-            const res = await fetch(`${api_url}/api/coordenador/register-teacher`,{
+    const registerTeacher = async (user: string, matricula: string, formacao: string) => {
+        try {
+            const res = await fetch(`${api_url}/api/coordenador/register-teacher`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': "application/json",
@@ -295,41 +295,45 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
 
             const data = await res.json()
 
-            if(!res.ok){
+            if (!res.ok) {
                 throw new Error(data.errors?.[0] || "Erro desconhecido")
             }
 
             return data
-        }   
-        catch(error: any){
+        }
+        catch (error: any) {
             throw new Error(error.message || 'Erro ao comunicar com o servidor')
         }
     }
 
     // Função para registrar um pai
-    const registerParent = async(userId: string) =>{
+    const registerParent = async (userId: string) => {
         setLoading(true)
-        try{
-            const res = await fetch(`${api_url}/api/coordenador/register-parent/${userId}`,{
+        try {
+            const res = await fetch(`${api_url}/api/coordenador/register-parent/${userId}`, {
                 method: 'PATCH',
-                headers:{
+                headers: {
                     Authorization: `Bearer ${token}`
                 }
             })
 
             const data = await res.json()
 
-            if(!res.ok){
-                return toast.error('Pai não cadastrado')
+            if (!res.ok) {
+                const message =
+                    data.error ||
+                    (Array.isArray(data.errors) ? data.errors[0] : null) ||
+                    "Erro ao registrar responsável";
+
+                throw new Error(message);
             }
 
-            toast.success("Parente cadastrado com sucesso")
             return data
         }
-        catch(error: any){
+        catch (error: any) {
             throw new Error(error.message || 'Erro ao comunicar com o servidor')
         }
-        finally{
+        finally {
             setLoading(false)
         }
     }
@@ -419,11 +423,11 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
 
     }
 
-    // //Listagem de notificações enviadas
+    // Listagem de notificações enviadas
     const notesSend = async () => {
         setLoading(true);
         try {
-            const res = await fetch(`${api_url}/api/note/list-all-notes`, {
+            const res = await fetch(`${api_url}/api/note/list-all/notifications`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }

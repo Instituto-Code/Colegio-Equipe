@@ -44,7 +44,6 @@ export function Tools({ nome, role, id }: User) {
     "coordenador",
     "professor",
     "responsavel",
-    "aluno",
     "pendente",
   ];
 
@@ -55,15 +54,7 @@ export function Tools({ nome, role, id }: User) {
     formState: { errors },
   } = useForm<IProfessor>({})
 
-  // Função para registrar um "responsavel"
-  const handleResponsavel = async(id: string) => {
-    try{
-      const res = await registerParent(id)
-    }
-    catch(error: any){
-      console.error(error)
-    }
-  }
+  const { registerParent, registerTeacher, loading } = useCoordenador()
 
   // Handler para mudar a role do usuário de acordo com o que ele selecionar.
   const handleRoleChange = (newRole: string) => {
@@ -71,18 +62,28 @@ export function Tools({ nome, role, id }: User) {
     if (!roles.includes(newRole)) return
 
     if (newRole == "responsavel") {
-      handleResponsavel(id)
+      onSubmitResponsavel(id)
     }
 
     if (newRole == "professor") {
       setDialogProf(true)
     }
   }
+  
+  // Função para registrar um "responsavel".
+  const onSubmitResponsavel = async(id: string) => {
+    try{
+      const res = await registerParent(id)
 
-  const { registerParent, registerTeacher, loading } = useCoordenador()
+      toast.success(res.data.msg)
+    }
+    catch(error: any){
+      console.error(error)
+    }
+  }
 
-  // Submit para "professor".
-  const onSubmit = async (data: IProfessor) => {
+  // Função para registrar um "professor".
+  const onSubmitProfessor = async (data: IProfessor) => {
     try {
       const res = await registerTeacher(id, data.matricula, data.formacao)
 
@@ -132,7 +133,7 @@ export function Tools({ nome, role, id }: User) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="text-2xl mb-3">Informações do professor</DialogTitle>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmitProfessor)}>
 
               {/* Campo Matrícula */}
               <div className="flex flex-col ">

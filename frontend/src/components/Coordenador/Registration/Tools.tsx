@@ -71,7 +71,7 @@ export const MenuParents = ({
   // Carregamento da lista com todos os pais.
   useEffect(() => {
     // Caso o popover no esteja aberto retorna.
-    if (!open) return;
+    if (!showNewDialog) return;
 
     // Carrega ao abrir o popover.
     const getParents = async () => {
@@ -94,7 +94,7 @@ export const MenuParents = ({
       }
     };
     getParents();
-  }, [showNewDialog, open]);
+  }, [showNewDialog]);
 
   // Interface para u
   interface IAssociantion {
