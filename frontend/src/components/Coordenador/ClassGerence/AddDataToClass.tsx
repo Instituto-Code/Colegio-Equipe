@@ -28,6 +28,7 @@ import { api_url, useCoordenador } from "@/contexts/coordenadorContext";
 import { useAuth } from "@/contexts/authContext";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
+import { Trash } from "lucide-react";
 
 interface AddDataToClassProps {
   turma: ITurma;
@@ -47,6 +48,7 @@ interface Student {
   nome: string;
   matricula: string;
   dataNasc: Date;
+  turma: ITurma | null
   pais: Parents[];
 }
 
@@ -112,36 +114,43 @@ export const AddDataToClass = ({
     studentId: string | null,
     classId: string
   ) => {
+    if (!studentId) {
+      toast.error("Selecione um aluno.");
+      return;
+    }
+
+    const student = students.find((s) => s.id === studentId);
+
+    if (!student) {
+      toast.error("Aluno não encontrado.");
+      return;
+    }
+
+    if (student.turma) {
+      toast.error("Este aluno já está vinculado a outra turma.");
+      setSelectedStudent(null);
+      return;
+    }
+
     try {
-      if (!studentId) return toast.error("Selecione um aluno.");
-
-      console.log(classId);
-
       const updatedTurma: ITurma = await addStudentToClass(studentId, classId);
-      const newStudent = students.find((s) => s.id === studentId);
-      if (!newStudent) {
-        toast.error("Aluno não encontrado na lista.");
-        return;
-      }
 
-      // Atualização otimista
       setLocalTurmas((prev) => ({
         ...prev,
-        alunos: [...(prev.alunos || []), newStudent],
+        alunos: [...(prev.alunos || []), student],
       }));
 
       onUpdateTurma(updatedTurma);
 
-      //Retirando aluno da lista ao colocar na turma
       setStudents((prev) => prev.filter((s) => s.id !== studentId));
-
       setSelectedStudent(null);
-      console.log(studentId, classId)
-     
     } catch (error: any) {
-      toast.error(error?.message || "Erro ao adicionar aluno.");
+      toast.error(
+        error?.response?.data?.error || "Erro ao adicionar aluno."
+      );
     }
   };
+
 
   const handleRemoveStudent = (alunoId: string) => {
     toast.info(`Remover aluno ${alunoId} (Lógica a ser implementada).`);
@@ -160,19 +169,21 @@ export const AddDataToClass = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="w-[95%] max-w-lg md:max-w-3xl flex flex-col justify-center items-center">
+      <DialogContent className="w-[95%] max-w-lg md:max-w-3xl
+             max-h-[90vh] overflow-hidden
+             flex flex-col">
         <DialogHeader>
           <DialogTitle>Gerenciar Turma: {turma.nome}</DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="alunos" className="w-full">
+        <Tabs defaultValue="alunos" className="flex-1 flex flex-col">
           <TabsList className="mb-4 grid grid-cols-2 w-full">
             <TabsTrigger value="alunos">Alunos</TabsTrigger>
             <TabsTrigger value="professores">Professores</TabsTrigger>
           </TabsList>
 
           {/* --- ABA ALUNOS --- */}
-          <TabsContent value="alunos" className="space-y-4 w-full">
+          <TabsContent value="alunos" className="flex-1 flex flex-col gap-4 overflow-hidden">
             <div className="flex gap-2">
               <Select
                 onValueChange={setSelectedStudent}
@@ -182,17 +193,19 @@ export const AddDataToClass = ({
                   <SelectValue placeholder="Selecione um aluno" />
                 </SelectTrigger>
                 <SelectContent>
-                  <ScrollArea className="max-h-48">
+                  <ScrollArea className="md:max-h-48 md:h-80 h-[300px]">
                     {students
                       .filter(
-                        (s) => !localTurmas.alunos?.some((a) => a.id === s.id)
+                        (s) =>
+                          !s.turma &&
+                          !localTurmas.alunos?.some((a) => a.id === s.id)
                       )
                       .map((student) => (
                         <SelectItem key={student.id} value={student.id}>
-                          <div className="text-sm p-1.5">{student.nome}</div>
+                          {student.nome}
                         </SelectItem>
-                      ))
-                    }
+                      ))}
+
 
                   </ScrollArea>
                 </SelectContent>
@@ -200,11 +213,10 @@ export const AddDataToClass = ({
 
               <Button
                 disabled={!selectedStudent || loading}
-                className={`flex-shrink-0 ${
-                  !selectedStudent || loading
-                    ? "bg-neutral-400 cursor-not-allowed"
-                    : "bg-blue-400 cursor-pointer hover:bg-blue-500"
-                }`}
+                className={`flex-shrink-0 ${!selectedStudent || loading
+                  ? "bg-neutral-400 cursor-not-allowed"
+                  : "bg-blue-400 cursor-pointer hover:bg-blue-500"
+                  }`}
                 onClick={() => handleAddStudent(selectedStudent, localTurmas.id)}
               >
                 {loading ? (
@@ -218,29 +230,30 @@ export const AddDataToClass = ({
             </div>
 
             {/* Tabela Alunos */}
-            <ScrollArea className="h-[300px] rounded-md border p-2 hidden md:block">
+            <ScrollArea className="w-full rounded-md border p-2 overflow-x-auto">
+
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[45%]">Nome</TableHead>
-                    <TableHead className="w-[35%]">Matrícula</TableHead>
+                    <TableHead className="w-[35%] hidden md:flex">Matrícula</TableHead>
                     <TableHead className="w-[20%] text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
+                <TableBody className="w-10">
                   {Array.isArray(localTurmas.alunos) &&
-                  localTurmas.alunos.length > 0 ? (
+                    localTurmas.alunos.length > 0 ? (
                     localTurmas.alunos.map((aluno) => (
-                      <TableRow key={aluno.id}>
+                      <TableRow key={aluno.id} >
                         <TableCell>{aluno.nome}</TableCell>
-                        <TableCell>{aluno.matricula}</TableCell>
+                        <TableCell className="hidden md:flex">{aluno.matricula}</TableCell>
                         <TableCell className="text-right">
                           <Button
                             variant="destructive"
                             size="sm"
                             onClick={() => handleRemoveStudent(aluno.id)}
                           >
-                            Remover
+                            <Trash />
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -272,16 +285,16 @@ export const AddDataToClass = ({
                   <SelectValue placeholder="Selecione um professor" />
                 </SelectTrigger>
                 <SelectContent>
-                  { 
-                    professores &&  
+                  {
+                    professores &&
                     professores.filter(
                       (p) => !localTurmas?.professores.some(t => t.id === p.id)
                     )
-                    .map((prof) => (
-                      <SelectItem key={prof.id} value={prof.id}>
-                        {prof.nome}
-                      </SelectItem>
-                    ))
+                      .map((prof) => (
+                        <SelectItem key={prof.id} value={prof.id}>
+                          {prof.nome}
+                        </SelectItem>
+                      ))
                   }
                 </SelectContent>
               </Select>
@@ -299,7 +312,7 @@ export const AddDataToClass = ({
                       Vinculando...
                     </span>
                   ) : (
-                   <span> Vincular Professor à Turma</span>
+                    <span> Vincular Professor à Turma</span>
                   )
                 }
               </Button>
