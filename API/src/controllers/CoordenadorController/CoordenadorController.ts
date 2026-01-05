@@ -78,7 +78,7 @@ export const registerDisciplines = async (req: Request, res: Response) => {
 export const registerParents = async (req: Request, res: Response) => {
   const { userId } = req.params;
 
-  if(!mongoose.Types.ObjectId.isValid(userId)){
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
     return res.status(400).json({
       error: "Id inválido"
     });
@@ -121,7 +121,7 @@ export const classToTeacher = async (req: Request, res: Response) => {
   const { teacherId, classId } = req.params;
 
   //Validando Ids
-  if(!mongoose.Types.ObjectId.isValid(teacherId) || !mongoose.Types.ObjectId.isValid(classId)){
+  if (!mongoose.Types.ObjectId.isValid(teacherId) || !mongoose.Types.ObjectId.isValid(classId)) {
     return res.status(400).json({ errors: ["Ids inválidos."] });
   };
 
@@ -140,7 +140,7 @@ export const classToTeacher = async (req: Request, res: Response) => {
       return res.status(404).json({ errors: ['Professor não encontrado'] });
     }
 
-    if(classroom.professores.map(p => p.toString()).includes(teacherId)){
+    if (classroom.professores.map(p => p.toString()).includes(teacherId)) {
       return res.status(400).json({
         error: "O professor já está na turma."
       });
@@ -204,55 +204,69 @@ export const disciplineToClass = async (req: Request, res: Response) => {
 export const studentToClass = async (req: Request, res: Response) => {
   const { studentId, classId } = req.params;
 
-  //Validando Ids
-  if(!mongoose.Types.ObjectId.isValid(studentId) || !mongoose.Types.ObjectId.isValid(classId)){
+  if (
+    !mongoose.Types.ObjectId.isValid(studentId) ||
+    !mongoose.Types.ObjectId.isValid(classId)
+  ) {
     return res.status(400).json({ errors: ["Ids inválidos."] });
-  };
+  }
 
   try {
-
-    //Buscando documentos
     const [student, classroom] = await Promise.all([
       studentModel.findById(studentId),
-      schoolClassModel .findById(classId)
+      schoolClassModel.findById(classId),
     ]);
 
-    //Validando documentos
     if (!student) {
-      return res.status(404).json({ errors: ['Aluno(a) não encontrado(a)!'] });
-    };
-
-    if (!classroom) {
-      return res.status(404).json({ errors: ['Turma não encontrada!'] });
-    };
-
-    if(student.turma?.map(t => t.toString()).includes(classId)){
-      return res.status(400).json({
-        error: "O aluno já está na disciplina."
-      })
+      return res.status(404).json({ errors: ["Aluno não encontrado!"] });
     }
 
-    //Salvando
-    await Promise.all([
-      schoolClassModel.findByIdAndUpdate(classId, { $addToSet: { alunos: studentId } }),
-      studentModel.findByIdAndUpdate(studentId, { $add: { turma: classId } })
-    ]);
+    if (!classroom) {
+      return res.status(404).json({ errors: ["Turma não encontrada!"] });
+    }
 
-    res.status(201).json({
-      msg: 'Aluno salvo na turma!',
+    // Verifica se o aluno já está nessa turma
+    if (classroom.alunos.includes(student._id)) {
+      return res.status(400).json({
+        error: "O aluno já está nesta turma.",
+      });
+    }
+
+    // Verifica se o aluno já está em outra turma
+    const studentInAnotherClass = await schoolClassModel.exists({
+      alunos: student._id,
     });
 
+    if (studentInAnotherClass) {
+      return res.status(400).json({
+        error: "O aluno já está em outra turma.",
+      });
+    }
+
+    await Promise.all([
+      schoolClassModel.findByIdAndUpdate(classId, {
+        $addToSet: { alunos: student._id },
+      }),
+      studentModel.findByIdAndUpdate(studentId, {
+        $addToSet: { turma: classId },
+      }),
+    ]);
+
+    return res.status(201).json({
+      msg: "Aluno adicionado à turma com sucesso!",
+    });
   } catch (error) {
-    res.status(500).json({ errors: ['Erro interno do servidor!'] });
     Logger.error(`Erro interno do servidor: ${error}`);
+    return res.status(500).json({ errors: ["Erro interno do servidor!"] });
   }
 };
+
 
 //Atribuindo aluno ao pai
 export const studentToParent = async (req: Request, res: Response) => {
   const { studentId, parentId } = req.params;
 
-  if(!mongoose.Types.ObjectId.isValid(studentId) || !mongoose.Types.ObjectId.isValid(parentId)){
+  if (!mongoose.Types.ObjectId.isValid(studentId) || !mongoose.Types.ObjectId.isValid(parentId)) {
     return res.status(400).json({
       error: "Ids inválidos"
     });
@@ -275,7 +289,7 @@ export const studentToParent = async (req: Request, res: Response) => {
       return res.status(404).json({ errors: ['Responsável não encontrado!'] });
     };
 
-    if(student.parents.map(p => p.toString()).includes(parentId)){
+    if (student.parents.map(p => p.toString()).includes(parentId)) {
       return res.status(400).json({
         error: "Responsável já atribuído ao estudante."
       });
