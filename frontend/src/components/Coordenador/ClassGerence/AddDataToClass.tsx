@@ -22,12 +22,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { ITurma } from "./ClassGerence";
+import type { ITurma, Professor } from "./ClassGerence";
 import { useEffect, useState } from "react";
 import { api_url, useCoordenador } from "@/contexts/coordenadorContext";
 import { useAuth } from "@/contexts/authContext";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
+import { ConfirmationBox } from "@/components/Box/ConfirmationBox";
+import { tr } from "date-fns/locale";
 
 interface AddDataToClassProps {
   turma: ITurma;
@@ -61,24 +63,33 @@ export const AddDataToClass = ({
   const [localTurmas, setLocalTurmas] = useState<ITurma>({
     ...turma,
     alunos: turma.alunos || [],
+    professores: turma.professores || [],
   });
   const [selectedProfessor, setSelectedProfessor] = useState<string | null>(
     null
   );
+  const [openDelete, setOpenDelete] = useState(false)
 
   const { token } = useAuth();
-  const { addStudentToClass, loading, professores, Professores, addTeacherToClass } =
+  const { addStudentToClass, loading, professores, Professores, addTeacherToClass, removeStudentClass } =
     useCoordenador();
 
   // Recarrega os professores ao abrir o modal
   useEffect(() => {
-    if (open) Professores();
+    if (open) Professores()
+
   }, [open]);
 
   // Sincroniza a turma local sempre que houver atualização real na prop
   useEffect(() => {
     if (open) {
-      setLocalTurmas({ ...turma, alunos: turma.alunos || [] });
+      setLocalTurmas((prev)=>({
+        ...prev,
+        alunos: turma.alunos || prev.alunos,
+        professores: turma.professores?.length 
+          ? turma.professores
+          : prev.professores 
+      }));
     }
   }, [open]);
 
@@ -137,25 +148,66 @@ export const AddDataToClass = ({
 
       setSelectedStudent(null);
       console.log(studentId, classId)
-     
+
     } catch (error: any) {
       toast.error(error?.message || "Erro ao adicionar aluno.");
     }
   };
 
-  const handleRemoveStudent = (alunoId: string) => {
-    toast.info(`Remover aluno ${alunoId} (Lógica a ser implementada).`);
-  };
+  const handleRemoveStudent = async (alunoId: string) => {
+    try {
+      if (!alunoId) {
+        toast.error("Selecione um aluno para retirar")
+      }
+
+      await removeStudentClass(alunoId, turma.nome)
+
+      setLocalTurmas((prev) => ({
+        ...prev,
+        alunos: prev.alunos.filter((a) => a.id !== alunoId)
+      }))
+    }
+    catch (error) {
+      console.error(error)
+      toast.error("Não foi possível excluir")
+    }
+  }
 
   // Vincular professor à turma
-  const handleLinkProfessor = async (classId: string) => {
-    if (!selectedProfessor) {
-      toast.error("Selecione um professor para vincular.");
-      return;
-    }
+  const handleLinkProfessor = async (
+    teacherId: string,
+    classId: string
+  ) => {
+    try {
+      if (!teacherId) {
+        toast.error("Selecione um professor para vincular.");
+        return;
+      }
 
-    await addTeacherToClass(classId, selectedProfessor);
-    console.log("Professor vinculado:", selectedProfessor);
+      const updatedTurma: ITurma = await addTeacherToClass(classId, teacherId);
+
+      const newProfessor = professores?.find((p) => p.id === teacherId)
+      console.log(newProfessor)
+
+      if (!newProfessor) {
+        toast.error("Professor não encontrado na lista.");
+        return;
+      }
+
+      // Atualização otimista
+      setLocalTurmas((prev) => ({
+        ...prev,
+        professores: [...(prev.professores || []), newProfessor],
+      }));
+
+      onUpdateTurma(updatedTurma);
+
+      setSelectedProfessor(null)
+      console.log("Professor vinculado:", selectedProfessor);
+    }
+    catch(error: any){
+      console.error(error)
+    }
   };
 
   return (
@@ -200,11 +252,10 @@ export const AddDataToClass = ({
 
               <Button
                 disabled={!selectedStudent || loading}
-                className={`flex-shrink-0 ${
-                  !selectedStudent || loading
-                    ? "bg-neutral-400 cursor-not-allowed"
-                    : "bg-blue-400 cursor-pointer hover:bg-blue-500"
-                }`}
+                className={`flex-shrink-0 ${!selectedStudent || loading
+                  ? "bg-neutral-400 cursor-not-allowed"
+                  : "bg-blue-400 cursor-pointer hover:bg-blue-500"
+                  }`}
                 onClick={() => handleAddStudent(selectedStudent, localTurmas.id)}
               >
                 {loading ? (
@@ -229,7 +280,7 @@ export const AddDataToClass = ({
                 </TableHeader>
                 <TableBody>
                   {Array.isArray(localTurmas.alunos) &&
-                  localTurmas.alunos.length > 0 ? (
+                    localTurmas.alunos.length > 0 ? (
                     localTurmas.alunos.map((aluno) => (
                       <TableRow key={aluno.id}>
                         <TableCell>{aluno.nome}</TableCell>
@@ -238,7 +289,10 @@ export const AddDataToClass = ({
                           <Button
                             variant="destructive"
                             size="sm"
-                            onClick={() => handleRemoveStudent(aluno.id)}
+                            onClick={() => {
+                              setOpenDelete(true)
+                              setSelectedStudent(aluno.id)
+                            }}
                           >
                             Remover
                           </Button>
@@ -272,16 +326,16 @@ export const AddDataToClass = ({
                   <SelectValue placeholder="Selecione um professor" />
                 </SelectTrigger>
                 <SelectContent>
-                  { 
-                    professores &&  
+                  {
+                    professores &&
                     professores.filter(
                       (p) => !localTurmas?.professores.some(t => t.id === p.id)
                     )
-                    .map((prof) => (
-                      <SelectItem key={prof.id} value={prof.id}>
-                        {prof.nome}
-                      </SelectItem>
-                    ))
+                      .map((prof) => (
+                        <SelectItem key={prof.id} value={prof.id}>
+                          {prof.nome}
+                        </SelectItem>
+                      ))
                   }
                 </SelectContent>
               </Select>
@@ -290,7 +344,7 @@ export const AddDataToClass = ({
               <Button
                 className="bg-blue-400 hover:bg-blue-500 cursor-pointer w-full"
                 disabled={!selectedProfessor || loading}
-                onClick={() => handleLinkProfessor(localTurmas.id)}
+                onClick={() => handleLinkProfessor(selectedProfessor!, localTurmas.id)}
               >
                 {
                   loading ? (
@@ -299,14 +353,68 @@ export const AddDataToClass = ({
                       Vinculando...
                     </span>
                   ) : (
-                   <span> Vincular Professor à Turma</span>
+                    <span> Vincular Professor à Turma</span>
                   )
                 }
               </Button>
             </div>
+
+            {/* Tabela Professores */}
+            <ScrollArea className="h-[300px] rounded-md border p-2 hidden md:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[45%]">Nome</TableHead>
+                    <TableHead className="w-[35%]">Matrícula</TableHead>
+                    <TableHead className="w-[20%] text-right">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {Array.isArray(localTurmas.professores) &&
+                    localTurmas.professores.length > 0 ? (
+                    localTurmas.professores.map((prof) => (
+                      <TableRow key={prof.id}>
+                        <TableCell>{prof.nome}</TableCell>
+                        <TableCell>{prof.matricula}</TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => {
+                              
+                            }}
+                          >
+                            Remover
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={3}
+                        className="text-center h-16 text-muted-foreground"
+                      >
+                        Nenhum aluno vinculado a essa turma.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </ScrollArea>
           </TabsContent>
         </Tabs>
       </DialogContent>
+
+      {/* Box para confirmar exclusão */}
+      <ConfirmationBox
+        openDialog={openDelete}
+        onOpenDialogChange={setOpenDelete}
+        registerToDelete={selectedStudent}
+        setRegisterToDelete={setSelectedStudent}
+        deleteRegister={handleRemoveStudent}
+      />
+
     </Dialog>
   );
 };

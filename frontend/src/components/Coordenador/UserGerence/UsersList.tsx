@@ -27,6 +27,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Input } from "@/components/ui/input";
 import { toast, Toaster } from "sonner";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ConfirmationBox } from "@/components/Box/ConfirmationBox";
 
 // Interface do usuário
 interface User {
@@ -108,7 +109,7 @@ export const UserTable: React.FC = () => {
             <Button
               variant={"outline"}
               className="text-red-500"
-              onClick={() => { 
+              onClick={() => {
                 setOpenDelete(true)
                 setUserToDelete(row.original.id)
               }}
@@ -278,7 +279,14 @@ export const UserTable: React.FC = () => {
                 </div>
                 <div className="flex gap-2 mt-2">
                   <Tools nome={row.original.nome} role={row.original.role} id={row.original.id} />
-                  <Button variant="outline" className="text-red-500">
+                  <Button
+                    variant={"outline"}
+                    className="text-red-500"
+                    onClick={() => {
+                      setOpenDelete(true)
+                      setUserToDelete(row.original.id)
+                    }}
+                  >
                     Excluir
                   </Button>
                 </div>
@@ -332,37 +340,17 @@ export const UserTable: React.FC = () => {
             </select>
           </div>
         )}
+
+        {/* Box para confirmar exclusão */}
+        <ConfirmationBox
+          openDialog={openDelete}
+          onOpenDialogChange={setOpenDelete}
+          registerToDelete={userToDelete}
+          deleteRegister={deleteUser}
+          setRegisterToDelete={setUserToDelete}
+        />
+
       </div>
-
-      {/* Modal para confirmar a exclusão do aluno */}
-      <Dialog open={openDelete} onOpenChange={setOpenDelete}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirmar exclusão</DialogTitle>
-          </DialogHeader>
-
-          <p>Tem certeza que deseja excluir este registro?</p>
-
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Cancelar</Button>
-            </DialogClose>
-
-            <Button
-              variant="destructive"
-              onClick={() => {
-                if (userToDelete) {
-                  deleteUser(userToDelete)
-                  setUserToDelete(null)
-                  setOpenDelete(false)
-                }
-              }}
-            >
-              Excluir
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

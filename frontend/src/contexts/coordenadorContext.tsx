@@ -82,6 +82,7 @@ interface ICoordenatorProps {
     registerParent: (userID: string) => Promise<any>
     registerTeacher: (userID: string, matricula: string, formacao: string) => Promise<any>
     addStudentToClass: (studentId: string, classId: string) => Promise<any>
+    removeStudentClass: (studentId: string, classId: string) => Promise<any> 
     addTeacherToClass: (classId: string, teacherId: string) => Promise<any>
     relationParentStudent: (parentId: string, studentId: string) => Promise<any>
     notesSend: () => Promise<INotes[]>
@@ -175,6 +176,7 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
             if (res.ok) {
                 //console.log(data.professores)
                 setProfessores(data.professores)
+                return data
             }
         }
         catch (error) {
@@ -366,6 +368,36 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
         }
     }
 
+    // Remover aluno de uma turma
+    const removeStudentClass = async (studentId: string, className: string) => {
+        setLoading(true)
+        try{
+            const res  = await fetch(`${api_url}/api/coordenador/remove/${studentId}/classroom`, {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ className })
+            })
+
+            const dataJson = await res.json()
+
+            if(!res.ok){
+                return toast.error(dataJson.errors[0])
+            }
+
+            toast.success("Aluno removido com sucesso")
+            return dataJson
+        }
+        catch(error: any){
+            console.error(error)
+        }
+        finally{
+            setLoading(false)
+        }
+    }
+
     //Adicionar professor a uma turma
     const addTeacherToClass = async (classId: string, teacherId: string) => {
         setLoading(true)
@@ -384,7 +416,7 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
             }
 
             toast.success("Professor vinculado à turma com sucesso!");
-            return addTeacherToClass;
+            return dataJson;
         }
         catch (error) {
             console.log(error);
@@ -459,6 +491,7 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
                 notesSend,
                 addTeacherToClass,
                 addStudentToClass,
+                removeStudentClass,
                 registerClasses,
                 registerStudent,
                 registerParent,

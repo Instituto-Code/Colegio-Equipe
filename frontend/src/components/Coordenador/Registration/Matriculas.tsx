@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { MenuParents } from "./Tools";
 import { Trash } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ConfirmationBox } from "@/components/Box/ConfirmationBox";
 
 // Interface para os dados do aluno.
 export interface IAluno {
@@ -95,8 +96,7 @@ export const Matriculas = () => {
                             onClick={() => {
                                 setOpenDelete(true)
                                 setStudentToDelete(row.original.id)
-                            }
-                        }
+                            }}
                             variant={"outline"}
                             className="cursor-pointer text-red-500">
                             Excluir
@@ -236,8 +236,18 @@ export const Matriculas = () => {
                             <div>
                                 <strong>Status: </strong>{row.original.status}
                             </div>
-                            <div className="flex mt-2">
+                            <div className="flex mt-2 gap-5">
                                 <MenuParents openDialog={openAssStudent} idAluno={row.original.id} nome={row.original.nome} />
+                                <Button
+                                    onClick={() => {
+                                        setOpenDelete(true)
+                                        setStudentToDelete(row.original.id)
+                                    }
+                                    }
+                                    variant={"outline"}
+                                    className="cursor-pointer text-red-500">
+                                    Excluir
+                                </Button>
                             </div>
                         </div>
                     ))}
@@ -246,35 +256,14 @@ export const Matriculas = () => {
 
                 <Toaster />
 
-                {/* Modal para confirmar a exclusão do aluno */}
-                <Dialog open={openDelete} onOpenChange={setOpenDelete}>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Confirmar exclusão</DialogTitle>
-                        </DialogHeader>
-
-                        <p>Tem certeza que deseja excluir este registro?</p>
-
-                        <DialogFooter>
-                            <DialogClose asChild>
-                                <Button variant="outline">Cancelar</Button>
-                            </DialogClose>
-
-                            <Button
-                                variant="destructive"
-                                onClick={() => {
-                                    if(studentToDelete){
-                                        deleteStudent(studentToDelete)
-                                        setStudentToDelete(null)
-                                        setOpenDelete(false)
-                                    }
-                                }}
-                            >
-                                Excluir
-                            </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
+                {/* Box para confirmar de exclusão */}
+                <ConfirmationBox
+                    openDialog={openDelete}
+                    onOpenDialogChange={setOpenDelete}
+                    deleteRegister={deleteStudent}
+                    registerToDelete={studentToDelete}
+                    setRegisterToDelete={setStudentToDelete}
+                />
 
             </div>
         </div>

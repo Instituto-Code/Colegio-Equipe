@@ -25,10 +25,11 @@ import { AddClass } from "./AddClass";
 import { Input } from "@/components/ui/input";
 import { AddDataToClass } from "./AddDataToClass";
 
-type Professor = {
-  id: string;
-  nome: string;
-  matricula: string;
+export type Professor = {
+  id: string
+  nome: string
+  matricula: string
+  email?: string
 };
 
 type Aluno = {
