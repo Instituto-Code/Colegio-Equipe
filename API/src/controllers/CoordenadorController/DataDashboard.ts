@@ -53,7 +53,8 @@ export const listUsers = async (req: CustomRequest, res: Response) => {
 
     const skip = (Number(page) - 1) * limitNumber;
 
-    const allUsers = await userModel.find(usersQuery)
+    const allUsers = await userModel
+      .find(usersQuery)
       .skip(skip)
       .limit(limitNumber);
 
@@ -90,13 +91,16 @@ export const listUsers = async (req: CustomRequest, res: Response) => {
 export const listStudents = async (req: CustomRequest, res: Response) => {
   try {
     //Buscando alunos e populando dados dos parentes
-    const alunos = await studentModel.find().populate({
-      path: 'parents',
-      populate: {
-        path: 'user',
-        select: 'name email',
-      },
-    }).populate("turma", "nome, turno, anoLetivo");
+    const alunos = await studentModel
+      .find()
+      .populate({
+        path: 'parents',
+        populate: {
+          path: 'user',
+          select: 'name email',
+        },
+      })
+      .populate('turma', 'nome, turno, anoLetivo');
 
     //Editando dados que vão para o frontend
     const alunosFormatados = alunos.map((aluno) => ({
@@ -109,7 +113,7 @@ export const listStudents = async (req: CustomRequest, res: Response) => {
         id: p._id,
         nome: p.user?.name,
         email: p.user?.email,
-      }))
+      })),
     }));
 
     res.status(200).json({ alunos: alunosFormatados });
@@ -126,13 +130,16 @@ export const listOneStudent = async (req: CustomRequest, res: Response) => {
   try {
     const { studentId } = req.params;
 
-    const aluno = await studentModel.findById(studentId).populate({
-      path: 'parents',
-      populate: {
-        path: 'user',
-        select: 'name email numberTel cpf',
-      },
-    }).populate("turma", "nome turno anoLetivo");
+    const aluno = await studentModel
+      .findById(studentId)
+      .populate({
+        path: 'parents',
+        populate: {
+          path: 'user',
+          select: 'name email numberTel cpf',
+        },
+      })
+      .populate('turma', 'nome turno anoLetivo');
 
     if (!aluno) {
       return res.status(404).json({
@@ -156,8 +163,8 @@ export const listOneStudent = async (req: CustomRequest, res: Response) => {
       turma: aluno.turma?.map((t: any) => ({
         nome: t.nome,
         turno: t.turno,
-        anoLetivo: t.anoLetivo
-      }))
+        anoLetivo: t.anoLetivo,
+      })),
     };
 
     res.status(200).json({
@@ -175,7 +182,8 @@ export const listOneStudent = async (req: CustomRequest, res: Response) => {
 
 export const listTeachers = async (req: CustomRequest, res: Response) => {
   try {
-    const professores = await teacherModel.find()
+    const professores = await teacherModel
+      .find()
       .populate('user', 'name email active')
       .populate('turmas', 'nome turno anoLetivo');
 
@@ -227,7 +235,8 @@ export const listOneTeacher = async (req: CustomRequest, res: Response) => {
   try {
     const { teacherId } = req.params;
 
-    const professor = await teacherModel.findById(teacherId)
+    const professor = await teacherModel
+      .findById(teacherId)
       .populate('user', 'name email active')
       .populate('turmas', 'nome turno anoLetivo');
 
@@ -280,8 +289,16 @@ export const listOneTeacher = async (req: CustomRequest, res: Response) => {
 //Listagem de turmas
 export const listClasses = async (req: CustomRequest, res: Response) => {
   try {
-    const turmas = await schoolClassModel.find()
-      .populate('professores', 'nome matricula')
+    const turmas = await schoolClassModel
+      .find()
+      .populate({
+        path: 'professores',
+        select: 'matricula nome user',
+        populate: {
+          path: 'user',
+          select: 'nome',
+        },
+      })
       .populate('disciplinas', 'nome cargaHoraria')
       .populate('alunos', 'nome matricula');
 
@@ -302,7 +319,7 @@ export const listClasses = async (req: CustomRequest, res: Response) => {
       totalAlunos: turma.alunos.length,
       professores: turma.professores.map((p: any) => ({
         id: p._id,
-        nome: p.nome,
+        nome: p.user.name,
         matricula: p.matricula,
       })),
       disciplinas: turma.disciplinas.map((d: any) => ({
@@ -328,70 +345,74 @@ export const listClasses = async (req: CustomRequest, res: Response) => {
 
 //List pais
 export const listParents = async (req: CustomRequest, res: Response) => {
-  try{
-    const parents = await parentsModel.find()
-      .populate<{user: IUser}>("user", "name email numberTel adress")
-      .populate<{filhos: IAluno[]}>("filhos", "nome matricula dataNasc status sexo cpf")
+  try {
+    const parents = await parentsModel
+      .find()
+      .populate<{ user: IUser }>('user', 'name email numberTel adress')
+      .populate<{ filhos: IAluno[] }>(
+        'filhos',
+        'nome matricula dataNasc status sexo cpf',
+      );
 
-    if(parents.length === 0){
+    if (parents.length === 0) {
       res.status(200).json({
         parents: [],
-        msg: "Lista de pais vazia."
+        msg: 'Lista de pais vazia.',
       });
-    };
+    }
 
     const dataFormated = parents
-    .filter(p => p.user !== null)
-    .map((p) => ({
-      id: p._id,
-      nome: p.user.name,
-      email: p.user.email,
-      numeroTel: p.user.numberTel,
-      endereco: p.user.adress,
-      filhos: p.filhos.map((f) => ({
-        id: f._id,
-        nome: f.nome,
-        matricula: f.matricula,
-        dataNasc: f.dataNasc,
-        status: f.status,
-        sexo: f.sexo,
-        cpf: f.cpf
-      }))
-    }));
+      .filter((p) => p.user !== null)
+      .map((p) => ({
+        id: p._id,
+        nome: p.user.name,
+        email: p.user.email,
+        numeroTel: p.user.numberTel,
+        endereco: p.user.adress,
+        filhos: p.filhos.map((f) => ({
+          id: f._id,
+          nome: f.nome,
+          matricula: f.matricula,
+          dataNasc: f.dataNasc,
+          status: f.status,
+          sexo: f.sexo,
+          cpf: f.cpf,
+        })),
+      }));
 
     res.status(200).json({
-      responsaveis: dataFormated
+      responsaveis: dataFormated,
     });
-
-  }
-  catch(error: any){
+  } catch (error: any) {
     res.status(500).json({
       error: 'Erro interno do servidor',
     });
     Logger.error(`Erro interno do servidor: ${error}`);
   }
-}
+};
 
-
-//listar um Responsável 
+//listar um Responsável
 export const listParent = async (req: CustomRequest, res: Response) => {
-  try{
-
+  try {
     const { parentId } = req.params;
 
-    if(!mongoose.Types.ObjectId.isValid(parentId)){
-      return res.status(400).json({ error: "ID inválido." });
-    };
+    if (!mongoose.Types.ObjectId.isValid(parentId)) {
+      return res.status(400).json({ error: 'ID inválido.' });
+    }
 
-    const parent = await parentsModel.findById(parentId)
-      .populate<{ user: IUser }>("user", "name email numberTel adress")
-      .populate<{ filhos: IAluno[] }>("filhos", "nome matricula dataNasc status sexo cpf")
+    const parent = await parentsModel
+      .findById(parentId)
+      .populate<{ user: IUser }>('user', 'name email numberTel adress')
+      .populate<{ filhos: IAluno[] }>(
+        'filhos',
+        'nome matricula dataNasc status sexo cpf',
+      );
 
-    if(!parent){
+    if (!parent) {
       return res.status(404).json({
-        error: "Responsável não encontrado."
+        error: 'Responsável não encontrado.',
       });
-    };
+    }
 
     const formatedData = {
       id: parent._id,
@@ -406,20 +427,17 @@ export const listParent = async (req: CustomRequest, res: Response) => {
         dataNasc: f.dataNasc,
         status: f.status,
         sexo: f.sexo,
-        cpf: f.cpf
-      }))
-    }
+        cpf: f.cpf,
+      })),
+    };
 
     res.status(200).json({
-      responsavel: formatedData
+      responsavel: formatedData,
     });
-
-  }
-  catch(error: any){
+  } catch (error: any) {
     res.status(500).json({
       error: 'Erro interno do servidor',
     });
     Logger.error(`Erro interno do servidor: ${error}`);
   }
-}
-
+};
