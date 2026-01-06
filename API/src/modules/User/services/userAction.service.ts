@@ -46,6 +46,7 @@ export async function RegisterService(name: string, email: string, password: str
 
 export async function ProfileService(user: IUser) {
     const userFormated = {
+        id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
