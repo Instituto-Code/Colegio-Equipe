@@ -50,7 +50,12 @@ export async function ProfileService(user: IUser) {
         name: user.name,
         email: user.email,
         role: user.role,
-        active: user.active
+        active: user.active,
+        cpf: user.cpf,
+        dataNasc: user.dataNasc,
+        numberTel: user.numberTel,
+        adress: user.adress,
+
     }
 
     return userFormated
