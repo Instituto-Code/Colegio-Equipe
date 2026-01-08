@@ -1,6 +1,6 @@
 import { CustomRequest } from "../../middlewares/authGuard.js";
 import { Response } from "express";
-import { EditProfileService, LoginService, ProfileService, RegisterService } from "./services/userAction.service.js";
+import { EditProfileService, LoginService, PhotoProfileService, ProfileService, RegisterService } from "./services/userAction.service.js";
 import Logger from "../../../config/logger.js";
 
 //Função para login
@@ -71,3 +71,23 @@ export async function EditProfile(req: CustomRequest, res: Response){
     res.status(500).json({ errors: ['Erro interno do servidor!'] });
   }
 };
+
+// Modificação de foto de perfil
+export async function PhotoProfileController(req: CustomRequest, res: Response){
+  try{
+
+    const userId = req.user._id;
+
+    const file = req.file;
+
+    const result = await PhotoProfileService(userId, file);
+
+    res.status(200).json({avatarUrl: result.secure_url});
+
+  }
+  catch (error) {
+    Logger.error(`Erro interno do servidor: ${error}`);
+    res.status(500).json({ errors: ['Erro interno do servidor!'] });
+  }
+}
+

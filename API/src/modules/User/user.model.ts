@@ -11,6 +11,11 @@ const UserSchema = new Schema<IUser>(
       trim: true,
       select: true
     },
+    
+    avatarUrl: {
+      type: String
+    },
+
     email: {
       type: String,
       required: true,

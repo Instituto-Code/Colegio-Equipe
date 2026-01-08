@@ -8,6 +8,7 @@ export type CreateUser = {
 
 export type UpdateUser = {
     name: string, 
+    avatarUrl?: string,
     password: string, 
     cpf: string, 
     numberTel: string, 

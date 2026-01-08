@@ -14,6 +14,7 @@ export interface IAddress {
 export interface IUser extends Document {
   name: string ;
   email: string;
+  avatarUrl?: string;
   cpf?: string;
   dataNasc?: Date;
   numberTel?: string;

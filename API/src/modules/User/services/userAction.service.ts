@@ -4,6 +4,7 @@ import GenerateToken from "../../../services/jwt/generateToken.js";
 import { IUser } from "../../../shared/types/user.type.js";
 import { UpdateUser } from "../../../shared/dto/user.dto.js";
 import { Types } from "mongoose";
+import { cloudinary } from "../../../services/cloud/cloudinary.js";
 
 
 export async function LoginService(email: string, password: string) {
@@ -98,3 +99,33 @@ export async function EditProfileService(userId: string, data: UpdateUser) {
     //salvando usuário
     await user.save();
 }
+
+// Foto de perfil
+export async function PhotoProfileService(userId: string, file: Express.Multer.File | undefined){
+
+    if(!file) throw new Error("Arquivo não enviado.");
+
+    const result = await cloudinary.uploader.upload(
+        `data:${file.mimetype};base64,${file.buffer.toString('base64')}`,
+        {
+            folder: 'avatars',
+            public_id: `user-${userId}`,
+            overwrite: true,
+            transformation: [
+                { width: 300, height: 300, crop: 'fill'}
+            ]
+        }
+    );
+
+    const user = await UserRepository.findById(userId);
+
+    if(!user) throw new Error("Usuário não encontrado.");
+
+    user.avatarUrl = result.secure_url;
+
+    await user.save();
+
+    return result
+
+}
+
