@@ -21,6 +21,7 @@ import { CalendarAcademic } from "./components/professor/Calendar/AcademicCalend
 import { ClassGerence } from "./components/Coordenador/ClassGerence/ClassGerence";
 import { useNotifications } from "./components/NotificationReceived/useNotifications";
 import { Configuracoes } from "./components/Configuration/Configuracoes";
+import { ThemeProvider } from "./components/Theme/theme-provider";
 
 function AppContent() {
 
@@ -80,7 +81,9 @@ function AppContent() {
 export default function App() {
   return (
     <AuthProvider>
+      <ThemeProvider>
       <AppContent />
+      </ThemeProvider>
     </AuthProvider>
   );
 }

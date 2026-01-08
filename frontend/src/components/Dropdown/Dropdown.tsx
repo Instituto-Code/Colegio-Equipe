@@ -65,7 +65,7 @@ export const Dropdown = ({
 
         <DropdownMenuContent
           align="end"
-          className="flex flex-col gap-2 bg-white mr-1.5 shadow-[0_0px_6px_rgba(0,0,0,0.4)] rounded z-50 min-w-[220px]"
+          className="flex flex-col gap-2 mr-1.5 shadow-[0_0px_6px_rgba(0,0,0,0.4)] rounded z-50 min-w-[220px]"
         >
           {userLink && (
             <DropdownMenuItem className="hover:bg-gray-100 p-2 rounded text-[15px]">
@@ -108,7 +108,7 @@ export const Dropdown = ({
 
           <DropdownMenuItem
             onClick={logout}
-            className="bg-white hover:text-red-400 text-red-400 cursor-pointer p-2 rounded text-[15px]"
+            className=" hover:text-red-400 text-red-400 cursor-pointer p-2 rounded text-[15px]"
           >
             <LogOutIcon />
             Sair

@@ -13,7 +13,7 @@ export default function DashboardLayout() {
         <div className="flex w-full ">
           <SideBar />
           <main className="flex flex-1 flex-col ">
-            <SidebarTrigger className="fixed top-20 md:top-14 2xl:top-18 bg-white" />
+            <SidebarTrigger className="fixed top-20 md:top-14 2xl:top-18 " />
             <Outlet/>
           </main>
         </div>

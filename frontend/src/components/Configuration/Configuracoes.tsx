@@ -1,9 +1,9 @@
-import { IoArrowBack } from "react-icons/io5"
+import { IoArrowBack, IoArrowBackOutline, IoArrowBackSharp } from "react-icons/io5"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { useForm } from "react-hook-form"
 import { useEffect, useState } from "react"
@@ -11,12 +11,15 @@ import { useAuth } from "@/contexts/authContext"
 import { api_url } from "@/contexts/coordenadorContext"
 import { Spinner } from "../ui/spinner"
 import { toast } from "sonner"
+import { ModeToggle } from "../Theme/mode-toggle"
 
+// Definição da interface para o endereço
 interface IAdress {
     rua: string;
     numero: string
 }
 
+// Definição do tipo de dados do formulário
 type FormData = {
     _id: string;
     name: string;
@@ -30,6 +33,7 @@ type FormData = {
     confirmPass?: string;
 }
 
+// Componente de Configurações do Usuário
 export const Configuracoes = () => {
 
     const { token, user } = useAuth()
@@ -39,13 +43,15 @@ export const Configuracoes = () => {
     const [loading, setLoading] = useState(false)
     const [isEditing, setIsEditing] = useState(false)
 
+    const navigate = useNavigate()
+
     useEffect(() => {
         if (user) {
             reset(user)
         }
     }, [user, reset])
 
-
+    // Função para enviar dados e alterar os campos do usuário
     const onSubmit = async (data: FormData) => {
         setLoading(true)
         try {
@@ -65,7 +71,6 @@ export const Configuracoes = () => {
                 console.error(dataJson)
             }
 
-            console.log(dataJson)
             setUsuario(dataJson)
             toast.success("Mudança salva com sucesso")
         }
@@ -81,22 +86,26 @@ export const Configuracoes = () => {
     return (
         <div className="flex flex-col w-full h-screen ">
 
-            <div className=" flex items-center text-2xl font-semibold pl-3 py-4 mb-5 bg-indigo-200 sm:pl-5">
-                <Link to="/">
-                    <IoArrowBack />
-                </Link>
+            <div className=" bg-navbar-primary flex items-center text-2xl justify-between font-semibold pl-3 py-4 mb-5 sm:pl-5">
+                
+                <IoArrowBackSharp className="cursor-pointer" onClick={()=>{navigate(-1)}}/> 
 
-                <h1 className="ml-5 sm:ml-10 ">
+                <h1 className="ml-0 text-xl sm:ml-10 sm:text-2xl ">
                     Configurações do usuário
                 </h1>
+
+                <div className="pr-4">
+                    <ModeToggle />
+                </div>
             </div>
 
-            <div className="flex flex-col-reverse w-full justify-around sm:flex-row">
+            <div className="flex flex-col-reverse w-full px-5 justify-around sm:flex-row sm:justify-between sm:px-25 md:px-10 lg:px-20">
                 <div className="flex flex-col ">
-                    <div className="my-5 pl-10">
+                    <div className="my-5 sm:pl-5 md:pl-0">
                         <Label className="text-[1.5rem]">Seus dados</Label>
                     </div>
-                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-full px-10 gap-5 mb-10 sm:w-[45em] ">
+                    {/* Formulário de edição de dados do usuário */}
+                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-full gap-5 mb-10 sm:w-[45em] md:w-[35em] lg:w-[45em] ">
                         <div className="flex flex-col gap-3">
                             <Label htmlFor="nome">Nome</Label>
                             <Input
@@ -146,7 +155,7 @@ export const Configuracoes = () => {
                             />
                         </div>
 
-
+                        {/* Botão de salvar ou editar */}
                         <Button
                             type={isEditing ? "button" : "submit"}
                             onClick={() => {
@@ -169,10 +178,9 @@ export const Configuracoes = () => {
                     </form>
                 </div>
 
-
-                <div className="flex flex-col h-full items-center">
-                    <Label>Imagem de Perfil</Label>
-                    <div className="flex flex-row flex-wrap items-center gap-12 mt-5 ">
+                <div className="flex flex-col h-full items-center pr-10 md:pr-0 xl:pr-15">
+                    <Label className="text-[1.5em]">Imagem de Perfil</Label>
+                    <div className="flex flex-row flex-wrap items-center gap-12 mt-4 ">
                         <Avatar>
                             <AvatarImage className="w-[10em]" src="https://github.com/shadcn.png" />
                             <AvatarFallback>CN</AvatarFallback>

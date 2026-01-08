@@ -36,7 +36,7 @@ export const LandingPage = () => {
 
   return (
     <>
-      <header className="flex fixed z-50 mb-2.5 top-0 left-0 bg-white w-full justify-between items-center p-1">
+      <header className="flex fixed z-50 mb-2.5 top-0 left-0 bg-background w-full justify-between items-center p-1">
         <div className="flex">
           <Link to={"/"}>
             <img src={img_header} className="w-[7vw] max-sm:w-[25vw] " />
@@ -44,13 +44,13 @@ export const LandingPage = () => {
         </div>
         <div className="flex items-center pr-[1.5vw] gap-[3vw]">
           <a
-            className="flex max-sm:hidden text-black justify-center font-normal text-[1.2vw] font-[Inter] cursor-pointer no-underline [630px]:hidden"
+            className="flex max-sm:hidden text-foreground justify-center font-normal text-[1.2vw] font-[Inter] cursor-pointer no-underline [630px]:hidden"
             href="#sections_texts"
           >
             Quem somos
           </a>
           <a
-            className="flex max-sm:hidden text-black justify-center font-normal text-[1.2vw] font-[Inter] cursor-pointer no-underline [630px]:hidden"
+            className="flex max-sm:hidden text-foreground justify-center font-normal text-[1.2vw] font-[Inter] cursor-pointer no-underline [630px]:hidden"
             href="#text_mission"
           >
             Propósitos
@@ -67,7 +67,7 @@ export const LandingPage = () => {
               <Spinner className="size-8 text-blue-500" /> ) : (
             <Link to="/register">
               <Button
-                className="font-normal text-[1.3vw] max-sm:text-[4.5vw] font-[Inter] bg-slate-100 text-black hover:bg-slate-50 border-0 rounded-[10px] cursor-pointer w-auto max-sm:w-[30vw] h-[2.4vw] max-sm:h-[10vw]"
+                className="font-normal text-[1.3vw] max-sm:text-[4.5vw] font-[Inter] bg-backgorund text-foreground hover:bg-secondary border-0 rounded-[10px] cursor-pointer w-auto max-sm:w-[30vw] h-[2.4vw] max-sm:h-[10vw]"
               >
                 Cadastre-se
               </Button>
@@ -81,7 +81,7 @@ export const LandingPage = () => {
 
       <Slider1 imagens={imagens_Slide1}>
         <div className="flex flex-col z-1 absolute items-center m-[5vw] p-5 text-center rounded-[30px] bg-[rgba(255,255,255,0.8)] sm:flex-row sm:justify-around sm:py-[6vw] sm:px-[5vw] sm:text-left [630px]:gap-[1vw]">
-          <div className="flex flex-col gap-[4vb]">
+          <div className="flex flex-col gap-[4vb] text-black ">
             <h1 className="font-[Inter] text-[clamp(1.5rem,4vw,4.5rem)] ">
               Transforme seu futuro com educação de qualidade !
             </h1>
@@ -165,7 +165,7 @@ export const LandingPage = () => {
       </section>
 
       <section className="flex justify-center items-center my-[2vw]">
-        <div className="flex items-center justify-between w-[95vw] rounded-[1vw] shadow-[0px_0px_15px_rgb(141,141,141)] bg-[rgba(217,217,255,0.3)] max-sm:flex-col max-sm:justify-center max-sm:items-center">
+        <div className="flex items-center justify-between w-[95vw] rounded-[1vw] shadow-[0px_0px_15px_rgb(141,141,141)]  max-sm:flex-col max-sm:justify-center max-sm:items-center">
           <div className="flex flex-col mt-[4vw] mr-[20vw] mb-0 ml-[5vw] max-sm:mt-[10vw] max-sm:mr-0 max-sm:ml-0 max-sm:items-center">
             <div className="flex flex-col">
               <h1 className="font-[Kumbh_Sans] font-light text-[5vw] max-sm:text-[2.4rem] max-sm:m-0">

@@ -206,7 +206,7 @@ export const SiginUser = () =>{
                         
                     </div>
 
-                    <Button disabled={loading} type='submit' className='bg-[#303A73] hover:bg-[#181f44] cursor-pointer'>
+                    <Button disabled={loading} type='submit' className='bg-[#303A73] hover:bg-[#181f44] text-white cursor-pointer'>
                         {
                             loading ? (
                                 <span className='flex gap-1.5 items-center'>
