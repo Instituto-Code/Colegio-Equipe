@@ -98,7 +98,7 @@ export const Dropdown = ({
 
           <DropdownMenuItem className="hover:bg-gray-100 p-2 rounded text-[15px]">
             <Link
-              to="/configuracoes"
+              to="/settings"
               className="w-full flex items-center gap-1.5"
             >
               <Settings />

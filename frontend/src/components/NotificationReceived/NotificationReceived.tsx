@@ -11,9 +11,11 @@ import { Bell, User } from "lucide-react"
 import { useState } from "react"
 
 export function NotificationReceived() {
-  const { notes } = useAuth()
+  const { notesGroup, notesUser } = useAuth()
   const [open, setOpen] = useState(false)
 
+  console.log(notesGroup)
+  console.log(notesUser)
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -23,7 +25,7 @@ export function NotificationReceived() {
           className="flex justify-start items-start gap-2 cursor-pointer"
           onClick={() => setOpen(true)}
         >
-          <Bell className="w-5 h-5" />
+          <Bell/>
           Notificações
         </Button>
       </SheetTrigger>
@@ -34,8 +36,8 @@ export function NotificationReceived() {
         </SheetHeader>
 
         <div className="grid gap-4 mt-4 px-2">
-          {notes && notes?.length > 0 && notes.length > 0 ? (
-            notes.map((n) => (
+          {notesGroup && notesGroup?.length > 0 ? (
+            notesGroup.map((n) => (
               <div
                 key={n.id}
                 className="flex items-start gap-3 border-b pb-3"

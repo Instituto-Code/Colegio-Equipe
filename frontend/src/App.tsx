@@ -20,6 +20,7 @@ import { AcademicCalendar } from "./components/Coordenador/Calendar/Calendar";
 import { CalendarAcademic } from "./components/professor/Calendar/AcademicCalendar";
 import { ClassGerence } from "./components/Coordenador/ClassGerence/ClassGerence";
 import { useNotifications } from "./components/NotificationReceived/useNotifications";
+import { Configuracoes } from "./components/Configuration/Configuracoes";
 
 function AppContent() {
 
@@ -36,6 +37,7 @@ function AppContent() {
       <Route path="/register" element={<SiginUser />} />
       <Route path="/forgot" element={<ForgotPass />} />
       <Route path="/resetPass/:token" element={<ResetPass />} />
+      <Route path="/settings" element={<Configuracoes />}/>
 
       {/* Protegidas */}
 

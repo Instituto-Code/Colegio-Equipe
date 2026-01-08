@@ -14,11 +14,21 @@ import { toast } from "sonner";
 
 const api_url = import.meta.env.VITE_API_URL;
 
+// Tipagem do endereço
+interface IAdress{
+  rua: string;
+  numero: string
+}
+
 // Tipagem do usuario
 export interface IUser {
   _id: string;
   name: string;
   email: string;
+  cpf?: string;
+  dataNasc?: string;
+  numberTel: string;
+  adress: IAdress;
   role: string;
   password?: string;
   confirmPass?: string;
@@ -27,7 +37,8 @@ export interface IUser {
 interface IAuthContextProps {
   user: IUser | null;
   token: string | null;
-  notes: any[] | null;
+  notesGroup: any[] | null;
+  notesUser: any[] | null
   loading: boolean;
   success: string | "";
   register: (
@@ -47,6 +58,7 @@ interface IAuthContextProps {
   events: IEvent[];
   setEvents: Dispatch<SetStateAction<IEvent[]>>;
   listNoteToPending: () => Promise<any[]>;
+  listNoteToUser: (userId: string) => Promise<any[]>;
 }
 
 const AuthContext = createContext<IAuthContextProps | undefined>(undefined);
@@ -60,7 +72,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [success, setSuccess] = useState<string | "">("");
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState<IEvent[]>([]);
-  const [notes, setNotes] = useState<any[]>([]);
+  const [notesGroup, setNotesGroup] = useState<any[]>([]);
+  const [notesUser, setNotesUser] = useState<any[]>([])
 
   // Verifica se já existe um token salvo no localStorage.
   useEffect(() => {
@@ -83,6 +96,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
     fetchNotes();
   }, [token]);
+
+  useEffect(()=>{
+    const fetchNote = async () => {
+      if(!user?._id) return 
+      await listNoteToUser(user?._id)
+    }
+    fetchNote()
+  },[token])
 
   // Função de registro de um novo usuário;
   const register = async (
@@ -288,15 +309,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       const dataJson = await res.json();
-  
+
       if (res.ok) {
         const formatted = dataJson.map((e: IEvent) => ({
           ...e,
           data: new Date(e.data),
         }));
-  
+
         setEvents(formatted);
         return formatted;
       }
@@ -304,7 +325,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.log(error);
     }
   }, [api_url, token, setEvents]);
-  
+
   //Listagem de notificações para pendentes
   const listNoteToPending = async () => {
     if (!token) return [];
@@ -318,32 +339,66 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (!res.ok) {
         const errorData = await res.json();
         console.error("Erro ao buscar notas:", errorData);
-        setNotes([]);
+        setNotesGroup([]);
         return [];
       }
 
       const dataJson = await res.json();
 
-      if (Array.isArray(dataJson)) setNotes(dataJson);
-      else setNotes([]);
+      if (Array.isArray(dataJson)) setNotesGroup(dataJson);
+      else setNotesGroup([]);
 
       return Array.isArray(dataJson) ? dataJson : [];
     } catch (error) {
       console.error("Erro ao buscar notas:", error);
-      setNotes([]);
+      setNotesGroup([]);
       return [];
     } finally {
       setLoading(false);
     }
   };
 
+  const listNoteToUser = async (userId: string) => {
+    if (!token) return []
+
+    try {
+      const res = await fetch(`${api_url}/api/note/list-note/${userId}/user`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("Erro ao buscar notas:", errorData);
+        setNotesUser([]);
+        return [];
+      }
+
+      const dataJson = await res.json()
+
+      if (Array.isArray(dataJson)) setNotesGroup(dataJson);
+      else setNotesGroup([]);
+
+      return Array.isArray(dataJson) ? dataJson : [];
+    }
+    catch (error: any) {
+      console.error(error)
+      setNotesGroup([]);
+      return [];
+    }
+    finally{
+      setLoading(false)
+    }
+  }
+
   // Retorno do contexto com as funções disponíveis.
   return (
     <AuthContext.Provider
       value={{
         register,
-        notes,
+        notesGroup,
+        notesUser,
         listNoteToPending,
+        listNoteToUser,
         errorsRegister,
         errorsLogin,
         setEvents,
