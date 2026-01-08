@@ -6,12 +6,13 @@ import { Label } from "../ui/label"
 import { Link, useNavigate } from "react-router-dom"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { useForm } from "react-hook-form"
-import { useEffect, useState } from "react"
-import { useAuth } from "@/contexts/authContext"
+import { useEffect, useRef, useState } from "react"
+import { useAuth, type IUser } from "@/contexts/authContext"
 import { api_url } from "@/contexts/coordenadorContext"
 import { Spinner } from "../ui/spinner"
 import { toast } from "sonner"
 import { ModeToggle } from "../Theme/mode-toggle"
+import { FormAdd } from "../Coordenador/ClassGerence/FormAdd"
 
 // Definição da interface para o endereço
 interface IAdress {
@@ -24,6 +25,7 @@ type FormData = {
     _id: string;
     name: string;
     email: string;
+    avatarUrl: any;
     cpf?: string;
     dataNasc?: string;
     numberTel: string;
@@ -42,6 +44,7 @@ export const Configuracoes = () => {
     const [usuario, setUsuario] = useState<FormData | null>(null)
     const [loading, setLoading] = useState(false)
     const [isEditing, setIsEditing] = useState(false)
+    const fileInput = useRef<HTMLInputElement | null>(null)
 
     const navigate = useNavigate()
 
@@ -80,15 +83,53 @@ export const Configuracoes = () => {
         finally {
             setLoading(false)
         }
-        console.log("enviou os dados")
+    }
+
+    const handleImageChange = async (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) =>{
+
+        const image = event.target.files?.[0]
+        if(!image) return
+        
+        const formData = new FormData()
+        formData.append("avatar", image)
+
+        console.log(formData)
+
+        setLoading(true)
+
+        try{
+            const res = await fetch(`${api_url}/api/users/avatar`, {
+                method: "PATCH",
+                headers:{
+                    Authorization: `Bearer ${token}`,
+                },
+                body: formData
+            })
+
+            const dataJson = await res.json()
+
+            if(!dataJson.ok){
+                throw new Error("Erro ao enviar foto")
+            }
+
+            toast.success("Foto atualizada com sucesso")
+        }
+        catch(error){
+            console.error(error)
+        }
+        finally{
+            setLoading(false)
+        }
     }
 
     return (
         <div className="flex flex-col w-full h-screen ">
 
             <div className=" bg-navbar-primary flex items-center text-2xl justify-between font-semibold pl-3 py-4 mb-5 sm:pl-5">
-                
-                <IoArrowBackSharp className="cursor-pointer" onClick={()=>{navigate(-1)}}/> 
+
+                <IoArrowBackSharp className="cursor-pointer" onClick={() => { navigate(-1) }} />
 
                 <h1 className="ml-0 text-xl sm:ml-10 sm:text-2xl ">
                     Configurações do usuário
@@ -182,7 +223,7 @@ export const Configuracoes = () => {
                     <Label className="text-[1.5em]">Imagem de Perfil</Label>
                     <div className="flex flex-row flex-wrap items-center gap-12 mt-4 ">
                         <Avatar>
-                            <AvatarImage className="w-[10em]" src="https://github.com/shadcn.png" />
+                            <AvatarImage className="w-[10em]" src={user?.avatarUrl} >{}</AvatarImage>
                             <AvatarFallback>CN</AvatarFallback>
                         </Avatar>
                     </div>
@@ -194,9 +235,25 @@ export const Configuracoes = () => {
                             </PopoverTrigger>
                             <PopoverContent className="w-50">
                                 <div className="flex flex-col gap-4">
-                                    <Button variant="outline">
-                                        Alterar Foto
+
+                                    <Input
+                                        className="hidden"
+                                        type="file"
+                                        accept="image/*"
+                                        ref={fileInput}
+                                        onChange={handleImageChange}
+                                    />
+
+                                    <Button
+                                        variant="outline"
+                                        onClick={()=>{
+                                            fileInput.current?.click()
+                                        }}
+                                    >
+                                        {loading ? "Enviando..." : "Escolher foto"}
                                     </Button>
+
+
                                     <Button variant="outline">
                                         Remover Foto
                                     </Button>

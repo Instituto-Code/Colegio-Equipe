@@ -83,6 +83,7 @@ export const LoginUser = () => {
 
             <div className="relative">
               <Input
+                autoComplete="off"
                 id="email"
                 type="email"
                 placeholder="Seu E-mail"
