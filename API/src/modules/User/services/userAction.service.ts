@@ -56,6 +56,7 @@ export async function ProfileService(user: IUser) {
         dataNasc: user.dataNasc,
         numberTel: user.numberTel,
         adress: user.adress,
+        avatarUrl: user.avatarUrl
 
     }
 
