@@ -9,6 +9,14 @@ export async function Login (req: CustomRequest, res: Response) {
 
   try {
     const result = await LoginService(email, password);
+
+    res.cookie("refreshToken", result.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none", 
+      path: "/auth/refresh",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
   
     //Retornando usuário logado
     res.status(200).json(result);
@@ -133,7 +141,7 @@ export async function RefreshTokenController(req: CustomRequest, res: Response){
 
     const result = await RefreshTokenService(token);
 
-    res.cookie("refreshToken", result.refreshTOken, {
+    res.cookie("refreshToken", result.refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: "strict",
