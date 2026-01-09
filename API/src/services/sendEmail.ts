@@ -1,59 +1,14 @@
-import nodemailer, { SendMailOptions } from 'nodemailer';
+import { Resend } from 'resend';
 import dotenv from 'dotenv';
 dotenv.config();
 
-//Criando transporter para envio de email
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.USER_EMAIL,
-    pass: process.env.APP_PASS,
-  },
-  
-  connectionTimeout: 10000,
-});
+const resend = new Resend(process.env.RESEND_KEY);
 
-export async function sendMail(to: string, msg: string, subject: string){
-  const mailOption: SendMailOptions = {
-    from: `"Auth System" <${process.env.USER_EMAIL}>`,
-    to,
+export async function SendMail(to: string, subject: string, html: string) {
+  resend.emails.send({
+    from: 'onboarding@resend.dev',
+    to: to,
     subject: subject,
-    text: msg
-  }
-
-  try {
-    await transporter.sendMail(mailOption);
-    return true;
-  } catch (error: any) {
-    console.log(error);
-    return false;
-  }
+    html: html,
+  });
 }
-
-//Criando corpo de envio
-export const sendResetPass = async (
-  to: string,
-  resetLink: string,
-): Promise<boolean> => {
-  const mailOption: SendMailOptions = {
-    from: process.env.USER_EMAIL,
-    to,
-    subject: `Modificação de senha`,
-    html: `
-        <h2>Redefinição de Senha</h2>
-      <p>Você solicitou a redefinição de sua senha. Clique no link abaixo para prosseguir:</p>
-      <a href="${resetLink}">${resetLink}</a>
-      <p>Se você não solicitou isso, ignore este e-mail.</p>
-        `,
-  };
-
-  try {
-    await transporter.sendMail(mailOption);
-    return true;
-  } catch (error: any) {
-    console.log(error);
-    return false;
-  }
-};

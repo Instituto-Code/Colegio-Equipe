@@ -3,9 +3,9 @@ import { UserRepository } from "../user.repository.js";
 import GenerateToken from "../../../services/jwt/generateToken.js";
 import { IUser } from "../../../shared/types/user.type.js";
 import { UpdateUser } from "../../../shared/dto/user.dto.js";
-import { Types } from "mongoose";
 import { cloudinary } from "../../../services/cloud/cloudinary.js";
-import { sendMail } from "../../../services/sendEmail.js";
+import crypto from "crypto";
+import { SendMail } from "../../../services/sendEmail.js";
 
 
 export async function LoginService(email: string, password: string) {
@@ -38,8 +38,6 @@ export async function RegisterService(name: string, email: string, password: str
         email,
         password: hashPass
     }
-
-    sendMail(data.email, `Seja bem vindo(a) ao colégio equipe, ${data.name}!`, "Boas vindas");
 
     await UserRepository.create(data);
 
@@ -131,5 +129,70 @@ export async function PhotoProfileService(userId: string, file: Express.Multer.F
 
     return result
 
+}
+
+export async function SendMailResetService(email: string) {
+
+    const user = await UserRepository.findByEmail(email);
+
+    if(!user) throw new Error("Usuário não encontrado.");
+
+    const rawToken = crypto.randomBytes(32).toString("hex");
+
+    const tokenHash = crypto
+        .createHash("sha256")
+        .update(rawToken)
+        .digest("hex")
+
+    const expiresAt = new Date(Date.now() + 1000 * 60 * 15);
+
+    user.resetPassToken = tokenHash;
+    user.resetPassTokenExpires = expiresAt;
+
+    await user.save();
+
+    const FRONT_URL = process.env.FRONTEND_URL;
+
+    await SendMail(
+        user.email,
+        "Modificação de Senha",
+        `
+            <h1>Olá, ${user.name}!</h1>
+            <p>Clique no link abaixo para modificar sua senha:</p>
+            <a href="${FRONT_URL}/reset-password?token=${rawToken}">
+            Redefinir senha
+            </a>
+            <p>Este link expira em 15 minutos.</p>   
+        `
+    )
+
+    return {
+        msg: "Se o email existir, enviamos um link de redefinição."
+    }
+}
+
+export async function ResetPasswordService(token: string, password: string){
+    const tokenHash = crypto
+        .createHash("sha256")
+        .update(token)
+        .digest("hex")
+
+    const userByToken = await UserRepository.findByToken(tokenHash);
+
+    if(!userByToken) throw new Error("Token inválido ou expirado.");
+
+    const salt = await bcrypt.genSalt();
+    const hashPass = await bcrypt.hash(password, salt);
+
+    userByToken.password = hashPass;
+
+    userByToken.resetPassToken = undefined;
+    userByToken.resetPassTokenExpires = undefined;
+
+    userByToken.save();
+
+    return {
+        msg: "Senha atualizada com sucesso."
+    }
 }
 

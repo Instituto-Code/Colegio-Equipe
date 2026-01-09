@@ -20,5 +20,9 @@ export const UserRepository = {
 
     async deleteOne(userId: string){
         return await userModel.findByIdAndDelete(userId);
+    },
+
+    async findByToken(token: string){
+        return await userModel.findOne({ resetPassToken: token });
     }
 }

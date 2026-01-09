@@ -1,6 +1,6 @@
 import { CustomRequest } from "../../middlewares/authGuard.js";
 import { Response } from "express";
-import { EditProfileService, LoginService, PhotoProfileService, ProfileService, RegisterService } from "./services/userAction.service.js";
+import { EditProfileService, LoginService, PhotoProfileService, ProfileService, RegisterService, ResetPasswordService, SendMailResetService } from "./services/userAction.service.js";
 import Logger from "../../../config/logger.js";
 
 //Função para login
@@ -83,6 +83,40 @@ export async function PhotoProfileController(req: CustomRequest, res: Response){
     const result = await PhotoProfileService(userId, file);
 
     res.status(200).json({avatarUrl: result.secure_url});
+
+  }
+  catch (error) {
+    Logger.error(`Erro interno do servidor: ${error}`);
+    res.status(500).json({ errors: ['Erro interno do servidor!'] });
+  }
+}
+
+// Enviar Email de reset de senha
+export async function SendMailResetController(req: CustomRequest, res: Response){
+  try{
+
+    const { email } = req.body;
+
+    const result = await SendMailResetService(email);
+
+    res.status(200).json(result);
+
+  }
+  catch (error) {
+    Logger.error(`Erro interno do servidor: ${error}`);
+    res.status(500).json({ errors: ['Erro interno do servidor!'] });
+  }
+}
+
+// Resetar a senha
+export async function ResetPasswordController(req: CustomRequest, res: Response){
+  try{
+
+    const { password, token } = req.body;
+
+    const result = await ResetPasswordService(token, password);
+
+    res.status(200).json(result);
 
   }
   catch (error) {
