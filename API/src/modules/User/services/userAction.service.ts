@@ -230,7 +230,7 @@ export async function RefreshTokenService(token: string) {
   await user.save();
 
   return {
-    refreshTOken: newAccessToken,
+    refreshToken: newAccessToken,
     accessToken: newAccessToken
   };
 
