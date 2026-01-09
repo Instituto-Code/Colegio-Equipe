@@ -1,6 +1,6 @@
 import { CustomRequest } from "../../middlewares/authGuard.js";
 import { Response } from "express";
-import { EditProfileService, LoginService, PhotoProfileService, ProfileService, RegisterService, ResetPasswordService, SendMailResetService } from "./services/userAction.service.js";
+import { EditProfileService, LoginService, PhotoProfileService, ProfileService, RefreshTokenService, RegisterService, ResetPasswordService, SendMailResetService } from "./services/userAction.service.js";
 import Logger from "../../../config/logger.js";
 
 //Função para login
@@ -117,6 +117,30 @@ export async function ResetPasswordController(req: CustomRequest, res: Response)
     const result = await ResetPasswordService(token, password);
 
     res.status(200).json(result);
+
+  }
+  catch (error) {
+    Logger.error(`Erro interno do servidor: ${error}`);
+    res.status(500).json({ errors: ['Erro interno do servidor!'] });
+  }
+}
+
+// Resetar a senha
+export async function RefreshTokenController(req: CustomRequest, res: Response){
+  try{
+
+    const token = req.cookies.refreshToken;
+
+    const result = await RefreshTokenService(token);
+
+    res.cookie("refreshToken", result.refreshTOken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      path: "/auth/refresh"
+    });
+
+    res.status(200).json(result.accessToken);
 
   }
   catch (error) {

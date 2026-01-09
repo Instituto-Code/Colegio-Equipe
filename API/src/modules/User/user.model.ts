@@ -1,8 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { IUser } from '../../shared/types/user.type.js';
 
-
-
 const UserSchema = new Schema<IUser>(
   {
     name: {
@@ -41,6 +39,14 @@ const UserSchema = new Schema<IUser>(
       cidade: String,
       estado: String,
       cep: String,
+    },
+
+    refreshToken: {
+      type: String
+    },
+
+    refreshTokenExpiresAt: {
+      type: Date
     },
 
     resetPassToken: {

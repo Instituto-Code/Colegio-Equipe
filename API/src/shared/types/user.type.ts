@@ -15,6 +15,8 @@ export interface IUser extends Document {
   name: string ;
   email: string;
   avatarUrl?: string;
+  refreshToken: string;
+  refreshTokenExpiresAt: Date,
   cpf?: string;
   dataNasc?: Date;
   numberTel?: string;

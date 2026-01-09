@@ -1,7 +1,7 @@
 import Router from "express";
 import { userLoginValidations, userValidations } from "../../middlewares/userValidations.js";
 import { validate } from "../../middlewares/handleValidations.js";
-import { EditProfile, Login, PhotoProfileController, Profile, Register, ResetPasswordController, SendMailResetController } from "./user.controller.js";
+import { EditProfile, Login, PhotoProfileController, Profile, RefreshTokenController, Register, ResetPasswordController, SendMailResetController } from "./user.controller.js";
 import { authGuard } from "../../middlewares/authGuard.js";
 import { upload } from "../../services/cloud/multer.js";
 const userRouter = Router();
@@ -20,5 +20,7 @@ userRouter.patch("/avatar", authGuard, upload.single("avatar"), PhotoProfileCont
 userRouter.post('/auth/forgot-password', SendMailResetController);
 
 userRouter.post("/auth/reset-password", ResetPasswordController);
+
+userRouter.post("/auth/refresh", RefreshTokenController);
 
 export default userRouter;

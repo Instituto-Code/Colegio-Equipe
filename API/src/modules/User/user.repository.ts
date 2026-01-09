@@ -24,5 +24,9 @@ export const UserRepository = {
 
     async findByToken(token: string){
         return await userModel.findOne({ resetPassToken: token });
+    },
+
+    async findByRefreshToken(refreshToken: string){
+        return await userModel.findOne({ refreshToken: refreshToken });
     }
 }
