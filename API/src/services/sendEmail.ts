@@ -11,11 +11,26 @@ const transporter = nodemailer.createTransport({
     user: process.env.USER_EMAIL,
     pass: process.env.APP_PASS,
   },
-  tls: {
-    rejectUnauthorized: false,
-  },
+  
   connectionTimeout: 10000,
 });
+
+export async function sendMail(to: string, msg: string, subject: string){
+  const mailOption: SendMailOptions = {
+    from: `"Auth System" <${process.env.USER_EMAIL}>`,
+    to,
+    subject: subject,
+    text: msg
+  }
+
+  try {
+    await transporter.sendMail(mailOption);
+    return true;
+  } catch (error: any) {
+    console.log(error);
+    return false;
+  }
+}
 
 //Criando corpo de envio
 export const sendResetPass = async (

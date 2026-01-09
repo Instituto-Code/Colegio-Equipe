@@ -5,6 +5,7 @@ import { IUser } from "../../../shared/types/user.type.js";
 import { UpdateUser } from "../../../shared/dto/user.dto.js";
 import { Types } from "mongoose";
 import { cloudinary } from "../../../services/cloud/cloudinary.js";
+import { sendMail } from "../../../services/sendEmail.js";
 
 
 export async function LoginService(email: string, password: string) {
@@ -37,6 +38,8 @@ export async function RegisterService(name: string, email: string, password: str
         email,
         password: hashPass
     }
+
+    sendMail(data.email, `Seja bem vindo(a) ao colégio equipe, ${data.name}!`, "Boas vindas");
 
     await UserRepository.create(data);
 
