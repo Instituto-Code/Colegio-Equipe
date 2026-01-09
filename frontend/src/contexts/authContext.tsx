@@ -1,3 +1,4 @@
+import { axiosInstance } from "@/api/axiosInstance";
 import type { IEvent } from "@/components/Coordenador/Calendar/Calendar";
 import {
   createContext,
@@ -48,7 +49,7 @@ interface IAuthContextProps {
     password: string,
     confirmPass: string
   ) => Promise<boolean | void>;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   profile: (customToken: string) => Promise<void>;
   resetPassMail: (email: string) => Promise<void>;
@@ -162,68 +163,50 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Função de login de usuário.
   const login = async (email: string, password: string) => {
-    try {
-      setLoading(true);
-      setErrorsLogin([]);
+  try {
+    setLoading(true);
+    setErrorsLogin([]);
 
-      const res = await fetch(`${api_url}/api/users/login`, {
-        method: "POST",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+    const { data } = await axiosInstance.post("/api/users/login", {
+      email,
+      password
+    });
 
-      const data = await res.json();
+    localStorage.setItem("accessToken", data.accessToken);
+    setToken(data.accessToken);
 
-      if (res.ok) {
-        console.log(data);
-        const token = data.token;
-        localStorage.setItem("token", token);
-        setToken(token);
-        await profile(token);
-        setLoading(false);
-        toast.success(`Bem vindo(a)!`);
+    await profile(data.accessToken);
+
+    toast.success("Bem-vindo(a)!");
+    return true;
+
+  } catch (error: any) {
+    if (error.response?.data) {
+      const data = error.response.data;
+
+      let formattedErrors: string[] = [];
+
+      if (Array.isArray(data.errors)) {
+        formattedErrors = data.errors.map((err: any) =>
+          typeof err === "object" && "msg" in err ? err.msg : String(err)
+        );
+      } else if (typeof data.message === "string") {
+        formattedErrors = [data.message];
       } else {
-        console.log("data de erro recebido:", data);
-
-        let formattedErrors: string[] = [];
-
-        // Caso 1: Express Validator
-        if (Array.isArray(data.errors)) {
-          formattedErrors = data.errors.map((err: any) => {
-            if (typeof err === "string") return err;
-            if (typeof err === "object" && err.msg) return err.msg;
-            return JSON.stringify(err);
-          });
-        }
-
-        // Caso 2: array simples de strings
-        else if (Array.isArray(data)) {
-          formattedErrors = data.map((err: any) =>
-            typeof err === "string" ? err : JSON.stringify(err)
-          );
-        }
-
-        // Caso 3: objeto com message
-        else if (typeof data.message === "string") {
-          formattedErrors = [data.message];
-        }
-
-        // Caso 4: fallback
-        else {
-          formattedErrors = ["Erro desconhecido ao tentar fazer login."];
-        }
-
-        console.log("Erros formatados:", formattedErrors);
-        setErrorsLogin(formattedErrors);
+        formattedErrors = ["Erro ao tentar fazer login."];
       }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
+
+      setErrorsLogin(formattedErrors);
+    } else {
+      setErrorsLogin(["Erro de conexão com o servidor."]);
     }
-  };
+
+    return false;
+
+  } finally {
+    setLoading(false);
+  }
+};
 
   //Sair da conta do usuário
   const logout = () => {
