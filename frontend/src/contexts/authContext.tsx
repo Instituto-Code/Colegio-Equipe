@@ -1,209 +1,431 @@
-import { createContext, useContext, useState, useEffect } from "react";
-import type { ReactNode } from "react";
+import type { IEvent } from "@/components/Coordenador/Calendar/Calendar";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
+import { toast } from "sonner";
 // import { data, useParams } from "react-router-dom";
 
 // Criando contexto de autenticação e variável de ambiente.
 
-const api_url = import.meta.env.VITE_API_URL
+const api_url = import.meta.env.VITE_API_URL;
+
+// Tipagem do endereço
+interface IAdress{
+  rua: string;
+  numero: string
+}
 
 // Tipagem do usuario
-interface IUser {
+export interface IUser {
+  _id: string;
+  name: string;
+  email: string;
+  avatarUrl: string;
+  cpf?: string;
+  dataNasc?: string;
+  numberTel: string;
+  adress: IAdress;
+  role: string;
+  password?: string;
+  confirmPass?: string;
+}
+
+interface IAuthContextProps {
+  user: IUser | null;
+  token: string | null;
+  notesGroup: any[] | null;
+  notesUser: any[] | null
+  loading: boolean;
+  success: string | "";
+  register: (
     name: string,
     email: string,
     password: string,
     confirmPass: string
+  ) => Promise<boolean | void>;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
+  profile: (customToken: string) => Promise<void>;
+  resetPassMail: (email: string) => Promise<void>;
+  resetPass: (newPass: string, token: string) => Promise<void>;
+  errorsRegister: string[];
+  errorsLogin: string[];
+  listEvents: () => Promise<any>;
+  events: IEvent[];
+  setEvents: Dispatch<SetStateAction<IEvent[]>>;
+  listNoteToPending: () => Promise<any[]>;
+  listNoteToUser: (userId: string) => Promise<any[]>;
 }
 
-interface IAuthContextProps {
-    user: IUser | null,
-    token: string | null,
-    loading: boolean,
-    success: string | "",
-    register: (name: string, email: string, password: string, confirmPass: string) => Promise<boolean | void>
-    login: (email: string, password: string) => Promise<void>,
-    logout: () => void
-    profile: (customToken: string) => Promise<void>
-    resetPassMail: (email: string) => Promise<void>
-    resetPass: (newPass: string, token: string) => Promise<void>
-}
-
-const AuthContext = createContext<IAuthContextProps | undefined >(undefined)
+const AuthContext = createContext<IAuthContextProps | undefined>(undefined);
 
 // Provider que encapsula a lógica de autenticação e prove funções e estados para os componentes filhos.
-export const AuthProvider = ({ children }: {children:ReactNode} ) => {
-    const [token, setToken] = useState<string | null>(null)
-    const [user, setUser] = useState<IUser | null>(null)
-    // const [errors, setErrors] = useState([])
-    const [success, setSuccess] = useState<string | "">("")
-    const [loading, setLoading] = useState(false)
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<IUser | null>(null);
+  const [errorsRegister, setErrorsRegister] = useState<string[]>([]);
+  const [errorsLogin, setErrorsLogin] = useState<string[]>([]);
+  const [success, setSuccess] = useState<string | "">("");
+  const [loading, setLoading] = useState(true);
+  const [events, setEvents] = useState<IEvent[]>([]);
+  const [notesGroup, setNotesGroup] = useState<any[]>([]);
+  const [notesUser, setNotesUser] = useState<any[]>([])
 
-    // Verifica se já existe um token salvo no localStorage.
-    useEffect(() => {
-        const token = localStorage.getItem("token")
-        if (token) {
-            setToken(token)
-            profile(token)
-        }
-    }, [])
+  // Verifica se já existe um token salvo no localStorage.
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      if (token) {
+        setToken(token);
+        await profile(token);
+      }
+      setLoading(false);
+    };
+    fetchData();
+  }, []);
 
+  //Buscando notificações apenas quando o token estiver definido
+  useEffect(() => {
+    const fetchNotes = async () => {
+      await listNoteToPending();
+    };
+    fetchNotes();
+  }, [token]);
 
-    // Função de registro de um novo usuário;
-    const register = async (name: string, email: string, password: string, confirmPass: string) => {
-        try {
-            setLoading(true)
-            const res = await fetch(`${api_url}/api/users/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-type': 'application/json'
-                },
-                body: JSON.stringify({ name, email, password, confirmPass })
-            })
-
-            const data = await res.json()
-            console.log(data)
-
-            if (res.ok) {
-                console.log(data)
-                setSuccess("Registro feito com sucesso!")
-                setLoading(false)
-                setInterval(() => {
-                    setSuccess("")
-                }, 3000)
-                return true
-            }
-        } catch (error) {
-            console.error(error)
-            setSuccess("Falha ao registrar")
-            return false
-        } finally {
-            setLoading(false)
-        }
+  useEffect(()=>{
+    const fetchNote = async () => {
+      if(!user?._id) return 
+      await listNoteToUser(user?._id)
     }
+    fetchNote()
+  },[token])
 
-    // Função de login de usuário.
-    const login = async (email: string, password: string) => {
-        try {
-            setLoading(true)
-            const res = await fetch(`${api_url}/api/users/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-type': 'application/json'
-                },
-                body: JSON.stringify({ email, password })
-            })
+  // Função de registro de um novo usuário;
+  const register = async (
+    name: string,
+    email: string,
+    password: string,
+    confirmPass: string
+  ) => {
+    try {
+      setLoading(true);
+      setErrorsRegister([]);
+      const res = await fetch(`${api_url}/api/users/register`, {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password, confirmPass }),
+      });
 
-            const data = await res.json()
+      const data = await res.json();
+      console.log(data);
 
-            if (res.ok) {
-                console.log(data)
-                const token = data.token
-                localStorage.setItem("token", token)
-                setToken(token)
-                await profile(token)
-                setLoading(false)
-            } else {
-                console.error("Login falhou", data.message)
-            }
+      if (res.ok) {
+        console.log(data);
 
-        } catch (error) {
-            console.log(error)
+        //Limpa o localstorage ao criar outra conta
+        localStorage.removeItem("token");
+        setUser(null);
+        setToken(null);
+
+        setLoading(false);
+
+        return true;
+      } else {
+        let formattedErrors: string[] = [];
+
+        if (Array.isArray(data.errors)) {
+          formattedErrors = data.errors.map((err: any) =>
+            typeof err === "object" && "msg" in err ? err.msg : String(err)
+          );
+          setErrorsRegister(formattedErrors);
+        } else if (data.message) {
+          setErrorsRegister([data.message]);
+        } else {
+          setErrorsRegister(["Erro desconhecido ao tentar fazer login."]);
         }
-        finally {
-            setLoading(false)
-        }
+      }
+    } catch (error) {
+      console.error(error);
+      return false;
+    } finally {
+      setLoading(false);
     }
+  };
 
-    //Sair da conta do usuário
-    const logout = () => {
-        setUser(null)
-        setToken(null)
-        localStorage.removeItem("token")
-    }
+  // Função de login de usuário.
+  const login = async (email: string, password: string) => {
+    try {
+      setLoading(true);
+      setErrorsLogin([]);
 
-    //Dados de usuário
-    const profile = async (customToken: string) => {
-        try {
-            const res = await fetch(`${api_url}/api/users/profile`, {
-                headers: {
-                    Authorization: `Bearer ${customToken}`
-                }
-            })
+      const res = await fetch(`${api_url}/api/users/login`, {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-            const data = await res.json()
+      const data = await res.json();
 
-            if (res.ok) {
-                console.log(data)
-                setUser(data)
-            }
-        }
-        catch (error) {
-            console.log(error)
-        }
-    }
+      if (res.ok) {
+        console.log(data);
+        const token = data.token;
+        localStorage.setItem("token", token);
+        setToken(token);
+        await profile(token);
+        setLoading(false);
+        toast.success(`Bem vindo(a)!`);
+      } else {
+        console.log("data de erro recebido:", data);
 
-    // Função para envio do link de redefinição para o email.
-    const resetPassMail = async (email: string) => {
-        try {
-            const res = await fetch(`${api_url}/api/users/send-reset`, {
-                method: 'POST',
-                headers: {
-                    'Content-type': 'application/json'
-                },
-                body: JSON.stringify({ email })
-            })
+        let formattedErrors: string[] = [];
 
-            const data = await res.json()
-
-            if (res.ok) {
-                console.log(data)
-            } else {
-                console.log(data)
-            }
-
-        } catch (error) {
-            console.error(error)
-        }
-    }
-
-    // Função de alteração de senha (enviado por email).
-    const resetPass = async (newPass: string, token: string) => {
-        try {
-            const res = await fetch(`${api_url}/api/users/reset-pass/${token}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-type': 'application/json'
-                },
-                body: JSON.stringify({ newPass })
-
-            })
-
-            const data = await res.json()
-
-            if (res.ok) {
-                console.log(data)
-            } else {
-                console.log(data)
-            }
-        } catch (error) {
-            console.error(error)
-            console.log(error)
+        // Caso 1: Express Validator
+        if (Array.isArray(data.errors)) {
+          formattedErrors = data.errors.map((err: any) => {
+            if (typeof err === "string") return err;
+            if (typeof err === "object" && err.msg) return err.msg;
+            return JSON.stringify(err);
+          });
         }
 
-    }
-    // Retorno do contexto com as funções disponíveis.
-    return (
-        <AuthContext.Provider value={{ register, login, resetPassMail, resetPass, success, loading, user, token, logout, profile }}>
-            {children}
-        </AuthContext.Provider>
-    )
+        // Caso 2: array simples de strings
+        else if (Array.isArray(data)) {
+          formattedErrors = data.map((err: any) =>
+            typeof err === "string" ? err : JSON.stringify(err)
+          );
+        }
 
-}
+        // Caso 3: objeto com message
+        else if (typeof data.message === "string") {
+          formattedErrors = [data.message];
+        }
+
+        // Caso 4: fallback
+        else {
+          formattedErrors = ["Erro desconhecido ao tentar fazer login."];
+        }
+
+        console.log("Erros formatados:", formattedErrors);
+        setErrorsLogin(formattedErrors);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  //Sair da conta do usuário
+  const logout = () => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem("token");
+    toast.info("Até logo!");
+  };
+
+  //Dados de usuário
+  const profile = async (customToken: string) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${api_url}/api/users/profile`, {
+        headers: {
+          Authorization: `Bearer ${customToken}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setUser(data);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Função para envio do link de redefinição para o email.
+  const resetPassMail = async (email: string) => {
+    try {
+      const res = await fetch(`${api_url}/api/users/send-reset`, {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        console.log(data);
+      } else {
+        console.log(data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // Função de alteração de senha (enviado por email).
+  const resetPass = async (newPass: string, token: string) => {
+    try {
+      const res = await fetch(`${api_url}/api/users/reset-pass/${token}`, {
+        method: "PATCH",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({ newPass }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        console.log(data);
+      } else {
+        console.log(data);
+      }
+    } catch (error) {
+      console.error(error);
+      console.log(error);
+    }
+  };
+
+  //Listagem de eventos do calendário acadêmico
+  const listEvents = useCallback(async () => {
+    try {
+      const res = await fetch(`${api_url}/api/coordenador/list-events`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const dataJson = await res.json();
+
+      if (res.ok) {
+        const formatted = dataJson.map((e: IEvent) => ({
+          ...e,
+          data: new Date(e.data),
+        }));
+
+        setEvents(formatted);
+        return formatted;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }, [api_url, token, setEvents]);
+
+  //Listagem de notificações para pendentes
+  const listNoteToPending = async () => {
+    if (!token) return [];
+
+    setLoading(true);
+    try {
+      const res = await fetch(`${api_url}/api/note/list-note-groups`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("Erro ao buscar notas:", errorData);
+        setNotesGroup([]);
+        return [];
+      }
+
+      const dataJson = await res.json();
+
+      if (Array.isArray(dataJson)) setNotesGroup(dataJson);
+      else setNotesGroup([]);
+
+      return Array.isArray(dataJson) ? dataJson : [];
+    } catch (error) {
+      console.error("Erro ao buscar notas:", error);
+      setNotesGroup([]);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const listNoteToUser = async (userId: string) => {
+    if (!token) return []
+
+    try {
+      const res = await fetch(`${api_url}/api/note/list-note/${userId}/user`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("Erro ao buscar notas:", errorData);
+        setNotesUser([]);
+        return [];
+      }
+
+      const dataJson = await res.json()
+
+      if (Array.isArray(dataJson)) setNotesGroup(dataJson);
+      else setNotesGroup([]);
+
+      return Array.isArray(dataJson) ? dataJson : [];
+    }
+    catch (error: any) {
+      console.error(error)
+      setNotesGroup([]);
+      return [];
+    }
+    finally{
+      setLoading(false)
+    }
+  }
+
+  // Retorno do contexto com as funções disponíveis.
+  return (
+    <AuthContext.Provider
+      value={{
+        register,
+        notesGroup,
+        notesUser,
+        listNoteToPending,
+        listNoteToUser,
+        errorsRegister,
+        errorsLogin,
+        setEvents,
+        listEvents,
+        events,
+        login,
+        resetPassMail,
+        resetPass,
+        success,
+        loading,
+        user,
+        token,
+        logout,
+        profile,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
 
 // Hook customizado para consumir o contexto.
 export const useAuth = () => {
-    const context = useContext(AuthContext)
-    if(!context){
-        throw new Error("UseAuth deve ser usado dentro do AuthProvider")
-    }
-    return context
-}
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("UseAuth deve ser usado dentro do AuthProvider");
+  }
+  return context;
+};
