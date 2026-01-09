@@ -54,10 +54,10 @@ export const Dropdown = ({
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="flex items-center rounded-full gap-2 px-3 cursor-pointer"
+            className="flex w-9 h-9 items-center rounded-full gap-2 px-3 cursor-pointer"
           >
-            <Avatar className="w-9 h-9">
-              <AvatarImage src={imageUrl} alt={name} />
+            <Avatar className="w-9 h-9 bg-white">
+              <AvatarImage src={user?.avatarUrl} alt={name} />
               <AvatarFallback>{initial}</AvatarFallback>
             </Avatar>
           </Button>

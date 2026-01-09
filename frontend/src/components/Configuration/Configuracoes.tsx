@@ -108,12 +108,6 @@ export const Configuracoes = () => {
                 body: formData
             })
 
-            const dataJson = await res.json()
-
-            if(!dataJson.ok){
-                throw new Error("Erro ao enviar foto")
-            }
-
             toast.success("Foto atualizada com sucesso")
         }
         catch(error){
