@@ -172,10 +172,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       password
     });
 
-    localStorage.setItem("accessToken", data.accessToken);
-    setToken(data.accessToken);
+    localStorage.setItem("token", data.token);
+    console.log(data)
+    setToken(data.token);
 
-    await profile(data.accessToken);
+    await profile(data.token);
 
     toast.success("Bem-vindo(a)!");
     return true;
