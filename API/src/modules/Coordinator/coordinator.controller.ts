@@ -1,7 +1,7 @@
 import Logger from "../../../config/logger.js";
 import { CustomRequest } from "../../middlewares/authGuard.js";
 import { Response } from "express";
-import { DeleteUserService, RegisterClassesService, RegisterStudentService, RemoveStudentByClassService } from "./services/coordinatorAction.service.js";
+import { DeleteUserService, RegisterClassesService, RegisterStudentService, RemoveStudentByClassService, StudentByClassService } from "./services/coordinatorAction.service.js";
 
 //Cadastrar as turmas
 export const registerClasses = async (req: CustomRequest, res: Response) => {
@@ -71,6 +71,19 @@ export const removeStudentByClass = async (req: CustomRequest, res: Response) =>
     const { className } = req.body;
 
     const result = await RemoveStudentByClassService(studentId, className);
+
+    res.status(200).json(result);
+  }
+  catch(error){
+    res.status(500).json({ errors: ['Erro interno do servidor!'] });
+    Logger.error(`Erro interno do servidor: ${error}`);
+  }
+}
+
+export const GetStudentByClass = async (req: CustomRequest, res: Response) => {
+  try{
+  
+    const result = await StudentByClassService();
 
     res.status(200).json(result);
   }

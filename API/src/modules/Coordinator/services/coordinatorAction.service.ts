@@ -96,3 +96,9 @@ export async function RemoveStudentByClassService(studentId: string, className: 
 
 }
 
+export async function StudentByClassService(){
+    const data = await StudentRepository.getStudentByClass();
+
+    return data;
+}
+
