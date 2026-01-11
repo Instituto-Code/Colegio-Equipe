@@ -5,8 +5,9 @@ import { FaChalkboardTeacher, FaGraduationCap } from "react-icons/fa";
 import { IoBookSharp } from "react-icons/io5";
 import { SiGoogleclassroom } from "react-icons/si";
 import { Spinner } from "@/components/ui/spinner";
-import { ChartQuantity } from "./Charts/Charts";
+import { ChartQuantity } from "./Charts/ChartQuantity";
 import { Card } from "@/components/ui/card";
+import { ChartQuantityByClass } from "./Charts/ChartQuantityByClass";
 
 // Importação dos icones para o dashboard.
 // import Class from "../../assets/Icons/Class.png" 
@@ -46,7 +47,7 @@ export const DashCoordenador = () => {
             <ChartQuantity title="Quantidade" />
           </Card>
           <Card className="w-100 m-4 mt-11">
-            <ChartQuantity title="Alunos por turma" />
+            <ChartQuantityByClass title="Alunos por turma" />
           </Card>
         </div>
         )
