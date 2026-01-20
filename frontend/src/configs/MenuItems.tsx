@@ -1,4 +1,4 @@
-import { House, Users, NotepadText, Calendar, School } from "lucide-react"
+import { House, Users, NotepadText, Calendar, School, UserPen } from "lucide-react"
 import type React from "react"
 
 export type Role = "coordenador" | "professor"
@@ -20,9 +20,9 @@ export const MenuItems: Record<Role, User[]> = {
     ],
 
     professor: [
-        {title: "Dashboard", url: "/professor", },
-        {title: "Gerenciar alunos", url: "/professor/gerenciar-alunos", },
-        {title: "Gerenciar turmas", url: "/professor/gerenciar-turmas", },
+        {title: "Dashboard", url: "/professor", icon: House },
+        {title: "Gerenciar alunos", url: "/professor/gerenciar-alunos", icon: UserPen },
+        {title: "Minhas turmas", url: "/professor/gerenciar-turmas", icon: School},
         {title: "Calendário acadêmico", url: "/professor/calendar", icon: Calendar}
     ]
     

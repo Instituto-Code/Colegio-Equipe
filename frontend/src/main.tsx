@@ -5,16 +5,19 @@ import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './contexts/authContext.js'
 import { CoordenadorProvider } from './contexts/coordenadorContext.js'
 import { Toaster } from 'sonner'
+import { TeachProvider } from './contexts/teacherContext.js'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <AuthProvider>
-      <CoordenadorProvider>
-      <BrowserRouter>
-        <App />
-        <Toaster />
-      </BrowserRouter>
-      </CoordenadorProvider>
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <CoordenadorProvider>
+          <TeachProvider>
+            <App />
+            <Toaster />
+          </TeachProvider>
+        </CoordenadorProvider>
+      </AuthProvider>
+    </BrowserRouter>
   </StrictMode>
 )
