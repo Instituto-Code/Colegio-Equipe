@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useState } from "react"
+import { useEffect, useState } from "react"
 import {
     flexRender,
     getCoreRowModel,
@@ -8,35 +8,12 @@ import {
     type SortingState
 } from "@tanstack/react-table"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import axios from "axios"
 import { axiosInstance } from "@/api/axiosInstance"
 import { Button } from "@/components/ui/button"
 import { Gerence } from "./Gerence"
-import { useTeach } from "@/contexts/teacherContext"
+import { useTeach, type ITurma } from "@/contexts/teacherContext"
 import { Spinner } from "@/components/ui/spinner"
 import { Input } from "@/components/ui/input"
-
-export type Aluno = {
-    id: string
-    matricula: string
-    nome: string
-}
-
-type Disciplina = {
-    cargaHoraria: string
-    id: string
-    nome: string
-}
-
-export interface ITurma {
-    alunos: Aluno[]
-    anoLetivo: string
-    disciplinas: Disciplina[]
-    id: string
-    nome: string
-    professores: []
-    turno: string
-}
 
 export const GerenciarTurmas = () => {
     const [data, setData] = useState<ITurma[]>([])
@@ -52,9 +29,9 @@ export const GerenciarTurmas = () => {
         const fetchClasses = async () => {
             setLoading(true)
             try {
-                const res = axiosInstance.get("/api/teacher/list-classes")
+                const res = await axiosInstance.get("/api/teacher/list-classes")
 
-                const dataJson = (await res).data
+                const dataJson = await res.data
 
                 setData(dataJson)
             }

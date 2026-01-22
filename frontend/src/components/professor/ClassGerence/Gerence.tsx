@@ -1,35 +1,27 @@
-import { Button } from "@/components/ui/button"
 import {
     Dialog,
-    DialogClose,
     DialogContent,
-    DialogDescription,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import type { Aluno, ITurma } from "./GerenceClass"
+import type { Aluno, ITurma } from "@/contexts/teacherContext"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
-
+// Definindo as props do componente Gerence
 interface IGerence {
     open: boolean
     onClose: () => void
     turma: ITurma | null
 }
 
+// Componente Gerence para gerenciar alunos de uma turma
 export const Gerence = ({
     open,
     onClose,
     turma,
 }: IGerence
 ) => {
-
-    console.log(turma)
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
@@ -50,7 +42,7 @@ export const Gerence = ({
                             </TableHeader>
 
                             <TableBody>
-                                {turma?.alunos.map((aluno) => (
+                                {turma?.alunos.map((aluno: Aluno) => (
                                     <TableRow key={aluno.id}>
                                         <TableCell>{aluno.nome}</TableCell>
                                         <TableCell>{aluno.matricula}</TableCell>
@@ -62,7 +54,7 @@ export const Gerence = ({
 
                     {/* Tabela para celular */}
                     <div className="block space-y-2 md:hidden">
-                        {turma?.alunos.map((aluno)=>(
+                        {turma?.alunos.map((aluno: Aluno)=>(
                             <div key={aluno.id} className="border p-2 outline">
                                 <div>
                                     <strong>Nome:</strong> {aluno.nome}
@@ -75,14 +67,6 @@ export const Gerence = ({
                     </div>
 
                 </ScrollArea>
-
-                {/* <DialogFooter className="sm:justify-start">
-                    <DialogClose asChild>
-                        <Button type="button" variant="secondary">
-                            Close
-                        </Button>
-                    </DialogClose>
-                </DialogFooter> */}
             </DialogContent>
         </Dialog>
     )

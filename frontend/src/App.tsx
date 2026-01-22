@@ -22,6 +22,7 @@ import { ClassGerence } from "./components/Coordenador/ClassGerence/ClassGerence
 import { useNotifications } from "./components/NotificationReceived/useNotifications";
 import { Configuracoes } from "./components/Configuration/Configuracoes";
 import { ThemeProvider } from "./components/Theme/theme-provider";
+import { Notes } from "./components/professor/Students/Notes";
 
 function AppContent() {
 
@@ -30,7 +31,7 @@ function AppContent() {
   useNotifications(user?._id as string, user ? user.role : "");
 
 
- return (
+  return (
     <Routes>
       {/* Públicas */}
       <Route path="/" element={<LandingPage />} />
@@ -38,7 +39,7 @@ function AppContent() {
       <Route path="/register" element={<SiginUser />} />
       <Route path="/forgot" element={<ForgotPass />} />
       <Route path="/resetPass/:token" element={<ResetPass />} />
-      <Route path="/settings" element={<Configuracoes />}/>
+      <Route path="/settings" element={<Configuracoes />} />
 
       {/* Protegidas */}
 
@@ -74,6 +75,17 @@ function AppContent() {
         <Route path="gerenciar-turmas" element={<GerenciarTurmas />} />
         <Route path="calendar" element={<CalendarAcademic />} />
       </Route>
+
+      {/* Rota protegida para gerenciamento de notas do professor*/}
+      <Route
+        path="/professor/notes"
+        element={
+          <PrivateRouter roles={["professor"]}>
+            <Notes />
+          </PrivateRouter>
+        }
+      />
+
     </Routes>
   );
 }
@@ -82,7 +94,7 @@ export default function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-      <AppContent />
+        <AppContent />
       </ThemeProvider>
     </AuthProvider>
   );
