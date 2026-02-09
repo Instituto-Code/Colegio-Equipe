@@ -51,53 +51,6 @@ const AlunoSchema = new Schema<IAluno>(
       },
     ],
 
-    //notas
-    notas: [
-      {
-        disciplina: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'Disciplina', // => relacionamento com o modela da Disciplina
-        },
-
-        //Professor relacionado com a nota
-        professor: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'Professor',
-        },
-
-        //Tipo de nota, se é atividade prova etc
-        tipo: String,
-
-        //Notas
-        nota: Number,
-
-        data: {
-          type: Date,
-          default: Date.now,
-        },
-      },
-    ],
-
-    //frequencia
-    frequencia: {
-      //Comparecimentos
-      presencas: {
-        type: Number,
-        default: 0,
-      },
-
-      //Faltas
-      faltas: {
-        type: Number,
-        default: 0,
-      },
-
-      data: {
-        type: Date,
-        default: Date.now,
-      },
-    },
-
     //Anotações
     anotacoes: [
       {

@@ -54,4 +54,13 @@ export const StudentRepository = {
       },
     ]);
   },
+  async updateById(
+    studentId: string,
+    update: Record<string, any>
+  ) {
+    return studentModel.updateOne(
+      { _id: studentId },
+      update
+    );
+  }
 };

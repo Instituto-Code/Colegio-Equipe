@@ -5,17 +5,23 @@ import { IPais } from "../../modules/Parents/parents.model.js";
 type Sexo = 'masculino' | 'feminino';
 
 export interface INota {
-  disciplina: Types.ObjectId;
-  professor: string | Types.ObjectId;
-  tipo: string;
-  nota: number;
+  _id?: Types.ObjectId;
+  aluno: Types.ObjectId;      
+  disciplina: Types.ObjectId;  
+  professor: Types.ObjectId;  
+  valor: number;
+  tipo: 'PROVA' | 'TRABALHO' | 'RECUPERACAO' | 'PROVA_GERAL';
+  bimestre: 1 | 2 | 3 | 4;
+  anoLetivo: number;           
   data: Date;
 }
 
-interface IFrequencia {
-  presencas: number;
-  faltas: number;
+export interface IFrequencia {
+  aluno: Types.ObjectId;
+  disciplina: Types.ObjectId;
   data: Date;
+  presente: boolean;           
+  justificativa?: string;    
 }
 
 export interface IAnotacao {
@@ -24,16 +30,21 @@ export interface IAnotacao {
   data?: Date;
 }
 
+type StatusAluno = 'ativo' | 'inativo' | 'suspenso';
+
 export interface IAluno extends Document {
   nome: string;
   matricula: string;
-  dataNasc?: Date;
+  dataNasc: Date;
   cpf: string;
   sexo: Sexo;
-  status: 'ativo' | 'inativo' | 'suspenso',
-  turma?: Types.ObjectId[] | ITurma[];
-  parents: (Types.ObjectId | IPais)[];
-  notas: INota[];
-  frequencia: IFrequencia;
+  status: StatusAluno;
+  
+  turma: Types.ObjectId;
+  
+  parents: Types.ObjectId[]; 
   anotacoes: IAnotacao[];
+  
+  createdAt: Date;
+  updatedAt: Date;
 }
