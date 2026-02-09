@@ -139,7 +139,14 @@ export const listOneStudent = async (req: CustomRequest, res: Response) => {
           select: 'name email numberTel cpf',
         },
       })
-      .populate('turma', 'nome turno anoLetivo');
+      .populate({
+        path: 'turma',
+        select: 'nome turno anoLetivo disciplinas',
+        populate: {
+          path: 'disciplinas',
+          select: 'nome cargaHoraria descrição', // ajusta conforme seu schema
+        },
+      });
 
     if (!aluno) {
       return res.status(404).json({
@@ -167,6 +174,12 @@ export const listOneStudent = async (req: CustomRequest, res: Response) => {
         nome: t.nome,
         turno: t.turno,
         anoLetivo: t.anoLetivo,
+        disciplinas: t.disciplinas.map((d: any) => ({
+          id: d._id,
+          nome: d.nome,
+          descricao: d.descricao,
+          cargaHoraria: d.cargaHoraria,
+        })),
       })),
     };
 
@@ -352,10 +365,9 @@ export const listParents = async (req: CustomRequest, res: Response) => {
     const parents = await parentsModel
       .find()
       .populate<{ user: IUser }>('user', 'name email numberTel adress')
-      .populate<{ filhos: IAluno[] }>(
-        'filhos',
-        'nome matricula dataNasc status sexo cpf',
-      );
+      .populate<{
+        filhos: IAluno[];
+      }>('filhos', 'nome matricula dataNasc status sexo cpf');
 
     if (parents.length === 0) {
       res.status(200).json({
@@ -406,10 +418,9 @@ export const listParent = async (req: CustomRequest, res: Response) => {
     const parent = await parentsModel
       .findById(parentId)
       .populate<{ user: IUser }>('user', 'name email numberTel adress')
-      .populate<{ filhos: IAluno[] }>(
-        'filhos',
-        'nome matricula dataNasc status sexo cpf',
-      );
+      .populate<{
+        filhos: IAluno[];
+      }>('filhos', 'nome matricula dataNasc status sexo cpf');
 
     if (!parent) {
       return res.status(404).json({
