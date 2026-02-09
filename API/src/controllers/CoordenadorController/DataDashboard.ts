@@ -147,6 +147,8 @@ export const listOneStudent = async (req: CustomRequest, res: Response) => {
       });
     }
 
+    const turmas = Array.isArray(aluno.turma) ? aluno.turma : [];
+
     const alunoFormatado = {
       id: aluno._id,
       nome: aluno.nome,
@@ -160,7 +162,8 @@ export const listOneStudent = async (req: CustomRequest, res: Response) => {
         numberTel: p.user?.numberTel,
         cpf: p.user?.cpf,
       })),
-      turma: aluno.turma?.map((t: any) => ({
+      turma: turmas?.map((t: any) => ({
+        id: t._id,
         nome: t.nome,
         turno: t.turno,
         anoLetivo: t.anoLetivo,

@@ -9,11 +9,11 @@ type RequestInsertGrade = {
   userId: string;
   disciplinaId: string;
   studentId: string;
-  teacherId: string;
+  teacherId?: string;
   tipo: string;
   nota: number;
   data: Date;
-  anoLetivo: number;
+  anoLetivo?: number;
 };
 
 export async function InsertGradeService(data: RequestInsertGrade) {

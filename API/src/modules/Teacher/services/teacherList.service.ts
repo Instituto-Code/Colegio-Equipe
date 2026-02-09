@@ -11,7 +11,8 @@ export async function ListClasses(user: IUser){
     const turmasFormated = teacher.turmas.map((t: any) => ({
         nome: t.name,
         turno: t.turno,
-        anoLetivo: t.anoLetivo
+        anoLetivo: t.anoLetivo,
+        disciplinas: t.disciplinas
     }))
 
     return turmasFormated
