@@ -175,7 +175,7 @@ export const UserTable: React.FC = () => {
       <div className="flex justify-between items-center px-5 gap-4">
         <div className="flex flex-col w-full">
           <div className="flex flex-col md:flex-row justify-between">
-            <h1 className="text-3xl font-bold">Gerenciar Usuários</h1>
+            <h1 className="text-3xl font-bold mb-3">Gerenciar Usuários</h1>
           </div>
           {/* Input de Busca */}
           <Input

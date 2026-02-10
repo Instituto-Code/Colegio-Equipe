@@ -143,7 +143,7 @@ export const ClassGerence = () => {
   return (
     <div className="mt-5 p-10">
       <div className="flex flex-col md:flex-row justify-between">
-        <h1 className="text-3xl font-bold">Gerenciar turmas</h1>
+        <h1 className="text-3xl font-bold mb-3">Gerenciar turmas</h1>
         <AddClass />
       </div>
 
