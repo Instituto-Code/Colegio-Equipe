@@ -144,7 +144,15 @@ export const listOneStudent = async (req: CustomRequest, res: Response) => {
         select: 'nome turno anoLetivo disciplinas',
         populate: {
           path: 'disciplinas',
-          select: 'nome cargaHoraria descrição', // ajusta conforme seu schema
+          select: 'nome cargaHoraria descrição',
+        },
+      })
+      .populate("grades", "bimestre tipo nota data")
+      .populate({
+        path: 'grades',
+        populate: {
+          path: 'disciplina',
+          select: 'nome cargaHoraria descrição',
         },
       });
 
@@ -155,6 +163,7 @@ export const listOneStudent = async (req: CustomRequest, res: Response) => {
     }
 
     const turmas = Array.isArray(aluno.turma) ? aluno.turma : [];
+    const grades = Array.isArray(aluno.grades) ? aluno.grades : [];
 
     const alunoFormatado = {
       id: aluno._id,
@@ -181,6 +190,17 @@ export const listOneStudent = async (req: CustomRequest, res: Response) => {
           cargaHoraria: d.cargaHoraria,
         })),
       })),
+      grades: grades?.map((g: any) => ({
+        id: g._id,
+        bimestre: g.bimestre,
+        tipo: g.tipo,
+        nota: g.nota,
+        data: g.data,
+        disciplina: {
+          id: g.disciplina._id,
+          nome: g.disciplina.nome
+        }
+      }))
     };
 
     res.status(200).json({

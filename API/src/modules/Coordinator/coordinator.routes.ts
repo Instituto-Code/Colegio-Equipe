@@ -18,46 +18,46 @@ import { deleteStudents, editStudents } from '../../controllers/CoordenadorContr
 coordenadorRouter.post(
   '/register-classes',
   authGuard,
-  authorizeRole('coordenador'),
+  authorizeRole(['coordenador']),
   registerClasses,
 );
 coordenadorRouter.post(
   '/register-students',
   authGuard,
-  authorizeRole('coordenador'),
+  authorizeRole(['coordenador']),
   registerStudent,
 );
 
 coordenadorRouter.delete(
   '/delete/:userId/user',
   authGuard,
-  authorizeRole('coordenador'),
+  authorizeRole(['coordenador']),
   deleteUser
 );
 
 coordenadorRouter.patch(
   '/remove/:studentId/classroom',
   authGuard,
-  authorizeRole('coordenador'),
+  authorizeRole(['coordenador']),
   removeStudentByClass
 )
 
 coordenadorRouter.post(
   '/register-teacher',
   authGuard,
-  authorizeRole('coordenador'),
+  authorizeRole(['coordenador']),
   registerTeacher,
 );
 coordenadorRouter.post(
   '/register-discipline',
   authGuard,
-  authorizeRole('coordenador'),
+  authorizeRole(['coordenador']),
   registerDisciplines,
 );
 coordenadorRouter.patch(
   '/class/:classId/teacher/:teacherId',
   authGuard,
-  authorizeRole('coordenador'),
+  authorizeRole(['coordenador']),
   classToTeacher,
 );
 
@@ -65,34 +65,34 @@ coordenadorRouter.patch(
 coordenadorRouter.patch(
   '/disciplineToClass',
   authGuard,
-  authorizeRole('coordenador'),
+  authorizeRole(['coordenador']),
   disciplineToClass,
 );
 
 coordenadorRouter.patch(
   '/student/:studentId/class/:classId',
   authGuard,
-  authorizeRole('coordenador'),
+  authorizeRole(['coordenador']),
   studentToClass,
 );
 
 coordenadorRouter.patch(
   '/register-parent/:userId',
   authGuard,
-  authorizeRole('coordenador'),
+  authorizeRole(['coordenador']),
   registerParents,
 );
 
 coordenadorRouter.patch(
   '/student/:studentId/parent/:parentId',
   authGuard,
-  authorizeRole('coordenador'),
+  authorizeRole(['coordenador']),
   studentToParent,
 );
 coordenadorRouter.post(
   '/create-event',
   authGuard,
-  authorizeRole('coordenador'),
+  authorizeRole(['coordenador']),
   RegisterEventService,
 );
 coordenadorRouter.get('/list-events', authGuard, ListAllEventsService);
@@ -100,7 +100,7 @@ coordenadorRouter.get('/list-events', authGuard, ListAllEventsService);
 coordenadorRouter.get(
   '/getDashboardOverview',
   authGuard,
-  authorizeRole('coordenador'),
+  authorizeRole(['coordenador']),
   getDashboardOverview,
 );
 
@@ -111,28 +111,28 @@ coordenadorRouter.get('/list-student/:studentId', authGuard, listOneStudent);
 coordenadorRouter.get(
   '/list-teachers',
   authGuard,
-  authorizeRole('coordenador'),
+  authorizeRole(['coordenador']),
   listTeachers,
 );
 
 coordenadorRouter.get(
   '/list-teacher/:teacherId',
   authGuard,
-  authorizeRole('coordenador'),
+  authorizeRole(['coordenador']),
   listOneTeacher,
 );
 
 coordenadorRouter.get(
   '/list-users',
   authGuard,
-  authorizeRole('coordenador'),
+  authorizeRole(['coordenador']),
   listUsers,
 );
 
 coordenadorRouter.get(
   '/list-turmas',
   authGuard,
-  authorizeRole('coordenador'),
+  authorizeRole(['coordenador']),
   listClasses,
 );
 
@@ -152,21 +152,21 @@ coordenadorRouter.get(
 coordenadorRouter.delete(
   '/delete-student/:studentId',
   authGuard,
-  authorizeRole('coordenador'),
+  authorizeRole(['coordenador']),
   deleteStudents,
 );
 
 coordenadorRouter.patch(
   '/edit-student/:studentId',
   authGuard,
-  authorizeRole('coordenador'),
+  authorizeRole(['coordenador']),
   editStudents
 )
 
 coordenadorRouter.get(
   '/student-by-class',
   authGuard,
-  authorizeRole('coordenador'),
+  authorizeRole(['coordenador']),
   GetStudentByClass
 )
 

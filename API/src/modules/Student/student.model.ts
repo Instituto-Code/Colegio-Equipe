@@ -27,6 +27,11 @@ const AlunoSchema = new Schema<IAluno>(
       enum: ['masculino', 'feminino']
     },
 
+    grades: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Grade"
+    }],
+
     status: {
       type: String,
       enum: ['ativo', 'inativo', 'suspenso'],

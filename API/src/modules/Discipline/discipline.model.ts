@@ -12,6 +12,12 @@ const DisciplinaSchema = new Schema<IDisciplina>(
       type: String,
     },
 
+    quantidadeNotas: {
+      type: Number,
+      enum: [1, 3],
+      default: 1,
+    },
+
     //Carga horária
     cargaHoraria: {
       type: Number,

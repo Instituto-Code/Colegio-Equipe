@@ -7,7 +7,7 @@ import { ListClasses } from "./services/teacherList.service.js";
 //Funcionalidade de inserir notas
 export const insertGrades = async (req: CustomRequest, res: Response) => {
 
-  const { disciplinaId, studentId, tipo, nota, data } = req.body;
+  const { disciplinaId, studentId, bimestre, tipo, nota, data } = req.body;
 
   const userId = req.user._id;
 
@@ -18,6 +18,7 @@ export const insertGrades = async (req: CustomRequest, res: Response) => {
       disciplinaId,
       studentId,
       tipo,
+      bimestre,
       nota,
       data
     }

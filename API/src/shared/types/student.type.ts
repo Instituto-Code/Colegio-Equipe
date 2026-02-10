@@ -39,7 +39,7 @@ export interface IAluno extends Document {
   cpf: string;
   sexo: Sexo;
   status: StatusAluno;
-  
+  grades: Types.ObjectId[];
   turma: Types.ObjectId;
   
   parents: Types.ObjectId[]; 

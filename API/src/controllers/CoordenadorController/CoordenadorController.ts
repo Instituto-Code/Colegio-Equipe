@@ -46,7 +46,7 @@ export const registerTeacher = async (req: Request, res: Response) => {
 
 //Cadastrar disciplinas
 export const registerDisciplines = async (req: Request, res: Response) => {
-  const { nome, descrição, cargaHoraria } = req.body;
+  const { nome, descrição, cargaHoraria, quantidadeNotas } = req.body;
 
   try {
     //Buscar disciplina por nome
@@ -62,6 +62,7 @@ export const registerDisciplines = async (req: Request, res: Response) => {
       nome,
       descrição,
       cargaHoraria,
+      quantidadeNotas
     });
 
     res.status(201).json({
