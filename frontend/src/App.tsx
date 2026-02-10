@@ -78,7 +78,7 @@ function AppContent() {
 
       {/* Rota protegida para gerenciamento de notas do professor*/}
       <Route
-        path="/professor/notes"
+        path="/professor/notes/:studentId"
         element={
           <PrivateRouter roles={["professor"]}>
             <Notes />

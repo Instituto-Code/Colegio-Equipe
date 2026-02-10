@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { useAuth } from "@/contexts/authContext"
+import { Link } from "react-router-dom"
 
 type Role = "coordenador" | "professor" 
 
@@ -35,10 +36,10 @@ export const SideBar = () => {
                 return(
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <Link to={item.url}>
                         {Icon ? <Icon/> : <div>Tem não</div> }
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 )

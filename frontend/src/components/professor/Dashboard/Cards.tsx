@@ -1,38 +1,67 @@
+import { cn } from "@/lib/utils"
 import type React from "react"
 
-interface Card {
+type MetricVariant = "blue" | "teal" | "amber"
+
+interface MetricCardProps {
+    title: string
+    valueText: number
     icon: React.ComponentType<{ size: number | string }> | string | null
-    title: string | null
-    valueText: number | null
-    type: string
+    variant?: MetricVariant
+    loading?: boolean
 }
 
-export const Card = ({ title, icon: Icon , valueText, type  }: Card) => {
+const variantStyles: Record<MetricVariant, { bg: string; icon: string; ring: string }> = {
+    blue: {
+        bg: "bg-metric-blue-bg",
+        icon: "text-metric-blue",
+        ring: "ring-metric-blue/20",
+    },
+    teal: {
+        bg: "bg-metric-teal-bg",
+        icon: "text-metric-teal",
+        ring: "ring-metric-teal/20",
+    },
+    amber: {
+        bg: "bg-metric-amber-bg",
+        icon: "text-metric-amber",
+        ring: "ring-metric-amber/20",
+    },
+}
 
-const styleCard = 
-  type === "Minha turma" ? 
-    "bg-[#1E40AF]" :
-  type === "" ? 
-    "bg-[#0F766E]" : 
-  type === "disciplinas" ? 
-    "bg-[#15803D]" : 
-  type === "turmas" ?
-    "bg-[#C2410C]" : 
-    "";
+export const MetricCard = ({
+    title,
+    valueText,
+    icon: Icon,
+    variant = "blue",
+    loading
+}: MetricCardProps) => {
 
-
+    const styles = variantStyles[variant]
+    
     return (
-        <div className={`flex w-[80%] ${styleCard} opacity-80 md:w-[40%] flex-col items-center p-5 border-gray-300 border-2 rounded-2xl shadow-md text-gray-800}`}>
-            <div className={`flex md:gap-10 text-slate-50 text-[clamp(2vw,2.5vw,4vw)] justify-center items-center`}>
-                <div className="w-10 lg:w-25">
+        <div
+            className={cn(
+                "relative flex min-w-[200px] flex-1 flex-col gap-3 rounded-xl border bg-card p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5",
+                "ring-1",
+                styles.ring
+            )}
+        >
+            <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">{title}</span>
+                <div className={cn("flex h-9 w-9 items-center justify-center rounded-lg", styles.bg)}>
                     {Icon && <Icon size={"100%"} />}
                 </div>
-                <div className="flex flex-col items-center">
-                    <span className="text-[6vw] md:text-[3vw]">{title}</span>
-                    <span className="text-[6vw] md:text-[3vw]" >{valueText}</span>
-                </div>
             </div>
-
+            <div className="flex items-end gap-1">
+                {loading ? (
+                    <div className="h-8 w-16 animate-pulse rounded-md bg-muted" />
+                ) : (
+                    <span className="text-3xl font-bold tracking-tight text-card-foreground">
+                        {valueText}
+                    </span>
+                )}
+            </div>
         </div>
     )
 }

@@ -86,22 +86,23 @@ export const GerenciarTurmas = () => {
 
 
     return (
-        <div className="m-5 p-6 md:p-10">
-            <div>
+       <div className="w-full px-8 py-9 md:max-w-[calc(100%-2.5rem)] md:py-10 md:box-border">
+            <div className="px-0 md:px-5">
                 <h1 className="text-3xl font-bold mb-2">Minhas turmas</h1>
-            </div>
-
-            <Input
+                <Input
                 type="text"
                 placeholder="Buscar Turmas..."
                 value={globalFilter ?? ""}
                 onChange={(e) => setGlobalFilter(e.target.value)}
                 className="p-2 my-3.5 md:my-0 border rounded w-full max-w-sm"
             />
+            </div>
 
-            <div className="overflow-x-auto hidden p-5 md:flex">
+            
+
+            <div className="overflow-x-auto w-auto hidden pl-6 pt-6 md:flex">
                 {loading ? (
-                    <div className="h-100 w-full flex flex-col justify-center items-center">
+                    <div className="min-h-[100px] w-full flex flex-col justify-center items-center">
                         <Spinner className="size-8 text-blue-500" />
                     </div>
                 ) : (
@@ -147,7 +148,7 @@ export const GerenciarTurmas = () => {
             {/* Tabela para celulares */}
             <div className="block sm:hidden space-y-2">
                 {loading ? (
-                    <div className="h-100 w-full flex flex-col justify-center items-center">
+                    <div className="min-h-[100px] w-full flex flex-col justify-center items-center">
                         <Spinner className="size-8 text-blue-500" />
                     </div>
                 ) : table.getRowModel().rows.map((row) => (
