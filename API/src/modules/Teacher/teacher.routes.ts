@@ -9,25 +9,25 @@ const TeacherRouter = Router();
 TeacherRouter.patch(
   '/insert-grades',
   authGuard,
-  authorizeRole('professor'),
+  authorizeRole(['professor']),
   insertGrades,
 );
 
 TeacherRouter.patch(
   '/insert-attendance',
   authGuard,
-  authorizeRole('professor'),
+  authorizeRole(['professor']),
   insertAttendance,
 );
 
 TeacherRouter.get(
   '/list-classes',
   authGuard,
-  authorizeRole('professor'),
+  authorizeRole(['professor']),
   listClasses,
 );
 
-TeacherRouter.patch('/notes', authGuard, authorizeRole('professor'), notes);
+TeacherRouter.patch('/notes', authGuard, authorizeRole(['professor']), notes);
 
 
 export default TeacherRouter;

@@ -5,11 +5,11 @@ import { authorizeRole } from "../../middlewares/authorizeRole.js";
 const notificationRouter = Router();
 
 
-notificationRouter.post("/create-note", authGuard, authorizeRole('coordenador'), createNote);
+notificationRouter.post("/create-note", authGuard, authorizeRole(['coordenador']), createNote);
 
-notificationRouter.delete("/delete-note/:id", authGuard, authorizeRole('coordenador'), deleteNote);
+notificationRouter.delete("/delete-note/:id", authGuard, authorizeRole(['coordenador']), deleteNote);
 
-notificationRouter.patch("/update-note/:id", authGuard, authorizeRole('coordenador'), updateNote);
+notificationRouter.patch("/update-note/:id", authGuard, authorizeRole(['coordenador']), updateNote);
 
 notificationRouter.get('/list-note-groups', authGuard, listNotesGroup);
 

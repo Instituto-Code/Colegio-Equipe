@@ -8,7 +8,7 @@ const adminRouter = express.Router();
 adminRouter.patch(
   '/modify-data-user',
   authGuard,
-  authorizeRole('admin'),
+  authorizeRole(['admin']),
   modifyDataUser,
 );
 
