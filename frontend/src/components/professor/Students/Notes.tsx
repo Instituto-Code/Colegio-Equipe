@@ -4,10 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Spinner } from "@/components/ui/spinner"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
-import { useTeach, type IAluno, type ITurma } from "@/contexts/teacherContext"
+import { type Grade, useTeach, type IAluno, type ITurma, type Disciplina } from "@/contexts/teacherContext"
 import { Arrow } from "@radix-ui/react-select"
+import { flexRender, getCoreRowModel, getFilteredRowModel, useReactTable, type ColumnDef, type SortingState } from "@tanstack/react-table"
 import axios from "axios"
 import { ArrowBigDown, ArrowLeft } from "lucide-react"
 import { number } from "motion/react"
@@ -21,26 +23,28 @@ type Nota = {
     nota: number
 }
 
-interface Disciplina {
-    cargaHoraria: string
-    id: string
-    nome: string
-}
-
 export const Notes = () => {
     const [aluno, setAluno] = useState<IAluno | null>(null)
     const [disciplinas, setDisciplinas] = useState<Disciplina[]>([])
     const [disciplinaId, setDisciplinaId] = useState("")
     const [nota, setNota] = useState<number | null>(null)
+    const [notasAluno, setNotasAluno] = useState<Grade[]>([])
     const [tipoNota, setTipoNota] = useState("")
-    const [data, setData] = useState("")
+    const [date, setDate] = useState("")
+    const [bimestre, setBimestre] = useState("")
     const [observacao, setObservacao] = useState("")
     const [errors, setErrors] = useState<{
         disciplinaId?: string
         tipoNota?: string
         nota?: string
         data?: string
+        bimestre?: string
     }>({})
+
+
+    const [data, setData] = useState<Grade[]>([])
+    const [globalFilter, setGlobalFilter] = useState("");
+    const [sorting, setSorting] = useState<SortingState>([]);
 
     // Navegacão
     const navigate = useNavigate()
@@ -48,7 +52,7 @@ export const Notes = () => {
     // Pegando o ID do aluno a partir dos parâmetros da URL
     const { studentId } = useParams<{ studentId: string }>()
 
-    const { insertGrades } = useTeach()
+    const { insertGrades, loading } = useTeach()
 
     // Validação do formulário.
     const validateFields = () => {
@@ -57,12 +61,15 @@ export const Notes = () => {
             tipoNota?: string
             nota?: string
             data?: string
+            bimestre?: string
         } = {}
 
         if (!disciplinaId) nextErrors.disciplinaId = "Disciplina é obrigatória."
         if (!tipoNota) nextErrors.tipoNota = "Tipo de nota é obrigatório."
         if (nota === null || nota <= 0) nextErrors.nota = "Nota é obrigatória e deve ser maior que 0."
-        if (!data) nextErrors.data = "Data é obrigatória."
+        if (!date) nextErrors.data = "Data é obrigatória."
+        const bimestreNumero = Number(bimestre)
+        if (bimestre === null || bimestreNumero < 1 || bimestreNumero > 4) nextErrors.bimestre = "O bimestre é obrigatório"
 
         setErrors(nextErrors)
         return Object.keys(nextErrors).length === 0
@@ -77,6 +84,7 @@ export const Notes = () => {
                 const res = await axiosInstance.get(`/api/coordenador/list-student/${studentID}`)
 
                 const data = res.data
+
                 setAluno(data.aluno)
             }
             catch (error: any) {
@@ -97,14 +105,35 @@ export const Notes = () => {
                 );
             })
         })
-    }, [aluno])
+
+        setNotasAluno(aluno.grades)
+        setData(aluno.grades)
+    }, [aluno, insertGrades])
+
+    console.log(notasAluno)
 
     // Função para lidar com o envio do formulário de lançamento de nota
-    const handleAddNota = async (disciplinaId: string, studentId: string, tipo: string, nota: number, date: string) => {
+    const handleAddNota = async (disciplinaId: string, studentId: string, bimestre: number, tipo: string, nota: number, date: string) => {
         if (!validateFields()) return
 
         try {
-            await insertGrades(disciplinaId, studentId, tipo, nota, date)
+            await insertGrades(disciplinaId, studentId, bimestre, tipo, nota, date)
+
+            const disciplinaNome = disciplinas.find((d) => d.id === disciplinaId)?.nome || "Disciplina"
+            const novoGrade: Grade = {
+                bimestre,
+                tipo,
+                nota,
+                data: date,
+                disciplina: {
+                    id: disciplinaId,
+                    nome: disciplinaNome,
+                },
+            }
+
+            setNotasAluno((prev) => [novoGrade, ...prev])
+            setData((prev) => [novoGrade, ...prev])
+            setAluno((prev) => (prev ? { ...prev, grades: [novoGrade, ...prev.grades] } : prev))
         }
         catch (error) {
             console.error(error)
@@ -113,7 +142,8 @@ export const Notes = () => {
             setDisciplinaId("")
             setTipoNota("")
             setNota(null)
-            setData("")
+            setBimestre("")
+            setDate("")
         }
     }
 
@@ -122,9 +152,30 @@ export const Notes = () => {
         setDisciplinaId("")
         setTipoNota("")
         setNota(null)
-        setData("")
+        setDate("")
+        setBimestre("")
         setErrors({})
     }
+
+    // Colunas da tabela
+    const columns: ColumnDef<Grade>[] = [
+        { accessorKey: "disciplina.nome", header: "Disciplina" },
+        { accessorKey: "bimestre", header: "Bimestre" },
+        { accessorKey: "nota", header: "Nota" },
+    ]
+
+    // Mapeando a tabela
+    const table = useReactTable({
+        data,
+        columns,
+        state: {
+            globalFilter,
+            sorting
+        },
+        onGlobalFilterChange: setGlobalFilter,
+        getCoreRowModel: getCoreRowModel(),
+        getFilteredRowModel: getFilteredRowModel()
+    })
 
     return (
         <div className="flex w-full min-h-screen bg-background">
@@ -204,6 +255,28 @@ export const Notes = () => {
                         {errors.disciplinaId && <p className="text-xs text-red-500">{errors.disciplinaId}</p>}
                     </div>
 
+                    <div className="space-y-2 ">
+                        <Label>Bimestre</Label>
+                        <Select
+                            value={bimestre}
+                            onValueChange={(value) => {
+                                setBimestre(value)
+                                if (errors.bimestre) setErrors((prev) => ({ ...prev, bimestre: undefined }))
+                            }}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Selecione o Bimestre" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="1">1° Bimestre</SelectItem>
+                                <SelectItem value="2">2° Bimestre</SelectItem>
+                                <SelectItem value="3">3° Bimestre</SelectItem>
+                                <SelectItem value="4">4° Bimestre</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        {errors.disciplinaId && <p className="text-xs text-red-500">{errors.disciplinaId}</p>}
+                    </div>
+
                     <div className="space-y-2">
                         <Label>Nota</Label>
                         <Input
@@ -223,9 +296,9 @@ export const Notes = () => {
                         <Label>Data</Label>
                         <Input
                             type="date"
-                            value={data}
+                            value={date}
                             onChange={(e) => {
-                                setData(e.target.value)
+                                setDate(e.target.value)
                                 if (errors.data) setErrors((prev) => ({ ...prev, data: undefined }))
                             }}
                         />
@@ -242,34 +315,57 @@ export const Notes = () => {
                                 return
                             }
 
-                            handleAddNota(disciplinaId, studentId!, tipoNota, nota, data)
+                            handleAddNota(disciplinaId, studentId!, Number(bimestre), tipoNota, nota, date)
                         }}
                     >Salvar nota</Button>
                 </div>
 
                 <section className="space-y-3">
-                    <div className="text-sm text-muted-foreground">Notas lançadas</div>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Disciplina</TableHead>
-                                <TableHead>Período</TableHead>
-                                <TableHead>Nota</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            <TableRow>
-                                <TableCell>Matemática</TableCell>
-                                <TableCell>1º Bimestre</TableCell>
-                                <TableCell>8.5</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>Português</TableCell>
-                                <TableCell>1º Bimestre</TableCell>
-                                <TableCell>7.0</TableCell>
-                            </TableRow>
-                        </TableBody>
-                    </Table>
+                    {loading ? (
+                        <div className="min-h-[100px] w-full flex flex-col justify-center items-center">
+                            <Spinner className="size-8 text-blue-500" />
+                        </div>
+                    ) : (
+                        <div>
+                            <div className="text-sm text-muted-foreground">Notas lançadas</div>
+                            <Table>
+                                <TableHeader>
+                                    {table.getHeaderGroups().map((headerGroup) => (
+                                        <TableRow accessKey={headerGroup.id}>
+                                            {headerGroup.headers.map((header) => (
+                                                <TableHead key={header.id}>
+                                                    {
+                                                        flexRender(
+                                                            header.column.columnDef.header,
+                                                            header.getContext()
+                                                        )
+                                                    }
+                                                </TableHead>
+                                            ))}
+                                        </TableRow>
+                                    ))}
+                                </TableHeader>
+                                <TableBody>
+                                    {table.getRowModel().rows.map((row) => (
+                                        <TableRow key={row.id}>
+                                            {row.getVisibleCells().map((cell) => (
+                                                <TableCell
+                                                    className="min-w-[100px] sm:min-w-[120px]"
+                                                    key={cell.id}
+                                                >
+                                                    {flexRender(
+                                                        cell.column.columnDef.cell,
+                                                        cell.getContext()
+                                                    )}
+                                                </TableCell>
+                                            ))}
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    )}
+
                 </section>
             </div>
         </div>

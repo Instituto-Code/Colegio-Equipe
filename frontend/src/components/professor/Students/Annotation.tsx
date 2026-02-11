@@ -34,11 +34,8 @@ export const Annotation = ({
 
     const { registerAnnotation, listStudent, aluno } = useTeach()
 
-    const canAdd = useMemo(() => texto.trim().length > 0, [texto])
-
-
     const handleAdd = async () => {
-        if (!canAdd) return
+        if (!texto) return
 
         try {
             await registerAnnotation(studentId, texto)
@@ -117,7 +114,7 @@ export const Annotation = ({
                     <Button variant="outline" type="button" onClick={() => onClose(false)}>
                         Fechar
                     </Button>
-                    <Button type="button" onClick={handleAdd} disabled={!canAdd}>
+                    <Button type="button" onClick={handleAdd} disabled={!texto}>
                         Salvar anotacao
                     </Button>
                 </DialogFooter>

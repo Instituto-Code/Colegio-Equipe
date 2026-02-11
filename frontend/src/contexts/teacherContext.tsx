@@ -17,20 +17,29 @@ export interface IAnotacoes {
 }
 
 export interface IAluno {
-    id: string
-    dfataNascimento: string
-    nome: string
-    matricula: string
-    pais: []
-    status: string
-    turma: ITurma[]
-    anotacoes: IAnotacoes[]
+  id: string
+  dataNasc: string
+  nome: string
+  matricula: string
+  pais: []
+  status: string
+  turma: ITurma[]
+  grades: Grade[]
+  anotacoes: IAnotacoes[]
+}
+
+export type Grade = {
+  id?: string
+  bimestre: number
+  tipo: string
+  nota: number
+  data: string
+  disciplina: Disciplina
 }
 
 
-
 export type Disciplina = {
-    cargaHoraria: string
+    cargaHoraria?: string | undefined
     id: string
     nome: string
 }
@@ -52,7 +61,7 @@ interface ITeachContextProps {
     turmas: ITurma[]
     disciplinas: Disciplina[]
     listClasses: () => Promise<void>
-    insertGrades: (disciplinaId: string, studentId: string, tipo: string, nota: number, date: string) => Promise<void>
+    insertGrades: (disciplinaId: string, studentId: string, bimestre: number, tipo: string, nota: number, date: string) => Promise<void>
     registerAnnotation: (studentId: string, anotacao: string) => Promise<void>
     listStudent: (studentId: string) => Promise<void>
     aluno: IAluno | null
@@ -63,12 +72,13 @@ const TeacherContext = createContext<ITeachContextProps | undefined>(undefined)
 export const TeachProvider = ({ children }: { children: ReactNode }) => {
     const [turmas, setTurmas] = useState<ITurma[]>([])
     const [alunos, setAlunos] = useState<Aluno[]>([])
-    const [disciplinas, setDisciplinas ] = useState<Disciplina[]>([])
+    const [disciplinas, setDisciplinas] = useState<Disciplina[]>([])
     const [loading, setLoading] = useState(false)
     const [aluno, setAluno] = useState<IAluno | null>(null)
 
     // Função para listar as turmas do professor
     const listClasses = async () => {
+        setLoading(true)
         try {
             const res = await axiosInstance.get("/api/teacher/list-classes")
 
@@ -88,7 +98,7 @@ export const TeachProvider = ({ children }: { children: ReactNode }) => {
 
             // Setando as Disciplinas
             dataJson.map((turma: ITurma) => {
-                setDisciplinas((prev)=>
+                setDisciplinas((prev) =>
                     Array.from(
                         new Map([...prev, ...turma.disciplinas].map((a) => [a.id, a]))
                     ).map(([, v]) => v)
@@ -98,9 +108,13 @@ export const TeachProvider = ({ children }: { children: ReactNode }) => {
         catch (error) {
             console.error(error)
         }
+        finally{
+            setLoading(false)
+        }
     }
 
     const listStudent = async (studentId: string) => {
+        setLoading(true)
         try {
             const res = await axiosInstance.get(`/api/coordenador/list-student/${studentId}`)
 
@@ -110,14 +124,19 @@ export const TeachProvider = ({ children }: { children: ReactNode }) => {
         catch (error: any) {
             console.error(error)
         }
+        finally{
+            setLoading(false)
+        }
     }
 
     // Função para inserir notas
-    const insertGrades = async (disciplinaId: string, studentId: string, tipo: string, nota: number, date: string) => {
+    const insertGrades = async (disciplinaId: string, studentId: string, bimestre: number, tipo: string, nota: number, date: string) => {
+        setLoading(true)
         try {
             const res = await axiosInstance.patch("/api/teacher/insert-grades", {
                 disciplinaId,
                 studentId,
+                bimestre,
                 tipo,
                 nota,
                 date
@@ -135,6 +154,9 @@ export const TeachProvider = ({ children }: { children: ReactNode }) => {
 
             toast.error(msg)
             throw error
+        }
+        finally{
+            setLoading(false)
         }
     }
 

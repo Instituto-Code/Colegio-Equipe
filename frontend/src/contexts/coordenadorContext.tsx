@@ -1,4 +1,5 @@
-import { tr } from "date-fns/locale";
+import { axiosInstance } from "@/api/axiosInstance";
+import { se, tr } from "date-fns/locale";
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react"
 import { toast } from "sonner";
 
@@ -255,20 +256,15 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     const registerStudent = async (nome: string, matricula: string, cpf: string, dataNasc: number, sexo: Sexo) => {
         setLoading(true)
         try {
-            const res = await fetch(`${api_url}/api/coordenador/register-students`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({ nome, matricula, cpf, dataNasc, sexo })
+            const res = await axiosInstance.post("api/coordenador/register-students", {
+                nome,
+                matricula,
+                cpf,
+                dataNasc,
+                sexo
             })
 
-            const data = await res.json()
-
-            if (!res.ok) {
-                throw new Error(data.errors?.[0] || "Erro desconhecido")
-            }
+            const data = await res.data
 
             const newAluno: IAluno = data.aluno
             setAlunos((prevAlunos) => [...prevAlunos, newAluno])
