@@ -11,9 +11,8 @@ import {
 } from "@tanstack/react-table"
 
 
-import { Modal } from "./ModalDesc"
 import { api_url, useCoordenador } from "@/contexts/coordenadorContext";
-import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { AddStudent } from "./AddStudent"
@@ -23,9 +22,8 @@ import { useAuth } from "@/contexts/authContext"
 import { Spinner } from "@/components/ui/spinner";
 import { Input } from "@/components/ui/input";
 import { MenuParents } from "./Tools";
-import { Trash } from "lucide-react";
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConfirmationBox } from "@/components/Box/ConfirmationBox";
+import { axiosInstance } from "@/api/axiosInstance";
 
 // Interface para os dados do aluno.
 export interface IAluno {
@@ -57,13 +55,13 @@ export const Matriculas = () => {
         const getAlunos = async () => {
             setLoading(true)
             try {
-                const res = await fetch(`${api_url}/api/coordenador/list-students`, {
+                const res = await axiosInstance.get(`${api_url}/api/coordenador/list-students`, {
                     headers: {
                         Authorization: `Bearer ${token}`
-                    },
+                    }
                 })
 
-                const dataJson = await res.json()
+                const dataJson = await res.data
 
                 setData(dataJson.alunos)
                 console.log(dataJson.alunos)
@@ -110,25 +108,20 @@ export const Matriculas = () => {
     const deleteStudent = async (idStudent: string) => {
         setLoading(true)
         try {
-            const res = await fetch(`${api_url}/api/coordenador/delete-student/${idStudent}`, {
-                method: "DELETE",
+            const res = await axiosInstance.delete(`/api/coordenador/delete-student/${idStudent}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             })
 
-            const data = await res.json()
-
-            if (!res.ok) {
-                toast.error("Não foi possível excluir o aluno")
-                throw new Error(data.error)
-            }
+            await res.data
 
             toast.success("Aluno excluido com sucesso")
             setData((prev) => prev.filter((student) => student.id !== idStudent))
         }
         catch (error: any) {
             console.error(error)
+            toast.error("Não foi possível excluir um aluno")
         }
         finally {
             setLoading(false)

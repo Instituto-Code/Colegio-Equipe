@@ -31,6 +31,7 @@ import { toast } from "sonner";
 import { ConfirmationBox } from "@/components/Box/ConfirmationBox";
 import { tr } from "date-fns/locale";
 import { Trash } from "lucide-react";
+import { axiosInstance } from "@/api/axiosInstance";
 
 interface AddDataToClassProps {
   turma: ITurma;
@@ -85,12 +86,12 @@ export const AddDataToClass = ({
   // Sincroniza a turma local sempre que houver atualização real na prop
   useEffect(() => {
     if (open) {
-      setLocalTurmas((prev)=>({
+      setLocalTurmas((prev) => ({
         ...prev,
         alunos: turma.alunos || prev.alunos,
-        professores: turma.professores?.length 
+        professores: turma.professores?.length
           ? turma.professores
-          : prev.professores 
+          : prev.professores
       }));
     }
   }, [open]);
@@ -104,12 +105,12 @@ export const AddDataToClass = ({
 
     const fetchStudents = async () => {
       try {
-        const res = await fetch(`${api_url}/api/coordenador/list-students`, {
+        const res = await axiosInstance.get(`/api/coordenador/list-students`, {
           headers: {
-            Authorization: `Bearer ${token}`,
-          },
+            Authorization: `Bearer ${token}`
+          }
         });
-        const dataJson = await res.json();
+        const dataJson = await res.data;
         setStudents(dataJson.alunos);
       } catch (error) {
         console.log(error);
@@ -216,7 +217,7 @@ export const AddDataToClass = ({
       setSelectedProfessor(null)
       console.log("Professor vinculado:", selectedProfessor);
     }
-    catch(error: any){
+    catch (error: any) {
       console.error(error)
     }
   };
@@ -376,7 +377,7 @@ export const AddDataToClass = ({
             </div>
 
             {/* Tabela Professores */}
-            <ScrollArea className="h-[300px] rounded-md border p-2 hidden md:block">
+            <ScrollArea className="w-full rounded-md border p-2 overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -397,7 +398,7 @@ export const AddDataToClass = ({
                             variant="destructive"
                             size="sm"
                             onClick={() => {
-                              
+
                             }}
                           >
                             Remover

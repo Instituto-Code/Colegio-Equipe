@@ -27,6 +27,7 @@ import {
 import { useAuth } from "@/contexts/authContext";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
+import { axiosInstance } from "@/api/axiosInstance";
 
 interface INotificationsProps {
   open: boolean;
@@ -47,15 +48,25 @@ export function NotificationsSend({ open, onOpenChange }: INotificationsProps) {
 
   //Busca usuários do backend (quando for "pessoa")
   useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axiosInstance.get("/api/coordenador/list-users", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        setUsers(res.data.users);
+      } catch (error) {
+        console.error(error);
+        toast.error("Erro ao carregar usuarios");
+      }
+    };
+
     if (type === "pessoa") {
-      fetch(`${api_url}/api/coordenador/list-users`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((res) => res.json())
-        .then((data) => setUsers(data.users))
-        .catch(console.error);
+      fetchUsers();
     }
   }, [type]);
+
 
   const handleSubmit = async () => {
     setLoadingHere(true);
@@ -71,26 +82,19 @@ export function NotificationsSend({ open, onOpenChange }: INotificationsProps) {
 
       console.log(body);
 
-      const res = await fetch(`${api_url}/api/note/create-note`, {
-        method: "POST",
+      await axiosInstance.post(`/api/note/create-note`, body, {
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(body),
+          Authorization: `Bearer ${token}`
+        }
       });
 
-      if (res.ok) {
-        toast.success("Mensagem enviada com sucesso!");
-        setConteudo("");
-        setTarget(null);
-        onOpenChange(false);
-      } else {
-        const err = await res.json();
-        alert(err.error || "Erro ao enviar");
-      }
+      toast.success("Mensagem enviada com sucesso!");
+      setConteudo("");
+      setTarget(null);
+      onOpenChange(false);
     } catch (error) {
       console.log(error);
+      toast.error("Erro ao enviar")
     } finally {
       setLoadingHere(false);
     }
@@ -246,7 +250,7 @@ export function NotificationsSend({ open, onOpenChange }: INotificationsProps) {
                           <User className="w-6 h-6 text-blue-500 mt-1" />
                           <div className="flex flex-col w-full">
                             <span className="font-semibold flex items-center justify-between text-sm">
-                              { n.author.id === user._id ? "Eu" : n.author.nome } <MoveHorizontal />{" "}
+                              {n.author.id === user._id ? "Eu" : n.author.nome} <MoveHorizontal />{" "}
                               {n.tipo === "pessoa" ? (
                                 <span>
                                   {typeof n.receptor === "object"
