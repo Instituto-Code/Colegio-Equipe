@@ -4,6 +4,7 @@ import { StudentRepository } from '../../Student/student.repository.js';
 import { TeacherRepository } from '../teacher.repository.js';
 import { GradeRepository } from '../../Grade/Grade.repository.js';
 import GradeModel from '../../Grade/Grade.model.js';
+import bimestreModel from '../../Bimestre/bimestre.model.js';
 
 type RequestInsertGrade = {
   userId: string;
@@ -33,6 +34,15 @@ export async function InsertGradeService(data: RequestInsertGrade) {
   }
 
   if(data.nota < 0 || data.nota > 10) throw new Error("Nota inválida.");
+
+  const fechado = await bimestreModel.findOne({
+    aluno: data.studentId,
+    disciplina: data.disciplinaId,
+    bimestre: data.bimestre,
+    anoLetivo: data.anoLetivo
+  });
+
+  if(fechado) throw new Error("Não é possível lançar mais notas, bimestre fechado.");
 
   // Quantidade de notas por disciplinas
   const notasLancadas = await GradeModel.countDocuments({

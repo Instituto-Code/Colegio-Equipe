@@ -8,6 +8,7 @@ import parentsRouter from '../modules/Parents/parents.routes.js';
 import notificationRouter from '../modules/Notification/notification.routes.js';
 import adminRouter from '../modules/Admin/admin.routes.js';
 import coordenadorRouter from '../modules/Coordinator/coordinator.routes.js';
+import bimestreRouter from '../modules/Bimestre/bimestre.routes.js';
 
 //Config. pré-fixo de rotas
 router.use('/api/users', userRouter);
@@ -16,5 +17,6 @@ router.use('/api/teacher', TeacherRouter);
 router.use('/api/parents', parentsRouter);
 router.use('/api/admin', adminRouter);
 router.use('/api/note', notificationRouter);
+router.use('/api/bimestre', bimestreRouter);
 
 export default router;
