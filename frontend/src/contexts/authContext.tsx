@@ -16,7 +16,7 @@ import { toast } from "sonner";
 const api_url = import.meta.env.VITE_API_URL;
 
 // Tipagem do endereço
-interface IAdress{
+interface IAdress {
   rua: string;
   numero: string
 }
@@ -99,13 +99,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     fetchNotes();
   }, [token]);
 
-  useEffect(()=>{
+  useEffect(() => {
     const fetchNote = async () => {
-      if(!user?._id) return 
+      if (!user?._id) return
       await listNoteToUser(user?._id)
     }
     fetchNote()
-  },[token])
+  }, [token])
 
   // Função de registro de um novo usuário;
   const register = async (
@@ -117,44 +117,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setLoading(true);
       setErrorsRegister([]);
-      const res = await fetch(`${api_url}/api/users/register`, {
-        method: "POST",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify({ name, email, password, confirmPass }),
+
+      const res = await axiosInstance.post(`/api/users/register`, {
+        name,
+        email,
+        password,
+        confirmPass,
       });
 
-      const data = await res.json();
-      console.log(data);
+      console.log(res.data);
 
-      if (res.ok) {
-        console.log(data);
+      localStorage.removeItem("token");
+      setUser(null);
+      setToken(null);
 
-        //Limpa o localstorage ao criar outra conta
-        localStorage.removeItem("token");
-        setUser(null);
-        setToken(null);
-
-        setLoading(false);
-
-        return true;
-      } else {
-        let formattedErrors: string[] = [];
-
-        if (Array.isArray(data.errors)) {
-          formattedErrors = data.errors.map((err: any) =>
-            typeof err === "object" && "msg" in err ? err.msg : String(err)
-          );
-          setErrorsRegister(formattedErrors);
-        } else if (data.message) {
-          setErrorsRegister([data.message]);
-        } else {
-          setErrorsRegister(["Erro desconhecido ao tentar fazer login."]);
-        }
-      }
-    } catch (error) {
+      return true;
+    } catch (error: any) {
       console.error(error);
+
+      const data = error?.response?.data;
+
+      let formattedErrors: string[] = [];
+
+      if (Array.isArray(data?.errors)) {
+        formattedErrors = data.errors.map((err: any) =>
+          typeof err === "object" && "msg" in err ? err.msg : String(err)
+        );
+        setErrorsRegister(formattedErrors);
+      } else if (data?.message) {
+        setErrorsRegister([data.message]);
+      } else {
+        setErrorsRegister(["Erro desconhecido ao tentar fazer login."]);
+      }
+
       return false;
     } finally {
       setLoading(false);
@@ -163,51 +158,51 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Função de login de usuário.
   const login = async (email: string, password: string) => {
-  try {
-    setLoading(true);
-    setErrorsLogin([]);
+    try {
+      setLoading(true);
+      setErrorsLogin([]);
 
-    const { data } = await axiosInstance.post("/api/users/login", {
-      email,
-      password
-    });
+      const { data } = await axiosInstance.post("/api/users/login", {
+        email,
+        password
+      });
 
-    localStorage.setItem("token", data.token);
-    console.log(data)
-    setToken(data.token);
+      localStorage.setItem("token", data.token);
+      console.log(data)
+      setToken(data.token);
 
-    await profile(data.token);
+      await profile(data.token);
 
-    toast.success("Bem-vindo(a)!");
-    return true;
+      toast.success("Bem-vindo(a)!");
+      return true;
 
-  } catch (error: any) {
-    if (error.response?.data) {
-      const data = error.response.data;
+    } catch (error: any) {
+      if (error.response?.data) {
+        const data = error.response.data;
 
-      let formattedErrors: string[] = [];
+        let formattedErrors: string[] = [];
 
-      if (Array.isArray(data.errors)) {
-        formattedErrors = data.errors.map((err: any) =>
-          typeof err === "object" && "msg" in err ? err.msg : String(err)
-        );
-      } else if (typeof data.message === "string") {
-        formattedErrors = [data.message];
+        if (Array.isArray(data.errors)) {
+          formattedErrors = data.errors.map((err: any) =>
+            typeof err === "object" && "msg" in err ? err.msg : String(err)
+          );
+        } else if (typeof data.message === "string") {
+          formattedErrors = [data.message];
+        } else {
+          formattedErrors = ["Erro ao tentar fazer login."];
+        }
+
+        setErrorsLogin(formattedErrors);
       } else {
-        formattedErrors = ["Erro ao tentar fazer login."];
+        setErrorsLogin(["Erro de conexão com o servidor."]);
       }
 
-      setErrorsLogin(formattedErrors);
-    } else {
-      setErrorsLogin(["Erro de conexão com o servidor."]);
+      return false;
+
+    } finally {
+      setLoading(false);
     }
-
-    return false;
-
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   //Sair da conta do usuário
   const logout = () => {
@@ -221,17 +216,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const profile = async (customToken: string) => {
     setLoading(true);
     try {
-      const res = await fetch(`${api_url}/api/users/profile`, {
+      const res = await axiosInstance.get(`/api/users/profile`, {
         headers: {
           Authorization: `Bearer ${customToken}`,
         },
       });
 
-      const data = await res.json();
+      const data = await res.data
 
-      if (res.ok) {
-        setUser(data);
-      }
+      setUser(data);
     } catch (error) {
       console.log(error);
     } finally {
@@ -242,21 +235,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Função para envio do link de redefinição para o email.
   const resetPassMail = async (email: string) => {
     try {
-      const res = await fetch(`${api_url}/api/users/send-reset`, {
-        method: "POST",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
+      const res = await axiosInstance.post(`/api/users/send-reset`,
+        { email },
+        {
+          headers: {
+            "Content-type": "application/json",
+          },
+        });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        console.log(data);
-      } else {
-        console.log(data);
-      }
+      const data = await res.data;
+      console.log(data)
     } catch (error) {
       console.error(error);
     }
@@ -265,21 +253,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Função de alteração de senha (enviado por email).
   const resetPass = async (newPass: string, token: string) => {
     try {
-      const res = await fetch(`${api_url}/api/users/reset-pass/${token}`, {
-        method: "PATCH",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify({ newPass }),
-      });
+      const res = await axiosInstance.patch(`/api/users/reset-pass/${token}`,
+        { newPass },
+        {
+          headers: {
+            "Content-type": "application/json",
+          },
+        });
 
-      const data = await res.json();
+      const data = await res.data;
 
-      if (res.ok) {
-        console.log(data);
-      } else {
-        console.log(data);
-      }
+      console.log(data);
     } catch (error) {
       console.error(error);
       console.log(error);
@@ -289,23 +273,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   //Listagem de eventos do calendário acadêmico
   const listEvents = useCallback(async () => {
     try {
-      const res = await fetch(`${api_url}/api/coordenador/list-events`, {
+      const res = await axiosInstance.get(`/api/coordenador/list-events`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      const dataJson = await res.json();
+      const dataJson = await res.data;
 
-      if (res.ok) {
-        const formatted = dataJson.map((e: IEvent) => ({
-          ...e,
-          data: new Date(e.data),
-        }));
 
-        setEvents(formatted);
-        return formatted;
-      }
+      const formatted = dataJson.map((e: IEvent) => ({
+        ...e,
+        data: new Date(e.data),
+      }));
+
+      setEvents(formatted);
+      return formatted;
     } catch (error) {
       console.log(error);
     }
@@ -317,18 +300,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     setLoading(true);
     try {
-      const res = await fetch(`${api_url}/api/note/list-note-groups`, {
+      const res = await axiosInstance.get(`/api/note/list-note-groups`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.error("Erro ao buscar notas:", errorData);
-        setNotesGroup([]);
-        return [];
-      }
-
-      const dataJson = await res.json();
+      const dataJson = await res.data;
 
       if (Array.isArray(dataJson)) setNotesGroup(dataJson);
       else setNotesGroup([]);
@@ -347,18 +323,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!token) return []
 
     try {
-      const res = await fetch(`${api_url}/api/note/list-note/${userId}/user`, {
+      const res = await axiosInstance.get(`/api/note/list-note/${userId}/user`, {
         headers: { Authorization: `Bearer ${token}` }
       })
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.error("Erro ao buscar notas:", errorData);
-        setNotesUser([]);
-        return [];
-      }
-
-      const dataJson = await res.json()
+      const dataJson = await res.data
 
       if (Array.isArray(dataJson)) setNotesGroup(dataJson);
       else setNotesGroup([]);
@@ -370,7 +339,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setNotesGroup([]);
       return [];
     }
-    finally{
+    finally {
       setLoading(false)
     }
   }
