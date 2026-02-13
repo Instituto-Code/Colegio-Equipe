@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Spinner } from "@/components/ui/spinner"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
@@ -11,7 +12,7 @@ import { type Grade, useTeach, type IAluno, type ITurma, type Disciplina } from 
 import { Arrow } from "@radix-ui/react-select"
 import { flexRender, getCoreRowModel, getFilteredRowModel, useReactTable, type ColumnDef, type SortingState } from "@tanstack/react-table"
 import axios from "axios"
-import { ArrowBigDown, ArrowLeft } from "lucide-react"
+import { ArrowBigDown, ArrowLeft, BookOpenText } from "lucide-react"
 import { number } from "motion/react"
 import { use, useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
@@ -52,7 +53,7 @@ export const Notes = () => {
     // Pegando o ID do aluno a partir dos parâmetros da URL
     const { studentId } = useParams<{ studentId: string }>()
 
-    const { insertGrades, loading } = useTeach()
+    const { insertGrades, loading, setLoading } = useTeach()
 
     // Validação do formulário.
     const validateFields = () => {
@@ -81,6 +82,7 @@ export const Notes = () => {
 
         const fetchStudent = async (studentID: string | undefined) => {
             try {
+                setLoading(true)
                 const res = await axiosInstance.get(`/api/coordenador/list-student/${studentID}`)
 
                 const data = res.data
@@ -89,6 +91,9 @@ export const Notes = () => {
             }
             catch (error: any) {
                 console.error(error)
+            }
+            finally {
+                setLoading(false)
             }
         }
         fetchStudent(studentId)
@@ -110,7 +115,7 @@ export const Notes = () => {
         setData(aluno.grades)
     }, [aluno, insertGrades])
 
-    console.log(notasAluno)
+    console.log(data)
 
     // Função para lidar com o envio do formulário de lançamento de nota
     const handleAddNota = async (disciplinaId: string, studentId: string, bimestre: number, tipo: string, nota: number, date: string) => {
@@ -147,6 +152,8 @@ export const Notes = () => {
         }
     }
 
+    console.log()
+
     // Função para limpar o formulário
     const handleClear = () => {
         setDisciplinaId("")
@@ -157,11 +164,25 @@ export const Notes = () => {
         setErrors({})
     }
 
+    // Função para convertar a data para dd/mm/aaaa.
+    const formatDate = (value?: string) => {
+        if (!value) return "-";
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return "-";
+        return d.toLocaleDateString("pt-BR");
+    };
+
     // Colunas da tabela
     const columns: ColumnDef<Grade>[] = [
         { accessorKey: "disciplina.nome", header: "Disciplina" },
         { accessorKey: "bimestre", header: "Bimestre" },
+        { accessorKey: "tipo", header: "Tipo" },
         { accessorKey: "nota", header: "Nota" },
+        {
+            accessorKey: "data",
+            header: "Data",
+            cell: ({ row }) => formatDate(row.original.data)
+        }
     ]
 
     // Mapeando a tabela
@@ -181,7 +202,7 @@ export const Notes = () => {
         <div className="flex w-full min-h-screen bg-background">
             <div className="flex flex-col items-center [&>*]:w-full w-full p-6 py-8 space-y-8">
                 <header className="flex justify-start items-center w-full">
-                    <ArrowLeft className="size-4" onClick={() => { navigate(-1) }}></ArrowLeft>
+                    <ArrowLeft className="size-6 cursor-pointer" onClick={() => { navigate(-1) }} />
                 </header>
 
                 <div className="flex flex-col justify-start space-y-1">
@@ -322,10 +343,44 @@ export const Notes = () => {
 
                 <section className="space-y-3">
                     {loading ? (
-                        <div className="min-h-[100px] w-full flex flex-col justify-center items-center">
-                            <Spinner className="size-8 text-blue-500" />
+                        <div className="w-full">
+                            <div className="text-sm text-muted-foreground mb-2">Notas lançadas</div>
+
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Disciplina</TableHead>
+                                        <TableHead>Bimestre</TableHead>
+                                        <TableHead>Tipo</TableHead>
+                                        <TableHead>Nota</TableHead>
+                                        <TableHead>Data</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+
+                                <TableBody>
+                                    {Array.from({ length: 6 }).map((_, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell className="min-w-[100px] sm:min-w-[120px]">
+                                                <Skeleton className="h-4 w-28" />
+                                            </TableCell>
+                                            <TableCell className="min-w-[100px] sm:min-w-[120px]">
+                                                <Skeleton className="h-4 w-16" />
+                                            </TableCell>
+                                            <TableCell className="min-w-[100px] sm:min-w-[120px]">
+                                                <Skeleton className="h-4 w-20" />
+                                            </TableCell>
+                                            <TableCell className="min-w-[100px] sm:min-w-[120px]">
+                                                <Skeleton className="h-4 w-12" />
+                                            </TableCell>
+                                            <TableCell className="min-w-[100px] sm:min-w-[120px]">
+                                                <Skeleton className="h-4 w-24" />
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
                         </div>
-                    ) : (
+                    ) : notasAluno.length >= 1 ? (
                         <div>
                             <div className="text-sm text-muted-foreground">Notas lançadas</div>
                             <Table>
@@ -364,6 +419,18 @@ export const Notes = () => {
                                 </TableBody>
                             </Table>
                         </div>
+                    ) : (
+                        <Card className="w-full border-dashed">
+                            <CardHeader className="items-center text-center">
+                                <div className="mb-2 rounded-full bg-muted p-3">
+                                    <BookOpenText className="h-5 w-5 text-muted-foreground" />
+                                </div>
+                                <CardTitle className="text-base">Nenhuma nota registrada</CardTitle>
+                            </CardHeader>
+                            <CardContent className="text-center text-sm text-muted-foreground">
+                                Este aluno ainda não possui notas lançadas.
+                            </CardContent>
+                        </Card>
                     )}
 
                 </section>

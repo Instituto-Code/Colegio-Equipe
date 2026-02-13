@@ -105,7 +105,7 @@ export const GerenciarTurmas = () => {
                     <div className="min-h-[100px] w-full flex flex-col justify-center items-center">
                         <Spinner className="size-8 text-blue-500" />
                     </div>
-                ) : (
+                ) : data.length >=1 ? (
                     <Table>
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (
@@ -141,6 +141,10 @@ export const GerenciarTurmas = () => {
                             ))}
                         </TableBody>
                     </Table>
+                ) : (
+                    <div>
+                        Tem nada aqui não minha jóia
+                    </div>
                 )}
             </div>
 

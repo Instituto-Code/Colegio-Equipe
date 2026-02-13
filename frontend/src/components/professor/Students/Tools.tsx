@@ -2,9 +2,10 @@ import { Dropdown } from "@/components/Dropdown/Dropdown"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useState } from "react"
-import { Notes } from "./Notes"
+import { Notes } from "./InsertNotes"
 import { Link, useNavigate } from "react-router-dom"
 import { Annotation } from "./Annotation"
+import { ViewNotes } from "./ViewNotes"
 
 interface IAluno {
     alunoId: string
@@ -16,7 +17,8 @@ export const Tools = ({
     alunoNome
 }: IAluno) => {
 
-    const [open, setOpen] = useState(false)
+    const [openAnnt, setOpenAnnot] = useState(false)
+    const [openViewNotes, setOpenViewNotes] = useState(false)
 
     const navigate = useNavigate()
 
@@ -39,8 +41,17 @@ export const Tools = ({
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             onSelect={(e) => {
+                                e.preventDefault();
+                                setOpenViewNotes(true);
+                                console.log("chamou")
+                            }}
+                        >
+                            Ver Notas
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onSelect={(e) => {
                                 e.preventDefault()
-                                setOpen(true)
+                                setOpenAnnot(true)
                             }}
                         >
                             Anotações
@@ -49,7 +60,21 @@ export const Tools = ({
                 </DropdownMenuContent>
             </DropdownMenu>
 
-            <Annotation open={open} onClose={setOpen} studentId={alunoId} studentName={alunoNome} />
+            {/* Página para inserir as notas  */}
+            <Annotation
+                open={openAnnt}
+                onClose={setOpenAnnot}
+                studentId={alunoId}
+                studentName={alunoNome}
+            />
+
+            {/* Janela modal para visualizar as notas */}
+            <ViewNotes
+                open={openViewNotes}
+                onClose={setOpenViewNotes}
+                studentId={alunoId}
+                studentName={alunoNome}
+            />
         </>
     )
 }

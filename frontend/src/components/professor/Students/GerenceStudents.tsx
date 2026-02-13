@@ -48,13 +48,11 @@ export const GerenciarAlunos = () => {
     useEffect(() => {
         if (!turmaSelecionada) {
             setData([])
-            setLoading(true)
             return
         }
 
         const turma = turmas.find(t => t.id === turmaSelecionada)
         setData(turma ? turma.alunos : [])
-        setLoading(false)
     }, [turmaSelecionada, turmas])
 
 
@@ -115,11 +113,24 @@ export const GerenciarAlunos = () => {
                         <SelectContent >
                             <SelectGroup>
                                 <SelectLabel>Suas Turmas</SelectLabel>
-                                {turmas.map((turma) => (
-                                    <SelectItem key={turma.id} value={turma.id}>
-                                        {turma.nome}
-                                    </SelectItem>
-                                ))}
+                                {loading ? (
+                                    <div className="space-y-2">
+                                        <div className="h-7 w-auto animate-pulse rounded-md bg-muted" />
+                                        <div className="h-7 w-auto animate-pulse rounded-md bg-muted" />
+                                    </div>
+
+                                ) : turmas.length >=1 ? (
+                                    turmas.map((turma) => (
+                                        <SelectItem key={turma.id} value={turma.id}>
+                                            {turma.nome}
+                                        </SelectItem>
+                                    ))
+                                ) : (
+                                    <div>
+                                        <h1>Não há turmas aqui</h1>
+                                    </div>
+                                )}
+
                             </SelectGroup>
                         </SelectContent>
                     </Select>
@@ -129,22 +140,7 @@ export const GerenciarAlunos = () => {
 
 
             <div className="overflow-x-auto w-auto hidden md:flex">
-                {loading ? (
-                    <Card className="max-w-md mx-auto mt-10 w-full">
-                        <CardHeader className="text-center">
-                            <CardTitle>Selecione uma turma</CardTitle>
-                            <CardDescription>
-                                Escolha uma turma no seletor acima para visualizar os alunos.
-                            </CardDescription>
-                        </CardHeader>
-
-                        <CardContent className="flex justify-center">
-                            <div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
-                                Turma
-                            </div>
-                        </CardContent>
-                    </Card>
-                ) : (
+                {data.length >= 1 ? (
                     <Table>
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (
@@ -180,12 +176,43 @@ export const GerenciarAlunos = () => {
                             ))}
                         </TableBody>
                     </Table>
+                ) : (
+                    <Card className="max-w-full mx-auto mt-10 w-full">
+                        <CardHeader className="text-center">
+                            <CardTitle>Selecione uma turma</CardTitle>
+                            <CardDescription>
+                                Escolha uma turma no seletor acima para visualizar os alunos.
+                            </CardDescription>
+                        </CardHeader>
+
+                        <CardContent className="flex justify-center">
+                            <div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
+                                Turma
+                            </div>
+                        </CardContent>
+                    </Card>
                 )}
             </div>
 
             {/* Tabela para celulares */}
             <div className="block sm:hidden space-y-2">
-                {loading ? (
+                {data.length >= 1 ? (
+                    table.getRowModel().rows.map((row) => (
+                        <div key={row.id} className="border p-2 rounded">
+                            <div>
+                                <strong>Nome:</strong> {row.original.nome}
+                            </div>
+                            <div>
+                                <strong>Matrícula:</strong> {row.original.matricula}
+                            </div>
+                            <div className="flex gap-2 mt-2">
+                                <div className="flex gap-2">
+                                    <Tools alunoId={row.original.id} alunoNome={row.original.nome} />
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                ) : (
                     <Card className="max-w-md mx-auto mt-10 w-full">
                         <CardHeader className="text-center">
                             <CardTitle>Selecione uma turma</CardTitle>
@@ -200,21 +227,7 @@ export const GerenciarAlunos = () => {
                             </div>
                         </CardContent>
                     </Card>
-                ) : table.getRowModel().rows.map((row) => (
-                    <div key={row.id} className="border p-2 rounded">
-                        <div>
-                            <strong>Nome:</strong> {row.original.nome}
-                        </div>
-                        <div>
-                            <strong>Matrícula:</strong> {row.original.matricula}
-                        </div>
-                        <div className="flex gap-2 mt-2">
-                            <div className="flex gap-2">
-                                <Tools alunoId={row.original.id} alunoNome={row.original.nome}/>
-                            </div>
-                        </div>
-                    </div>
-                ))}
+                )}
             </div>
         </div>
     )

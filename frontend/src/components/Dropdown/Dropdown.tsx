@@ -115,7 +115,9 @@ export const Dropdown = ({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <NotificationsSend open={openNotes} onOpenChange={setOpenNotes} />
+      {user?.role === "coordenador" && (
+        <NotificationsSend open={openNotes} onOpenChange={setOpenNotes} />
+      )}
     </>
   );
 };

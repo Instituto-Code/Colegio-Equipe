@@ -54,8 +54,6 @@ export const Annotation = ({
                 const res = await axiosInstance.get(`/api/coordenador/list-student/${studentId}`)
 
                 const dataJson = res.data
-                console.log(dataJson)
-                
 
             } catch (error: any) {
                 console.error(error)
@@ -65,8 +63,6 @@ export const Annotation = ({
         fetchStudent()
         console.log("chamou")
     }, [open])
-
-    console.log(items)
 
 
     return (

@@ -113,6 +113,7 @@ export const TeachProvider = ({ children }: { children: ReactNode }) => {
         }
     }
 
+    // Fução para listar dados de um único aluno
     const listStudent = async (studentId: string) => {
         setLoading(true)
         try {

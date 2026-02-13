@@ -22,7 +22,7 @@ import { ClassGerence } from "./components/Coordenador/ClassGerence/ClassGerence
 import { useNotifications } from "./components/NotificationReceived/useNotifications";
 import { Configuracoes } from "./components/Configuration/Configuracoes";
 import { ThemeProvider } from "./components/Theme/theme-provider";
-import { Notes } from "./components/professor/Students/Notes";
+import { Notes } from "./components/professor/Students/InsertNotes";
 
 function AppContent() {
 

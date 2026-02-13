@@ -27,6 +27,7 @@ import {
 import { useAuth } from "@/contexts/authContext";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
+import { axiosInstance } from "@/api/axiosInstance";
 
 interface INotificationsProps {
   open: boolean;
@@ -47,15 +48,24 @@ export function NotificationsSend({ open, onOpenChange }: INotificationsProps) {
 
   //Busca usuários do backend (quando for "pessoa")
   useEffect(() => {
-    if (type === "pessoa") {
-      fetch(`${api_url}/api/coordenador/list-users`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((res) => res.json())
-        .then((data) => setUsers(data.users))
-        .catch(console.error);
-    }
-  }, [type]);
+    if (!open || type !== "pessoa" || !token) return;
+
+    const fetchUsers = async () => {
+      try {
+        const res = await axiosInstance.get("/api/coordenador/list-users", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        setUsers(res.data.users);
+      } catch (error) {
+        console.error(error);
+        toast.error("Erro ao carregar usuarios");
+      }
+    };
+
+    fetchUsers();
+  }, [open, type, token]);
 
   const handleSubmit = async () => {
     setLoadingHere(true);
