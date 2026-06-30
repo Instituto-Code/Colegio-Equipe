@@ -20,7 +20,7 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Check, ChevronsUpDown, MoreHorizontalIcon, Pen } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { api_url, useCoordenador } from "@/contexts/coordenadorContext";
+import { useCoordenador } from "@/contexts/coordenadorContext";
 import { useAuth } from "@/contexts/authContext";
 import {
   Popover,
@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { axiosInstance } from "@/api/axiosInstance";
 
 // Interface para as props
 interface IModalEdit {
@@ -77,13 +78,13 @@ export const MenuParents = ({
     const getParents = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${api_url}/api/coordenador/list-parents`, {
+        const res = await axiosInstance.get(`/api/coordenador/list-parents`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        const data = await res.json();
+        const data = await res.data;
 
         setParents(data.responsaveis);
         setLoading(false);

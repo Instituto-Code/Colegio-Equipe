@@ -28,6 +28,7 @@ import { Input } from "@/components/ui/input";
 import { toast, Toaster } from "sonner";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConfirmationBox } from "@/components/Box/ConfirmationBox";
+import { axiosInstance } from "@/api/axiosInstance";
 
 // Interface do usuário
 interface User {
@@ -61,18 +62,13 @@ export const UserTable: React.FC = () => {
       setLoading(true);
 
       try {
-        const res = await fetch(`${api_url}/api/coordenador/list-users`, {
+        const res = await axiosInstance.get(`/api/coordenador/list-users`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.message || `Falha ao buscar usuários. Status: ${res.status}`);
-        }
-
-        const json = await res.json();
+        const json = await res.data;
 
         setData(json.users || []);
 
@@ -125,19 +121,13 @@ export const UserTable: React.FC = () => {
   const deleteUser = async (userId: string) => {
     setLoading(true)
     try {
-      const res = await fetch(`${api_url}/api/coordenador/delete/${userId}/user`, {
-        method: "DELETE",
+      const res = await axiosInstance.delete(`/api/coordenador/delete/${userId}/user`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       })
 
-      const data = await res.json()
-
-      if (!res.ok) {
-        toast.error("Não foi possível excluir o usuário")
-        throw new Error(data[0].errors)
-      }
+      await res.data
 
       toast.success("Usuário deletado com sucesso!")
       setData((prev) => prev.filter((user) => user.id !== userId))

@@ -1,6 +1,5 @@
 import { axiosInstance } from "@/api/axiosInstance";
-import { se, tr } from "date-fns/locale";
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react"
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import { toast } from "sonner";
 
 export const api_url = import.meta.env.VITE_API_URL
@@ -83,7 +82,7 @@ interface ICoordenatorProps {
     registerParent: (userID: string) => Promise<any>
     registerTeacher: (userID: string, matricula: string, formacao: string) => Promise<any>
     addStudentToClass: (studentId: string, classId: string) => Promise<any>
-    removeStudentClass: (studentId: string, classId: string) => Promise<any> 
+    removeStudentClass: (studentId: string, classId: string) => Promise<any>
     addTeacherToClass: (classId: string, teacherId: string) => Promise<any>
     relationParentStudent: (parentId: string, studentId: string) => Promise<any>
     notesSend: () => Promise<INotes[]>
@@ -107,8 +106,6 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
             const token = localStorage.getItem("token")
             if (token) {
                 setToken(token)
-                // await Alunos(token)
-                // await Professores(token)
                 await Overview(token)
             }
         }
@@ -119,17 +116,15 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     const Overview = async (customToken: string) => {
         setLoading(true)
         try {
-            const res = await fetch(`${api_url}/api/coordenador/getDashboardOverview`, {
+            const res = await axiosInstance.get(`/api/coordenador/getDashboardOverview`, {
                 headers: {
                     Authorization: `Bearer ${customToken}`
                 }
             })
 
-            const data = await res.json()
+            const data = await res.data
 
-            if (res.ok) {
-                setOverview(data)
-            }
+            setOverview(data)
         }
         catch (error) {
             console.log(error)
@@ -143,20 +138,16 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     //  Função para pegar dados dos alunos.
     const Alunos = async () => {
         try {
-            const res = await fetch(`${api_url}/api/coordenador/list-students`, {
+            const res = await axiosInstance.get(`/api/coordenador/list-students`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             })
 
-            const data = await res.json()
+            const data = await res.data
 
-            if (res.ok) {
-                // console.log(data.alunos)
-                setAlunos(data.alunos)
-                return data.alunos
-            }
-            // return null
+            setAlunos(data.alunos)
+            return data.alunos
         }
         catch (error) {
             console.log(error)
@@ -166,19 +157,15 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     //Função para pegar dados dos professores
     const Professores = async () => {
         try {
-            const res = await fetch(`${api_url}/api/coordenador/list-teachers`, {
+            const res = await axiosInstance.get(`/api/coordenador/list-teachers`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             })
 
-            const data = await res.json()
-
-            if (res.ok) {
-                //console.log(data.professores)
-                setProfessores(data.professores)
-                return data
-            }
+            const data = await res.data
+            setProfessores(data.professores)
+            return data
         }
         catch (error) {
             console.log(error)
@@ -189,22 +176,25 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     const registerEvent = async (titulo: string, descricao: string, data: Date, tipo: TipoEvento) => {
         try {
             setLoading(true);
-            const res = await fetch(`${api_url}/api/coordenador/create-event`, {
-                method: "POST",
-                headers: {
-                    "Content-type": "application/json",
-                    Authorization: `Bearer ${token}`
+            const res = await axiosInstance.post(`/api/coordenador/create-event`,
+                {
+                    titulo,
+                    descricao,
+                    data,
+                    tipo
                 },
-                body: JSON.stringify({ titulo, descricao, data, tipo })
-            });
+                {
+                    headers: {
+                        "Content-type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    },
+                }
 
-            const dataJson = await res.json();
+            );
 
-            if (dataJson.ok) {
-                console.log("Evento cadastrado:", dataJson);
-                return dataJson;
-            };
+            const dataJson = await res.data;
 
+            return dataJson;
         }
         catch (error) {
             console.log(error);
@@ -219,33 +209,31 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     const registerClasses = async (nome: string, turno: string, anoLetivo: number) => {
         try {
             setLoading(true);
-            const res = await fetch(`${api_url}/api/coordenador/register-classes`, {
-                method: "POST",
-                headers: {
-                    "Content-type": "application/json",
-                    Authorization: `Bearer ${token}`
+            const res = await axiosInstance.post(`/api/coordenador/register-classes`,
+                {
+                    nome,
+                    turno,
+                    anoLetivo
                 },
-                body: JSON.stringify({ nome, turno, anoLetivo })
-            });
+                {
+                    headers: {
+                        "Content-type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    },
+                });
 
-            const data = await res.json();
-
-            if (!res.ok) {
-                toast(`Erro: ${data.errors[0]}`);
-                throw new Error(data.msg || `Erro HTTP: ${res.status}`);
-
-            }
+            const data = await res.data;
 
             const newClass: Turma = data;
 
             setClasses((prevClass) => [...prevClass, newClass]);
 
             return newClass;
-
         }
         catch (error: any) {
             console.log(error);
-            throw error;
+            toast(`Erro: ${error.errors[0]}`);
+            throw new Error(error.msg || `Erro HTTP: ${error.status}`)
         }
         finally {
             setLoading(false);
@@ -282,20 +270,19 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     // Função para registrar um Professor. 
     const registerTeacher = async (user: string, matricula: string, formacao: string) => {
         try {
-            const res = await fetch(`${api_url}/api/coordenador/register-teacher`, {
-                method: 'POST',
+            const res = await axiosInstance.post(`/api/coordenador/register-teacher`,
+                {
+                    user,
+                    matricula,
+                    formacao
+                }, {
                 headers: {
                     'Content-Type': "application/json",
                     Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({ user, matricula, formacao })
             })
 
-            const data = await res.json()
-
-            if (!res.ok) {
-                throw new Error(data.errors?.[0] || "Erro desconhecido")
-            }
+            const data = await res.data
 
             return data
         }
@@ -308,23 +295,13 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     const registerParent = async (userId: string) => {
         setLoading(true)
         try {
-            const res = await fetch(`${api_url}/api/coordenador/register-parent/${userId}`, {
-                method: 'PATCH',
+            const res = await axiosInstance.patch(`/api/coordenador/register-parent/${userId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             })
 
-            const data = await res.json()
-
-            if (!res.ok) {
-                const message =
-                    data.error ||
-                    (Array.isArray(data.errors) ? data.errors[0] : null) ||
-                    "Erro ao registrar responsável";
-
-                throw new Error(message);
-            }
+            const data = await res.data
 
             return data
         }
@@ -340,24 +317,21 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     const addStudentToClass = async (studentId: string, classId: string) => {
         setLoading(true)
         try {
-            const res = await fetch(`${api_url}/api/coordenador/student/${studentId}/class/${classId}`, {
-                method: "PATCH",
+            const res = await axiosInstance.patch(`/api/coordenador/student/${studentId}/class/${classId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             });
 
-            const dataJson = await res.json();
+            const dataJson = await res.data;
 
-            if (!res.ok) {
-                return toast.error(dataJson.error);
-            }
             toast.success("Aluno(a) adicionado(a) com sucesso.");
             return dataJson;
 
         }
-        catch (error) {
+        catch (error: any) {
             console.log(error);
+            return toast.error("Não foi possível vincular o aluno a turma");
         }
         finally {
             setLoading(false);
@@ -367,29 +341,26 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     // Remover aluno de uma turma
     const removeStudentClass = async (studentId: string, className: string) => {
         setLoading(true)
-        try{
-            const res  = await fetch(`${api_url}/api/coordenador/remove/${studentId}/classroom`, {
-                method: "PATCH",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ className })
-            })
+        try {
+            const res = await axiosInstance.patch(`/api/coordenador/remove/${studentId}/classroom`,
+                { className },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                })
 
-            const dataJson = await res.json()
-
-            if(!res.ok){
-                return toast.error(dataJson.errors[0])
-            }
+            const dataJson = await res.data
 
             toast.success("Aluno removido com sucesso")
             return dataJson
         }
-        catch(error: any){
+        catch (error: any) {
             console.error(error)
+            toast.error("Não foi possível remover o aluno")
         }
-        finally{
+        finally {
             setLoading(false)
         }
     }
@@ -398,24 +369,20 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     const addTeacherToClass = async (classId: string, teacherId: string) => {
         setLoading(true)
         try {
-            const res = await fetch(`${api_url}/api/coordenador/class/${classId}/teacher/${teacherId}`, {
-                method: "PATCH",
+            const res = await axiosInstance.patch(`/api/coordenador/class/${classId}/teacher/${teacherId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             });
 
-            const dataJson = await res.json();
-
-            if (!res.ok) {
-                return toast.error(dataJson.error);
-            }
+            const dataJson = await res.data;
 
             toast.success("Professor vinculado à turma com sucesso!");
             return dataJson;
         }
         catch (error) {
             console.log(error);
+            toast.error("Não foi possível vincular um professor a turma")
         }
         finally {
             setLoading(false);
@@ -426,20 +393,17 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     const relationParentStudent = async (studentId: string, parentId: string) => {
         setLoading(true)
         try {
-            const res = await fetch(`${api_url}/api/coordenador/student/${studentId}/parent/${parentId}`, {
-                method: "PATCH",
+            const res = await axiosInstance.patch(`/api/coordenador/student/${studentId}/parent/${parentId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             })
 
-            const dataJson = await res.json()
+            const dataJson = await res.data
 
             console.log(dataJson)
 
             return dataJson
-
-
         }
         catch (error) {
             console.error(error)
@@ -448,29 +412,25 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
         finally {
             setLoading(false)
         }
-
     }
 
     // Listagem de notificações enviadas
     const notesSend = async () => {
         setLoading(true);
         try {
-            const res = await fetch(`${api_url}/api/note/list-all/notifications`, {
+            const res = await axiosInstance.get(`/api/note/list-all/notifications`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             });
 
-            const dataJson = await res.json();
-
-            if (!res.ok) {
-                return toast.error("Erro ao listar notificações.");
-            };
+            const dataJson = await res.data;
 
             return dataJson
         }
         catch (error) {
             console.log(error);
+            toast.error("Erro ao listar notificações.");
         }
         finally {
             setLoading(false);
@@ -480,7 +440,6 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
 
     // Retorno do contexto com as funções disponíveis
     return (
-        // <CoordenadorContext.Provider value={{ token, notesSend, addTeacherToClass, addStudentToClass, registerClasses, registerStudent, loading, registerEvent, alunos, professores, overview, Alunos, Professores, Overview }}>
         <CoordenadorContext.Provider
             value={{
                 token,

@@ -1,18 +1,17 @@
-import { IoArrowBack, IoArrowBackOutline, IoArrowBackSharp } from "react-icons/io5"
+import { IoArrowBackSharp } from "react-icons/io5"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
-import { Link, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { useForm } from "react-hook-form"
 import { useEffect, useRef, useState } from "react"
-import { useAuth, type IUser } from "@/contexts/authContext"
-import { api_url } from "@/contexts/coordenadorContext"
+import { useAuth } from "@/contexts/authContext"
 import { Spinner } from "../ui/spinner"
 import { toast } from "sonner"
 import { ModeToggle } from "../Theme/mode-toggle"
-import { FormAdd } from "../Coordenador/ClassGerence/FormAdd"
+import { axiosInstance } from "@/api/axiosInstance"
 
 // Definição da interface para o endereço
 interface IAdress {
@@ -58,27 +57,18 @@ export const Configuracoes = () => {
     const onSubmit = async (data: FormData) => {
         setLoading(true)
         try {
-            const res = await fetch(`${api_url}/api/users/edit-profile`, {
-                method: "PATCH",
+            const res = await axiosInstance.patch('/api/users/edit-profile', data, {
                 headers: {
-                    "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify(data)
+                }
             })
 
-            const dataJson = await res.json()
-
-            if (!res.ok) {
-                toast.error("Erro ao mudar dados")
-                console.error(dataJson)
-            }
-
-            setUsuario(dataJson)
+            setUsuario(res.data)
             toast.success("Mudança salva com sucesso")
         }
         catch (error) {
             console.error(error)
+            toast.error("Erro inesperado")
         }
         finally {
             setLoading(false)
@@ -87,33 +77,32 @@ export const Configuracoes = () => {
 
     const handleImageChange = async (
         event: React.ChangeEvent<HTMLInputElement>
-    ) =>{
+    ) => {
 
         const image = event.target.files?.[0]
-        if(!image) return
-        
+        if (!image) return
+
         const formData = new FormData()
         formData.append("avatar", image)
 
-        console.log(formData)
-
         setLoading(true)
 
-        try{
-            const res = await fetch(`${api_url}/api/users/avatar`, {
-                method: "PATCH",
-                headers:{
+        try {
+            const res = await axiosInstance.patch(`/api/users/avatar`, formData, {
+                headers: {
                     Authorization: `Bearer ${token}`,
-                },
-                body: formData
+                    "Content-Type": "multipart/form-data"
+                }
             })
 
+            setUsuario(res.data)
             toast.success("Foto atualizada com sucesso")
         }
-        catch(error){
+        catch (error) {
             console.error(error)
+            toast.error("Erro ao atualizar foto de perfil")
         }
-        finally{
+        finally {
             setLoading(false)
         }
     }
@@ -192,6 +181,7 @@ export const Configuracoes = () => {
 
                         {/* Botão de salvar ou editar */}
                         <Button
+                            className="cursor-pointer"
                             type={isEditing ? "button" : "submit"}
                             onClick={() => {
                                 if (!isEditing) {
@@ -217,7 +207,7 @@ export const Configuracoes = () => {
                     <Label className="text-[1.5em]">Imagem de Perfil</Label>
                     <div className="flex flex-row flex-wrap items-center gap-12 mt-4 ">
                         <Avatar>
-                            <AvatarImage className="w-[10em]" src={user?.avatarUrl} >{}</AvatarImage>
+                            <AvatarImage className="w-[10em]" src={user?.avatarUrl} >{ }</AvatarImage>
                             <AvatarFallback>CN</AvatarFallback>
                         </Avatar>
                     </div>
@@ -240,7 +230,7 @@ export const Configuracoes = () => {
 
                                     <Button
                                         variant="outline"
-                                        onClick={()=>{
+                                        onClick={() => {
                                             fileInput.current?.click()
                                         }}
                                     >

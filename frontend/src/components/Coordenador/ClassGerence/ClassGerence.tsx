@@ -24,6 +24,7 @@ import { useEffect, useState } from "react";
 import { AddClass } from "./AddClass";
 import { Input } from "@/components/ui/input";
 import { AddDataToClass } from "./AddDataToClass";
+import { axiosInstance } from "@/api/axiosInstance";
 
 export type Professor = {
   id: string
@@ -60,8 +61,8 @@ export const ClassGerence = () => {
   // Atualizar o componente filho, que tem os dados das turmas
   const handleUpdateTurma = (updatedTurma: ITurma) => {
     if (!updatedTurma) return;
-    setData(prevData => 
-      prevData.map(t => 
+    setData(prevData =>
+      prevData.map(t =>
         t.id === updatedTurma.id ? updatedTurma : t
       )
     );
@@ -121,14 +122,12 @@ export const ClassGerence = () => {
     const fetchClasses = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${api_url}/api/coordenador/list-turmas`, {
+        const res = await axiosInstance.get(`/api/coordenador/list-turmas`, {
           headers: {
-            Authorization: `Bearer ${token}`,
-          },
+            Authorization: `Bearer ${token}`
+          }
         });
-
-        const dataJson = await res.json();
-
+        const dataJson = await res.data;
         setData(dataJson);
       } catch (error) {
         console.log(error);
@@ -160,7 +159,7 @@ export const ClassGerence = () => {
           <div className="h-100 w-full flex flex-col justify-center items-center">
             <Spinner className="size-8 text-blue-500" />
           </div>
-        ) : (
+        ) : data.length >= 1 ? (
           <Table className="min-w-[600px] sm:min-w-full">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -205,6 +204,10 @@ export const ClassGerence = () => {
               ))}
             </TableBody>
           </Table>
+        ) : (
+          <div>
+            <h1>Nenhuma turma</h1>
+          </div>
         )}
       </div>
 
@@ -214,7 +217,7 @@ export const ClassGerence = () => {
           <div className="h-100 w-full flex flex-col justify-center items-center">
             <Spinner className="size-8 text-blue-500" />
           </div>
-        ) : table.getRowModel().rows.map((row) => (
+        ) : data.length >= 1 ? (table.getRowModel().rows.map((row) => (
           <div key={row.id} className="border p-2 rounded">
             <div>
               <strong>Nome:</strong> {row.original.nome}
@@ -231,28 +234,32 @@ export const ClassGerence = () => {
             </div>
             <div className="flex gap-2 mt-2">
               <Button
-                  onClick={() => {
-                    setSelectedClass(row.original);
-                    setOpenDataToClass(true)
-                  }}
-                  className="bg-blue-400 hover:bg-blue-500 cursor-pointer"
+                onClick={() => {
+                  setSelectedClass(row.original);
+                  setOpenDataToClass(true)
+                }}
+                className="bg-blue-400 hover:bg-blue-500 cursor-pointer"
               >Gerenciar turma</Button>
               <Button variant="outline" className="text-red-500">
                 Excluir
               </Button>
             </div>
+          </div>))
+          ) : (
+          <div>
+            <h1>Nenhuma turma</h1>
           </div>
-        ))}
-      </div>
-        
-        {selectedClass && (
-          <AddDataToClass
-            turma={selectedClass}
-            open={openDataToClass}
-            onClose={() => setOpenDataToClass(false)}
-            onUpdateTurma={handleUpdateTurma}
-          />
         )}
+      </div>
+
+      {selectedClass && (
+        <AddDataToClass
+          turma={selectedClass}
+          open={openDataToClass}
+          onClose={() => setOpenDataToClass(false)}
+          onUpdateTurma={handleUpdateTurma}
+        />
+      )}
     </div>
   );
 };
