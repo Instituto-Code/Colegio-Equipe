@@ -11,6 +11,7 @@ import {
     Eye,
     Settings2,
 } from "lucide-react"
+import { Link } from "react-router-dom"
 
 // Dashboard do coordenador
 export const DashTeacher = () => {
@@ -69,7 +70,7 @@ export const DashTeacher = () => {
                     loading={loading}
                 />
             </section>
-            
+
             {/* Quick Actions */}
             <Card className="shadow-sm">
                 <CardHeader className="pb-3">
@@ -78,20 +79,24 @@ export const DashTeacher = () => {
                 <CardContent className="flex flex-wrap gap-3">
                     <Button
                         variant="outline"
-                        className="gap-2"
-                        onClick={() => {listClasses()}}
+                        className="gap-2 cursor-pointer"
+                        onClick={() => { listClasses() }}
                     >
                         <RefreshCw className="h-4 w-4" />
                         Atualizar dados
                     </Button>
-                    <Button className="gap-2">
-                        <Eye className="h-4 w-4" />
-                        Ver turmas
-                    </Button>
-                    <Button variant="secondary" className="gap-2">
-                        <Settings2 className="h-4 w-4" />
-                        Gerenciar alunos
-                    </Button>
+                    <Link to="/professor/gerenciar-turmas">
+                        <Button className="gap-2 cursor-pointer">
+                            <Eye className="h-4 w-4" />
+                            Ver turmas
+                        </Button>
+                    </Link>
+                    <Link to="/professor/gerenciar-alunos">
+                        <Button variant="secondary" className="gap-2 cursor-pointer">
+                            <Settings2 className="h-4 w-4" />
+                            Gerenciar alunos
+                        </Button>
+                    </Link>
                 </CardContent>
             </Card>
         </div>

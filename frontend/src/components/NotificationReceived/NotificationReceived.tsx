@@ -9,6 +9,7 @@ import {
 import { useAuth } from "@/contexts/authContext"
 import { Bell, User } from "lucide-react"
 import { useState } from "react"
+import { DropdownMenuItem } from "../ui/dropdown-menu"
 
 export function NotificationReceived() {
   const { notesGroup, notesUser } = useAuth()
@@ -20,14 +21,16 @@ export function NotificationReceived() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button
-          variant="ghost"
-          className="flex justify-start items-start gap-2 cursor-pointer"
-          onClick={() => setOpen(true)}
-        >
-          <Bell/>
-          Notificações
-        </Button>
+        <DropdownMenuItem
+              className="hover:bg-gray-100 p-2 rounded cursor-pointer text-[15px]"
+              onSelect={(e) => {
+                e.preventDefault();
+                setOpen(true)
+              }}
+            >
+              <Bell />
+              Notificações
+            </DropdownMenuItem>
       </SheetTrigger>
 
       <SheetContent>

@@ -16,13 +16,13 @@ import { Spinner } from "@/components/ui/spinner"
 import { Input } from "@/components/ui/input"
 
 export const GerenciarTurmas = () => {
+    const [loading, setLoading] = useState(false) // Loading local, não do contexto, para não interferir em outros componentes.
     const [data, setData] = useState<ITurma[]>([])
     const [globalFilter, setGlobalFilter] = useState("");
     const [sorting, setSorting] = useState<SortingState>([]);
     const [selectedTurma, setSelectedTurma] = useState<ITurma | null>(null)
     const [openData, setOpenData] = useState(false)
 
-    const { loading, setLoading } = useTeach()
 
     // Carega as turmas do professor
     useEffect(() => {
@@ -86,26 +86,34 @@ export const GerenciarTurmas = () => {
 
 
     return (
-       <div className="w-full px-8 py-9 md:max-w-[calc(100%-2.5rem)] md:py-10 md:box-border">
+        <div className="w-full px-8 py-9 md:max-w-[calc(100%-2.5rem)] md:py-10 md:box-border">
             <div className="px-0 md:px-5">
                 <h1 className="text-3xl font-bold mb-2">Minhas turmas</h1>
                 <Input
-                type="text"
-                placeholder="Buscar Turmas..."
-                value={globalFilter ?? ""}
-                onChange={(e) => setGlobalFilter(e.target.value)}
-                className="p-2 my-3.5 md:my-0 border rounded w-full max-w-sm"
-            />
+                    type="text"
+                    placeholder="Buscar Turmas..."
+                    value={globalFilter ?? ""}
+                    onChange={(e) => setGlobalFilter(e.target.value)}
+                    className="p-2 my-3.5 md:my-0 border rounded w-full max-w-sm"
+                />
             </div>
 
-            
+
 
             <div className="overflow-x-auto w-auto hidden pl-6 pt-6 md:flex">
                 {loading ? (
                     <div className="min-h-[100px] w-full flex flex-col justify-center items-center">
                         <Spinner className="size-8 text-blue-500" />
                     </div>
-                ) : data.length >=1 ? (
+                ) : data.length === 0 ? (
+                    <div className="flex min-h-[200px] w-full items-center justify-center rounded-lg border border-dashed text-center text-sm text-muted-foreground">
+                        Nenhuma turma encontrada.
+                    </div>
+                ) : table.getRowModel().rows.length === 0 ? (
+                    <div className="flex min-h-[200px] w-full items-center justify-center rounded-lg border border-dashed text-center text-sm text-muted-foreground">
+                        Nenhuma turma encontrada.
+                    </div>
+                ) : (
                     <Table>
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (
@@ -141,10 +149,6 @@ export const GerenciarTurmas = () => {
                             ))}
                         </TableBody>
                     </Table>
-                ) : (
-                    <div>
-                        Tem nada aqui não minha jóia
-                    </div>
                 )}
             </div>
 

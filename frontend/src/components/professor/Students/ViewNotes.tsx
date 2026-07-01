@@ -80,43 +80,54 @@ export const ViewNotes = ({ open, onClose, studentId, studentName }: IViewNotesP
         </div>
 
         {loading ? (
-          <div className="w-full">
-            <div className="text-sm text-muted-foreground mb-2">Notas lançadas</div>
+          <>
+            {/* Mobile */}
+            <div className="space-y-4 md:hidden">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div key={index} className="rounded-lg border p-4 space-y-3">
+                  <Skeleton className="h-5 w-36" />
+                  <div className="grid grid-cols-2 gap-3">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-12" />
+                  </div>
+                  <Skeleton className="h-4 w-28" />
+                </div>
+              ))}
+            </div>
 
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Disciplina</TableHead>
-                  <TableHead>Bimestre</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Nota</TableHead>
-                  <TableHead>Data</TableHead>
-                </TableRow>
-              </TableHeader>
+            {/* Desktop */}
+            <div className="hidden md:block w-full">
+              <div className="text-sm text-muted-foreground mb-2">
+                Notas lançadas
+              </div>
 
-              <TableBody>
-                {Array.from({ length: 6 }).map((_, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="min-w-[100px] sm:min-w-[120px]">
-                      <Skeleton className="h-4 w-28" />
-                    </TableCell>
-                    <TableCell className="min-w-[100px] sm:min-w-[120px]">
-                      <Skeleton className="h-4 w-16" />
-                    </TableCell>
-                    <TableCell className="min-w-[100px] sm:min-w-[120px]">
-                      <Skeleton className="h-4 w-20" />
-                    </TableCell>
-                    <TableCell className="min-w-[100px] sm:min-w-[120px]">
-                      <Skeleton className="h-4 w-12" />
-                    </TableCell>
-                    <TableCell className="min-w-[100px] sm:min-w-[120px]">
-                      <Skeleton className="h-4 w-24" />
-                    </TableCell>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Disciplina</TableHead>
+                    <TableHead>Bimestre</TableHead>
+                    <TableHead>Tipo</TableHead>
+                    <TableHead>Nota</TableHead>
+                    <TableHead>Data</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+
+                <TableBody>
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <TableRow key={index}>
+                      <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-12" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         ) : grades.length === 0 ? (
           <div className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
             Nenhuma nota registrada para este aluno.
@@ -126,30 +137,72 @@ export const ViewNotes = ({ open, onClose, studentId, studentName }: IViewNotesP
             Não há notas para o {bimestreSelecionado}° bimestre.
           </div>
         ) : (
-          <div className="max-h-[420px] overflow-auto rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Disciplina</TableHead>
-                  <TableHead>Bimestre</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Nota</TableHead>
-                  <TableHead>Data</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredGrades.map((g) => (
-                  <TableRow key={g.id}>
-                    <TableCell>{g.disciplina?.nome ?? "Disciplina"}</TableCell>
-                    <TableCell>{g.bimestre}°</TableCell>
-                    <TableCell>{g.tipo}</TableCell>
-                    <TableCell>{g.nota}</TableCell>
-                    <TableCell>{new Date(g.data).toLocaleDateString("pt-BR")}</TableCell>
+          <>
+            {/* Mobile */}
+            <div className="space-y-4 md:hidden">
+              {filteredGrades.map((g) => (
+                <div
+                  key={g.id}
+                  className="rounded-lg border bg-background p-4 shadow-sm"
+                >
+                  <h3 className="font-semibold text-base">
+                    {g.disciplina?.nome ?? "Disciplina"}
+                  </h3>
+
+                  <div className="mt-3 space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Bimestre</span>
+                      <span>{g.bimestre}°</span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Tipo</span>
+                      <span>{g.tipo}</span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Nota</span>
+                      <span className="font-medium">{g.nota}</span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Data</span>
+                      <span>{new Date(g.data).toLocaleDateString("pt-BR")}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop */}
+            <div className="hidden md:block max-h-[420px] overflow-auto rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Disciplina</TableHead>
+                    <TableHead>Bimestre</TableHead>
+                    <TableHead>Tipo</TableHead>
+                    <TableHead>Nota</TableHead>
+                    <TableHead>Data</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+
+                <TableBody>
+                  {filteredGrades.map((g) => (
+                    <TableRow key={g.id}>
+                      <TableCell>{g.disciplina?.nome ?? "Disciplina"}</TableCell>
+                      <TableCell>{g.bimestre}°</TableCell>
+                      <TableCell>{g.tipo}</TableCell>
+                      <TableCell>{g.nota}</TableCell>
+                      <TableCell>
+                        {new Date(g.data).toLocaleDateString("pt-BR")}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         )}
 
         <div className="flex justify-end">
