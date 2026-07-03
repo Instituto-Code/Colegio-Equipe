@@ -154,64 +154,88 @@ export const listOneStudent = async (req: CustomRequest, res: Response) => {
           path: 'disciplina',
           select: 'nome cargaHoraria descrição',
         },
-      });
-
-    if (!aluno) {
-      return res.status(404).json({
-        error: 'Aluno não encontrado',
-      });
-    }
-
-    const turmas = Array.isArray(aluno.turma) ? aluno.turma : [];
-    const grades = Array.isArray(aluno.grades) ? aluno.grades : [];
-
-    const alunoFormatado = {
-      id: aluno._id,
-      nome: aluno.nome,
-      status: aluno.status,
-      matricula: aluno.matricula,
-      dataNasc: aluno.dataNasc,
-      pais: aluno.parents.map((p: any) => ({
-        id: p._id,
-        nome: p.user?.name,
-        email: p.user?.email,
-        numberTel: p.user?.numberTel,
-        cpf: p.user?.cpf,
-      })),
-      turma: turmas?.map((t: any) => ({
-        id: t._id,
-        nome: t.nome,
-        turno: t.turno,
-        anoLetivo: t.anoLetivo,
-        disciplinas: t.disciplinas.map((d: any) => ({
-          id: d._id,
-          nome: d.nome,
-          descricao: d.descricao,
-          cargaHoraria: d.cargaHoraria,
-        })),
-      })),
-      grades: grades?.map((g: any) => ({
-        id: g._id,
-        bimestre: g.bimestre,
-        tipo: g.tipo,
-        nota: g.nota,
-        data: g.data,
-        disciplina: {
-          id: g.disciplina._id,
-          nome: g.disciplina.nome
+      })
+      .populate("anotacoes", "anotacao data")
+      .populate({
+        path: 'anotacoes',
+        populate: {
+          path: 'professor',
+          select: 'matricula user',
+          populate: {
+            path: 'user',
+            select: 'name email',
+          },
         }
-      }))
-    };
+      })
 
-    res.status(200).json({
-      aluno: alunoFormatado,
-    });
+if (!aluno) {
+  return res.status(404).json({
+    error: 'Aluno não encontrado',
+  });
+}
+
+const turmas = Array.isArray(aluno.turma) ? aluno.turma : [];
+const grades = Array.isArray(aluno.grades) ? aluno.grades : [];
+const anotacoes = Array.isArray(aluno.anotacoes) ? aluno.anotacoes : [];
+
+const alunoFormatado = {
+  id: aluno._id,
+  nome: aluno.nome,
+  status: aluno.status,
+  matricula: aluno.matricula,
+  dataNasc: aluno.dataNasc,
+  pais: aluno.parents.map((p: any) => ({
+    id: p._id,
+    nome: p.user?.name,
+    email: p.user?.email,
+    numberTel: p.user?.numberTel,
+    cpf: p.user?.cpf,
+  })),
+  turma: turmas?.map((t: any) => ({
+    id: t._id,
+    nome: t.nome,
+    turno: t.turno,
+    anoLetivo: t.anoLetivo,
+    disciplinas: t.disciplinas.map((d: any) => ({
+      id: d._id,
+      nome: d.nome,
+      descricao: d.descricao,
+      cargaHoraria: d.cargaHoraria,
+    })),
+  })),
+  grades: grades?.map((g: any) => ({
+    id: g._id,
+    bimestre: g.bimestre,
+    tipo: g.tipo,
+    nota: g.nota,
+    data: g.data,
+    disciplina: {
+      id: g.disciplina._id,
+      nome: g.disciplina.nome
+    }
+  })),
+  anotacoes: anotacoes?.map((a: any) => ({
+    id: a._id,
+    professor: {
+      id: a.professor._id,
+      matricula: a.professor.matricula,
+      nome: a.professor.user?.name,
+      email: a.professor.user?.email,
+    },
+    anotacao: a.anotacao,
+    data: a.data,
+  })),
+};
+
+res.status(200).json({
+  aluno: alunoFormatado,
+});
   } catch (error: any) {
-    res.status(500).json({
-      error: 'Erro interno do servidor',
-    });
-    Logger.error(`Erro interno do servidor: ${error}`);
-  }
+  res.status(500).json({
+    error: 'Erro interno do servidor',
+  });
+  Logger.error(`Erro interno do servidor: ${error}`);
+}
 };
 
 //Listando dados de professores
