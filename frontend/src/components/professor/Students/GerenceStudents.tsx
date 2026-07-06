@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { type Aluno, useTeach, type ITurma } from "@/contexts/teacherContext"
 import { flexRender, getCoreRowModel, getFilteredRowModel, useReactTable, type ColumnDef, type SortingState } from "@tanstack/react-table"
-import { useEffect, useEffectEvent, useState } from "react"
+import { useEffect, useEffectEvent, useMemo, useState } from "react"
 import { Tools } from "./Tools"
 import { Spinner } from "@/components/ui/spinner"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -56,8 +56,8 @@ export const GerenciarAlunos = () => {
     }, [turmaSelecionada, turmas])
 
 
-    // Definindo colunas da tabela
-    const columns: ColumnDef<Aluno>[] = [
+    // Definindo colunas da tabela usando useMemo para evitar recalcular em cada renderização.
+    const columns = useMemo<ColumnDef<Aluno>[]>(() => [
         { accessorKey: "nome", header: "Nome" },
         { accessorKey: "matricula", header: "Matrícula" },
         {
@@ -71,7 +71,7 @@ export const GerenciarAlunos = () => {
                 )
             },
         },
-    ]
+    ], [])
 
     // Configurando a tabela
     const table = useReactTable({
@@ -160,7 +160,7 @@ export const GerenciarAlunos = () => {
                         </TableHeader>
                         <TableBody>
                             {table.getRowModel().rows.map((row) => (
-                                <TableRow accessKey={row.id}>
+                                <TableRow key={row.id}>
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell
                                             className="min-w-[100px] sm:min-w-[120px]"

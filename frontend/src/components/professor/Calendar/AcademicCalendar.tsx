@@ -3,7 +3,7 @@ import { EventsData } from "@/components/CalendarData/EventsData"
 
 export const CalendarAcademic = () => {
     return(
-        <div className="flex justify-center items-center flex-col">
+        <div className="flex justify-center items-center flex-col py-15">
             <EventsData />
             <Events />
         </div>

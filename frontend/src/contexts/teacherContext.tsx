@@ -1,5 +1,5 @@
 import { axiosInstance } from "@/api/axiosInstance";
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 
 
@@ -9,32 +9,38 @@ export type Aluno = {
     nome: string
 }
 
+export interface IProfessor{
+    email: string
+    id: string
+    matricula: string
+    nome: string
+}
+
 export interface IAnotacoes {
-    idProfessor: string
+    professor: IProfessor
     anotacao: string
     id: string
     data: string
 }
 
 export interface IAluno {
-  id: string
-  dataNasc: string
-  nome: string
-  matricula: string
-  pais: []
-  status: string
-  turma: ITurma[]
-  grades: Grade[]
-  anotacoes: IAnotacoes[]
+    id: string
+    nome: string
+    matricula: string
+    pais: []
+    status: string
+    turma: ITurma[]
+    grades: Grade[]
+    anotacoes: IAnotacoes[]
 }
 
 export type Grade = {
-  id?: string
-  bimestre: number
-  tipo: string
-  nota: number
-  data: string
-  disciplina: Disciplina
+    id?: string
+    bimestre: number
+    tipo: string
+    nota: number
+    data: string
+    disciplina: Disciplina
 }
 
 
@@ -108,27 +114,29 @@ export const TeachProvider = ({ children }: { children: ReactNode }) => {
         catch (error) {
             console.error(error)
         }
-        finally{
+        finally {
             setLoading(false)
         }
     }
 
     // Fução para listar dados de um único aluno
-    const listStudent = async (studentId: string) => {
-        setLoading(true)
-        try {
-            const res = await axiosInstance.get(`/api/coordenador/list-student/${studentId}`)
+    const listStudent = useCallback(
+        async (studentId: string) => {
+            setLoading(true)
+            try {
+                const res = await axiosInstance.get(`/api/coordenador/list-student/${studentId}`)
 
-            const data = res.data
-            setAluno(data.aluno)
-        }
-        catch (error: any) {
-            console.error(error)
-        }
-        finally{
-            setLoading(false)
-        }
-    }
+                const data = res.data
+                setAluno(data.aluno)
+
+            }
+            catch (error: any) {
+                console.error(error)
+            }
+            finally {
+                setLoading(false)
+            }
+        }, [])
 
     // Função para inserir notas
     const insertGrades = async (disciplinaId: string, studentId: string, bimestre: number, tipo: string, nota: number, date: string) => {
@@ -156,7 +164,7 @@ export const TeachProvider = ({ children }: { children: ReactNode }) => {
             toast.error(msg)
             throw error
         }
-        finally{
+        finally {
             setLoading(false)
         }
     }
@@ -168,7 +176,7 @@ export const TeachProvider = ({ children }: { children: ReactNode }) => {
                 anotacao
             })
 
-            toast.success("Anoação enviada com sucesso")
+            toast.success("Anotação enviada com sucesso")
 
             return res.data
         }

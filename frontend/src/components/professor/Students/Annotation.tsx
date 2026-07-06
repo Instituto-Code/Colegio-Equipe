@@ -4,22 +4,16 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Textarea } from "@/components/ui/textarea"
-import { useTeach, type IAluno } from "@/contexts/teacherContext"
+import { useTeach, type IAluno, type IAnotacoes, type IProfessor } from "@/contexts/teacherContext"
 import { axiosInstance } from "@/api/axiosInstance"
 import { data } from "react-router-dom"
+import { Spinner } from "@/components/ui/spinner"
 
 interface IAnnotation {
     open: boolean
     onClose: (open: boolean) => void
     studentId: string
     studentName: string
-}
-
-type AnnotationItems = {
-    idProfessor: string
-    anotacao: string
-    id: string
-    data: string
 }
 
 export const Annotation = ({
@@ -29,45 +23,44 @@ export const Annotation = ({
     studentName
 }: IAnnotation) => {
     const [texto, setTexto] = useState("")
-    const [items, setItems] = useState<AnnotationItems[]>([])
+    const [items, setItems] = useState<IAnotacoes[]>([])
     const [anotacao, setAnotacao] = useState(null)
 
-    const { registerAnnotation, listStudent, aluno } = useTeach()
+    const { aluno, registerAnnotation, listStudent, loading, setLoading } = useTeach()
 
     const handleAdd = async () => {
         if (!texto) return
 
+        setLoading(true)
         try {
             await registerAnnotation(studentId, texto)
+            setTexto("")
+
+            await listStudent(studentId)
         }
         catch (error: any) {
             console.error(error)
+        } finally {
+            setLoading(false)
         }
-
     }
 
+    // UseEffect para buscar as anotações do aluno quando o componente é montado ou quando o ID do aluno muda.
     useEffect(() => {
         if (!open || !studentId) return
 
-        const fetchStudent = async () => {
-            try {
-                const res = await axiosInstance.get(`/api/coordenador/list-student/${studentId}`)
+        listStudent(studentId)
 
-                const dataJson = res.data
-
-            } catch (error: any) {
-                console.error(error)
-            }
-        }
-
-        fetchStudent()
-        console.log("chamou")
-    }, [open])
-
+    }, [open, studentId])
 
     return (
-        <Dialog open={open} onOpenChange={onClose}>
-            <DialogContent className="max-w-2xl">
+        <Dialog
+            open={open}
+            onOpenChange={(value) => {
+                console.log("Dialog mudou:", value);
+                onClose(value);
+            }}>
+            <DialogContent className="">
                 <DialogHeader>
                     <DialogTitle>Anotações do aluno(a) {studentName}</DialogTitle>
                     <DialogDescription>
@@ -87,22 +80,38 @@ export const Annotation = ({
                 </div>
 
                 <div className="space-y-2">
-                    <Label>Historico</Label>
+                    <Label>Histórico</Label>
                     <ScrollArea className="h-56 rounded-md border p-3">
-                        {items.length === 0 ? (
-                            <p className="text-sm text-muted-foreground">
-                                Nenhuma anotacao registrada.
-                            </p>
-                        ) : (
-                            <div className="space-y-3">
-                                {items.map((item) => (
-                                    <div key={item.id} className="rounded-md border p-3">
-                                        <div className="text-xs text-muted-foreground">{item.data}</div>
-                                        <div className="mt-2 text-sm whitespace-pre-wrap">{item.anotacao}</div>
+                        {
+                            loading ? (
+                                <p className="text-sm text-muted-foreground">
+                                    Carregando anotações...
+                                </p>
+                            ) : (
+                                aluno?.anotacoes.length === 0 ? (
+                                    <p className="text-sm text-muted-foreground">
+                                        Nenhuma anotação registrada.
+                                    </p>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {aluno?.anotacoes.map((item) => (
+                                            <div key={item.id} className="rounded-md border p-3">
+                                                <div className="text-xs text-muted-foreground">{new Date(item.data).toLocaleDateString("pt-BR", {
+                                                    day: "2-digit",
+                                                    month: "long",
+                                                    year: "numeric",
+                                                    hour: "2-digit",
+                                                    minute: "2-digit",
+                                                }
+                                                )}</div>
+                                                <div className="mt-2 text-sm whitespace-pre-wrap">{item.anotacao}</div>
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
-                        )}
+                                )
+                            )
+                        }
+
                     </ScrollArea>
                 </div>
 
@@ -111,10 +120,18 @@ export const Annotation = ({
                         Fechar
                     </Button>
                     <Button type="button" onClick={handleAdd} disabled={!texto}>
-                        Salvar anotacao
+                        {loading
+                            ? <span className="flex justify-center items-center gap-2">
+                                <Spinner />
+                            </span>
+                            : "Salvar anotação"
+                        }
+
                     </Button>
+
+
                 </DialogFooter>
             </DialogContent>
-        </Dialog>
+        </Dialog >
     )
 }

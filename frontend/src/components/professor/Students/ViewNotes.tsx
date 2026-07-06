@@ -55,7 +55,7 @@ export const ViewNotes = ({ open, onClose, studentId, studentName }: IViewNotesP
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="">
         <DialogHeader>
           <DialogTitle>Notas do aluno(a) {studentName}</DialogTitle>
           <DialogDescription>

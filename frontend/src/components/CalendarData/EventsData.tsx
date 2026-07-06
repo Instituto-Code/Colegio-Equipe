@@ -1,6 +1,6 @@
 export const EventsData = () => {
   return (
-    <ul className="flex flex-col md:flex-row flex-wrap gap-2 md:gap-4">
+    <ul className="grid grid-cols-2 md:flex flex-wrap gap-2 md:gap-4">
       <li className="flex justify-center items-center gap-2 md:gap-3 border-2 p-2 md:p-3 rounded-lg">
         Feriado: <span className="bg-red-500 rounded-full h-2 w-2 md:h-3 md:w-3"></span>
       </li>
