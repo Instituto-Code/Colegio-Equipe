@@ -4,7 +4,7 @@ const coordenadorRouter = express.Router();
 //Middlewares
 import { authGuard } from '../../middlewares/authGuard.js';
 import { authorizeRole } from '../../middlewares/authorizeRole.js';
-import { deleteUser, GetStudentByClass, registerClasses, registerStudent, removeStudentByClass } from './coordinator.controller.js';
+import { deleteUser, GetStudentByClass, registerClasses, registerStudent, removeStudentByClass, removeTeacherByClass } from './coordinator.controller.js';
 import { classToTeacher, disciplineToClass, registerDisciplines, registerParents, registerTeacher, studentToClass, studentToParent } from '../../controllers/CoordenadorController/CoordenadorController.js';
 import { ListAllEventsService } from '../Events/services/eventList.service.js';
 import { getDashboardOverview, listClasses, listOneStudent, listOneTeacher, listParent, listParents, listStudents, listTeachers, listUsers } from '../../controllers/CoordenadorController/DataDashboard.js';
@@ -36,10 +36,17 @@ coordenadorRouter.delete(
 );
 
 coordenadorRouter.patch(
-  '/remove/:studentId/classroom',
+  '/student/:studentId/classroom',
   authGuard,
   authorizeRole(['coordenador']),
   removeStudentByClass
+)
+
+coordenadorRouter.patch(
+  '/teacher/:teacherId/classroom',
+  authGuard,
+  authorizeRole(['coordenador']),
+  removeTeacherByClass
 )
 
 coordenadorRouter.post(

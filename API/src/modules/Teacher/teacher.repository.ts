@@ -13,4 +13,9 @@ export const TeacherRepository = {
   async create(data: any) {
     return await teacherModel.create(data);
   },
+
+  async findById(teacherId: string) {
+    return await teacherModel.findById(teacherId)
+  }
+
 };

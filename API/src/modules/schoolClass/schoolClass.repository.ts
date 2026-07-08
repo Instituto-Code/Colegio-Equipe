@@ -9,10 +9,15 @@ export const SchoolClassRepository = {
         return await schoolClassModel.create(data);
     },
 
-    async removeByClass(studentId: string, className: string) {
+    async removeByClass(id: string, className: string) {
         return await schoolClassModel.findOneAndUpdate(
             { nome: className },
-            { $pull: { alunos: studentId } },
+            {
+                $pull: {
+                    alunos: id,
+                    professores: id
+                }
+            },
             { new: true }
         )
     }

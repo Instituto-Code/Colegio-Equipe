@@ -1,5 +1,6 @@
 import { SchoolClassRepository } from "../../schoolClass/schoolClass.repository.js";
 import { StudentRepository } from "../../Student/student.repository.js";
+import { TeacherRepository } from "../../Teacher/teacher.repository.js";
 import { UserRepository } from "../../User/user.repository.js";
 
 type DataRequestRegister = {
@@ -95,6 +96,25 @@ export async function RemoveStudentByClassService(studentId: string, className: 
     }
 
 }
+
+// Remover professor de turma
+export async function RemoveTeacherByClassService(teacherId: string, className: string){
+    const teacher = await TeacherRepository.findById(teacherId);
+
+    if(!teacher) throw new Error("Professor não encontrado.");
+
+    const classroom = await SchoolClassRepository.findByName(className);
+
+    if (!classroom) throw new Error("Turma não encontrada.");
+
+    await SchoolClassRepository.removeByClass(teacherId, className);
+
+    return {
+        msg: "Professor removido com sucesso."
+    }
+
+}
+
 
 export async function StudentByClassService(){
     const data = await StudentRepository.getStudentByClass();
