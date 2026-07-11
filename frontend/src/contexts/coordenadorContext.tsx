@@ -1,6 +1,7 @@
 import { axiosInstance } from "@/api/axiosInstance";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import { toast } from "sonner";
+import type { ITurma } from "@/components/Coordenador/ClassGerence/ClassGerence";
 
 export const api_url = import.meta.env.VITE_API_URL
 
@@ -65,6 +66,7 @@ export interface INotes {
 interface ICoordenatorProps {
     alunos: IAluno[]
     professores: Professor[] | null
+    classes: ITurma[] | null
     token: string | null
     overview: {
         totalAlunos: number
@@ -74,6 +76,7 @@ interface ICoordenatorProps {
     } | null
     Alunos: () => Promise<void>
     Professores: () => Promise<any>
+    Turmas: () => Promise<void>
     Overview: (customToken: string) => Promise<void>
     registerEvent: (titulo: string, descricao: string, data: Date, tipo: TipoEvento) => Promise<void>
     loading: boolean
@@ -83,6 +86,7 @@ interface ICoordenatorProps {
     registerTeacher: (userID: string, matricula: string, formacao: string) => Promise<any>
     addStudentToClass: (studentId: string, classId: string) => Promise<any>
     removeStudentClass: (studentId: string, classId: string) => Promise<any>
+    removeTeacherClass: (teacherId: string, classId: string) => Promise<any>
     addTeacherToClass: (classId: string, teacherId: string) => Promise<any>
     relationParentStudent: (parentId: string, studentId: string) => Promise<any>
     notesSend: () => Promise<INotes[]>
@@ -95,7 +99,7 @@ const CoordenadorContext = createContext<ICoordenatorProps | undefined>(undefine
 export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     const [token, setToken] = useState<string | null>(null)
     const [alunos, setAlunos] = useState<IAluno[]>([])
-    const [classes, setClasses] = useState<Turma[]>([]);
+    const [classes, setClasses] = useState<ITurma[] | null>(null)
     const [professores, setProfessores] = useState<Professor[]>([])
     const [overview, setOverview] = useState(null)
     const [loading, setLoading] = useState(false);
@@ -137,6 +141,7 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
 
     //  Função para pegar dados dos alunos.
     const Alunos = async () => {
+        setLoading(true)
         try {
             const res = await axiosInstance.get(`/api/coordenador/list-students`, {
                 headers: {
@@ -151,6 +156,8 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
         }
         catch (error) {
             console.log(error)
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -169,6 +176,28 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
         }
         catch (error) {
             console.log(error)
+        }
+    }
+
+    // Listando todas as turmas da escola
+    const Turmas = async () => {
+        setLoading(true)
+        try {
+            const res = await axiosInstance.get(`/api/coordenador/list-turmas`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            const data = await res.data
+            setClasses(data)
+            return data
+        }
+        catch (error) {
+            console.log(error)
+        }
+        finally {
+            setLoading(false)
         }
     }
 
@@ -224,9 +253,9 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
 
             const data = await res.data;
 
-            const newClass: Turma = data;
+            const newClass: ITurma = data;
 
-            setClasses((prevClass) => [...prevClass, newClass]);
+            setClasses((prevClass) => [...(prevClass ?? []), newClass]);
 
             return newClass;
         }
@@ -317,6 +346,7 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     const addStudentToClass = async (studentId: string, classId: string) => {
         setLoading(true)
         try {
+            console.log(classId)
             const res = await axiosInstance.patch(`/api/coordenador/student/${studentId}/class/${classId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -331,7 +361,7 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
         }
         catch (error: any) {
             console.log(error);
-            return toast.error("Não foi possível vincular o aluno a turma");
+            throw error
         }
         finally {
             setLoading(false);
@@ -342,7 +372,7 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
     const removeStudentClass = async (studentId: string, className: string) => {
         setLoading(true)
         try {
-            const res = await axiosInstance.patch(`/api/coordenador/remove/${studentId}/classroom`,
+            const res = await axiosInstance.patch(`/api/coordenador/student/${studentId}/classroom`,
                 { className },
                 {
                     headers: {
@@ -359,6 +389,33 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
         catch (error: any) {
             console.error(error)
             toast.error("Não foi possível remover o aluno")
+        }
+        finally {
+            setLoading(false)
+        }
+    }
+
+    // Remover professor de uma turma
+    const removeTeacherClass = async (teacherId: string, className: string) => {
+        setLoading(true)
+        try {
+            const res = await axiosInstance.patch(`/api/coordenador/teacher/${teacherId}/classroom`,
+                { className },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                })
+
+            const dataJson = await res.data
+
+            toast.success("Professor removido com sucesso")
+            return dataJson
+        }
+        catch (error: any) {
+            console.error(error)
+            toast.error("Não foi possível remover o professor")
         }
         finally {
             setLoading(false)
@@ -447,6 +504,7 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
                 addTeacherToClass,
                 addStudentToClass,
                 removeStudentClass,
+                removeTeacherClass,
                 registerClasses,
                 registerStudent,
                 registerParent,
@@ -456,9 +514,11 @@ export const CoordenadorProvider = ({ children }: { children: ReactNode }) => {
                 relationParentStudent,
                 alunos,
                 professores,
+                classes,
                 overview,
                 Alunos,
                 Professores,
+                Turmas,
                 Overview
             }}>
             {children}

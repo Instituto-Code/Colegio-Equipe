@@ -60,6 +60,7 @@ export const AddDataToClass = ({
   open,
   onClose,
   onUpdateTurma,
+
 }: AddDataToClassProps) => {
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
@@ -72,9 +73,10 @@ export const AddDataToClass = ({
     null
   );
   const [openDelete, setOpenDelete] = useState(false)
+  const [deleteType, setDeleteType] = useState<"aluno" | "professor" | null>(null)
 
   const { token } = useAuth();
-  const { addStudentToClass, loading, professores, Professores, addTeacherToClass, removeStudentClass } =
+  const { addStudentToClass, loading, professores, Professores, addTeacherToClass, removeStudentClass, removeTeacherClass } =
     useCoordenador();
 
   // Recarrega os professores ao abrir o modal
@@ -121,7 +123,7 @@ export const AddDataToClass = ({
     fetchStudents();
   }, [open, token]);
 
-  // Adicionar aluno
+  // Adicionar aluno a uma turma
   const handleAddStudent = async (
     studentId: string | null,
     classId: string
@@ -135,12 +137,6 @@ export const AddDataToClass = ({
 
     if (!student) {
       toast.error("Aluno não encontrado.");
-      return;
-    }
-
-    if (student.turma) {
-      toast.error("Este aluno já está vinculado a outra turma.");
-      setSelectedStudent(null);
       return;
     }
 
@@ -165,11 +161,12 @@ export const AddDataToClass = ({
     }
   };
 
-
+  // Remover aluno de uma turma
   const handleRemoveStudent = async (alunoId: string) => {
     try {
       if (!alunoId) {
         toast.error("Selecione um aluno para retirar")
+        return
       }
 
       await removeStudentClass(alunoId, turma.nome)
@@ -177,6 +174,27 @@ export const AddDataToClass = ({
       setLocalTurmas((prev) => ({
         ...prev,
         alunos: prev.alunos.filter((a) => a.id !== alunoId)
+      }))
+    }
+    catch (error) {
+      console.error(error)
+      toast.error("Não foi possível excluir")
+    }
+  }
+
+  // Remover professor de uma turma
+  const handleRemoveTeacher = async (professorId: string) => {
+    try {
+      if (!professorId) {
+        toast.error("Selecione um professor para retirar")
+        return
+      }
+
+      await removeTeacherClass(professorId, turma.nome)
+
+      setLocalTurmas((prev) => ({
+        ...prev,
+        professores: prev.professores.filter((p) => p.id !== professorId)
       }))
     }
     catch (error) {
@@ -305,8 +323,10 @@ export const AddDataToClass = ({
                         <TableCell className="text-right">
                           <Button
                             variant="destructive"
+                            className="cursor-pointer"
                             size="sm"
                             onClick={() => {
+                              setDeleteType("aluno")
                               setOpenDelete(true)
                               setSelectedStudent(aluno.id)
                             }}
@@ -396,12 +416,15 @@ export const AddDataToClass = ({
                         <TableCell className="text-right">
                           <Button
                             variant="destructive"
+                            className="cursor-pointer"
                             size="sm"
                             onClick={() => {
-
+                              setDeleteType("professor");
+                              setOpenDelete(true);
+                              setSelectedProfessor(prof.id);
                             }}
                           >
-                            Remover
+                            <Trash />
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -427,9 +450,20 @@ export const AddDataToClass = ({
       <ConfirmationBox
         openDialog={openDelete}
         onOpenDialogChange={setOpenDelete}
-        registerToDelete={selectedStudent}
-        setRegisterToDelete={setSelectedStudent}
-        deleteRegister={handleRemoveStudent}
+        registerToDelete={deleteType === "aluno" ? selectedStudent : selectedProfessor}
+        setRegisterToDelete={
+          deleteType === "aluno"
+            ? setSelectedStudent
+            : setSelectedProfessor
+        }
+        deleteRegister={(id) => {
+          if (deleteType === "aluno") {
+            return handleRemoveStudent(id)
+          }
+
+          return handleRemoveTeacher(id)
+        }}
+
       />
 
     </Dialog>

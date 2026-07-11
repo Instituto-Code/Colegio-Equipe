@@ -8,10 +8,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { FormAdd } from "./FormAdd"
+import { useState } from "react";
 
-export function AddClass() {
+export function AddClass({ onSucess }: { onSucess: () => void }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <form>
         <DialogTrigger asChild>
           <Button variant="outline" 
@@ -26,7 +29,10 @@ export function AddClass() {
               Preencha os dados da nova turma.
             </DialogDescription>
           </DialogHeader>
-            <FormAdd />
+            <FormAdd  
+              onSucess={onSucess}
+              onOpenChange={(isOpen: boolean) => setOpen(isOpen)}
+            />
         </DialogContent>
       </form>
     </Dialog>

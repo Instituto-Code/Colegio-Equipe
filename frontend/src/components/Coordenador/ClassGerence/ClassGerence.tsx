@@ -54,9 +54,11 @@ export const ClassGerence = () => {
   const [data, setData] = useState<ITurma[]>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [loading, setLoading] = useState(false);
   const [selectedClass, setSelectedClass] = useState<ITurma | null>(null);
   const [openDataToClass, setOpenDataToClass] = useState(false);
+
+  const [reloadClasses, setReloadClasses] = useState(0);
+  const [loaded, setLoaded] = useState(false);
 
   // Atualizar o componente filho, que tem os dados das turmas
   const handleUpdateTurma = (updatedTurma: ITurma) => {
@@ -98,8 +100,7 @@ export const ClassGerence = () => {
     },
   ];
 
-  const { token } = useAuth();
-  const { registerClasses } = useCoordenador();
+  const { classes, Turmas, loading} = useCoordenador();
 
   // Mapeando tabela
   const table = useReactTable({
@@ -119,31 +120,25 @@ export const ClassGerence = () => {
 
   // Requisitando os dados
   useEffect(() => {
-    const fetchClasses = async () => {
-      setLoading(true);
-      try {
-        const res = await axiosInstance.get(`/api/coordenador/list-turmas`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        const dataJson = await res.data;
-        setData(dataJson);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    Turmas()
+  }, [reloadClasses]);
 
-    fetchClasses();
-  }, [registerClasses]);
+  useEffect(() => {
+    const fetch = async () => {
+      if (!classes) return;
+      setData(classes)
+      setLoaded(true)
+    }
+
+    fetch();
+  }, [classes]);
+
 
   return (
     <div className="mt-5 p-10">
       <div className="flex flex-col md:flex-row justify-between">
         <h1 className="text-3xl font-bold mb-3">Gerenciar turmas</h1>
-        <AddClass />
+        <AddClass onSucess={() => setReloadClasses(prev => prev + 1)} />
       </div>
 
       <Input
@@ -155,11 +150,11 @@ export const ClassGerence = () => {
       />
 
       <div className="overflow-x-auto hidden p-5 md:flex">
-        {loading ? (
+        {!loaded || loading ? (
           <div className="h-100 w-full flex flex-col justify-center items-center">
             <Spinner className="size-8 text-blue-500" />
           </div>
-        ) : data.length >= 1 ? (
+        ) : data.length > 0 ? (
           <Table className="min-w-[600px] sm:min-w-full">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -206,48 +201,49 @@ export const ClassGerence = () => {
           </Table>
         ) : (
           <div>
-            <h1>Nenhuma turma</h1>
+            <h1>Nenhuma turma encontrada</h1>
           </div>
         )}
       </div>
 
       {/* Tabela para Celulares */}
       <div className="block sm:hidden space-y-2">
-        {loading ? (
+        {!loaded || !loading ? (
           <div className="h-100 w-full flex flex-col justify-center items-center">
             <Spinner className="size-8 text-blue-500" />
           </div>
-        ) : data.length >= 1 ? (table.getRowModel().rows.map((row) => (
-          <div key={row.id} className="border p-2 rounded">
-            <div>
-              <strong>Nome:</strong> {row.original.nome}
-            </div>
-            <div>
-              <strong>Turno:</strong> {row.original.turno}
-            </div>
-            <div>
-              <strong>Total de professores:</strong>{" "}
-              {row.original.totalProfessores}
-            </div>
-            <div>
-              <strong>Total de Alunos:</strong> {row.original.totalAlunos}
-            </div>
-            <div className="flex gap-2 mt-2">
-              <Button
-                onClick={() => {
-                  setSelectedClass(row.original);
-                  setOpenDataToClass(true)
-                }}
-                className="bg-blue-400 hover:bg-blue-500 cursor-pointer"
-              >Gerenciar turma</Button>
-              <Button variant="outline" className="text-red-500">
-                Excluir
-              </Button>
-            </div>
-          </div>))
-          ) : (
+        ) : data.length > 0 ? (
+          table.getRowModel().rows.map((row) => (
+            <div key={row.id} className="border p-2 rounded">
+              <div>
+                <strong>Nome:</strong> {row.original.nome}
+              </div>
+              <div>
+                <strong>Turno:</strong> {row.original.turno}
+              </div>
+              <div>
+                <strong>Total de professores:</strong>{" "}
+                {row.original.totalProfessores}
+              </div>
+              <div>
+                <strong>Total de Alunos:</strong> {row.original.totalAlunos}
+              </div>
+              <div className="flex gap-2 mt-2">
+                <Button
+                  onClick={() => {
+                    setSelectedClass(row.original);
+                    setOpenDataToClass(true)
+                  }}
+                  className="bg-blue-400 hover:bg-blue-500 cursor-pointer"
+                >Gerenciar turma</Button>
+                <Button variant="outline" className="text-red-500">
+                  Excluir
+                </Button>
+              </div>
+            </div>))
+        ) : (
           <div>
-            <h1>Nenhuma turma</h1>
+            <h1>Nenhuma turma encontrada</h1>
           </div>
         )}
       </div>
