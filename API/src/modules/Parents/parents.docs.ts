@@ -2,28 +2,43 @@
  * @swagger
  * tags:
  *   name: Parents
- *   description: Atribuições de pais dos alunos
+ *   description: Consulta de filhos e dados escolares pelo responsável
  */
 
 /**
  * @swagger
  * /api/parents/list-childrens:
- *   post:
- *     summary: Listar filhos
+ *   get:
+ *     summary: Listar filhos do responsável autenticado
  *     tags: [Parents]
  *     security:
  *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [userId]
- *             properties:
- *               userId:
- *                 type: string
  *     responses:
  *       200:
  *         description: Listagem de filhos.
+ *       403:
+ *         description: Acesso restrito a responsáveis.
+ */
+
+/**
+ * @swagger
+ * /api/parents/child/{studentId}:
+ *   get:
+ *     summary: Consultar notas, frequência e turmas de um filho
+ *     tags: [Parents]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: studentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Dados escolares do aluno vinculado ao responsável.
+ *       403:
+ *         description: Aluno não vinculado ao responsável.
+ *       404:
+ *         description: Responsável ou aluno não encontrado.
  */

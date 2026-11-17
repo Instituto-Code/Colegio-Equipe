@@ -178,6 +178,19 @@ if (!aluno) {
   });
 }
 
+if (req.user?.role === 'responsavel') {
+  const hasVinculo = await parentsModel.exists({
+    user: req.user._id,
+    filhos: studentId,
+  });
+
+  if (!hasVinculo) {
+    return res.status(403).json({
+      error: 'Você não possui vínculo com este aluno.',
+    });
+  }
+}
+
 if (req.user?.role === 'professor') {
   const teacher = await teacherModel.findOne({ user: req.user._id }).select('turmas');
   const teacherClassIds = ((teacher?.turmas ?? []) as any[]).map((turma) =>

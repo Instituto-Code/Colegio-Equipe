@@ -113,7 +113,12 @@ coordenadorRouter.get(
 
 coordenadorRouter.get('/list-students', authGuard, listStudents);
 
-coordenadorRouter.get('/list-student/:studentId', authGuard, listOneStudent);
+coordenadorRouter.get(
+  '/list-student/:studentId',
+  authGuard,
+  authorizeRole(['coordenador', 'professor', 'responsavel']),
+  listOneStudent,
+);
 
 coordenadorRouter.get(
   '/list-teachers',
