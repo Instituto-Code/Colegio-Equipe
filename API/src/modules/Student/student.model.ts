@@ -56,6 +56,34 @@ const AlunoSchema = new Schema<IAluno>(
       },
     ],
 
+    //Frequência
+    frequencia: [
+      {
+        disciplina: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Disciplina',
+          required: true,
+        },
+
+        professor: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Professor',
+          required: true,
+        },
+
+        data: {
+          type: Date,
+          required: true,
+        },
+
+        status: {
+          type: String,
+          enum: ['presente', 'falta'],
+          required: true,
+        },
+      },
+    ],
+
     //Anotações
     anotacoes: [
       {

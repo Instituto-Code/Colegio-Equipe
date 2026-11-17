@@ -1,7 +1,7 @@
 // routes/grade.routes.ts
 
 import { Router } from 'express';
-import { closeBimestre } from './bimestre.controller.js';
+import { closeBimestre, reopenBimestre } from './bimestre.controller.js';
 import { authGuard } from '../../middlewares/authGuard.js';
 import { authorizeRole } from '../../middlewares/authorizeRole.js';
 
@@ -12,6 +12,13 @@ bimestreRouter.post(
   authGuard,
   authorizeRole(['admin', 'professor']),
   closeBimestre
+);
+
+bimestreRouter.post(
+  '/reopen-bimestre',
+  authGuard,
+  authorizeRole(['admin', 'professor']),
+  reopenBimestre
 );
 
 export default bimestreRouter;

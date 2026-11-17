@@ -144,7 +144,7 @@ export const listOneStudent = async (req: CustomRequest, res: Response) => {
         select: 'nome turno anoLetivo disciplinas',
         populate: {
           path: 'disciplinas',
-          select: 'nome cargaHoraria descrição',
+          select: 'nome cargaHoraria descricao',
         },
       })
       .populate("grades", "bimestre tipo nota data")
@@ -152,8 +152,12 @@ export const listOneStudent = async (req: CustomRequest, res: Response) => {
         path: 'grades',
         populate: {
           path: 'disciplina',
-          select: 'nome cargaHoraria descrição',
+          select: 'nome cargaHoraria descricao',
         },
+      })
+      .populate({
+        path: 'frequencia.disciplina',
+        select: 'nome',
       })
       .populate("anotacoes", "anotacao data")
       .populate({
@@ -174,9 +178,30 @@ if (!aluno) {
   });
 }
 
+if (req.user?.role === 'professor') {
+  const teacher = await teacherModel.findOne({ user: req.user._id }).select('turmas');
+  const teacherClassIds = ((teacher?.turmas ?? []) as any[]).map((turma) =>
+    String(turma?._id ?? turma),
+  );
+  const studentClassIds = (((aluno.turma as unknown) ?? []) as any[]).map(
+    (turma) => String(turma?._id ?? turma),
+  );
+
+  const hasVinculo = studentClassIds.some((turmaId) =>
+    teacherClassIds.includes(turmaId),
+  );
+
+  if (!teacher || !hasVinculo) {
+    return res.status(403).json({
+      error: 'Você não possui vínculo com este aluno.',
+    });
+  }
+}
+
 const turmas = Array.isArray(aluno.turma) ? aluno.turma : [];
 const grades = Array.isArray(aluno.grades) ? aluno.grades : [];
 const anotacoes = Array.isArray(aluno.anotacoes) ? aluno.anotacoes : [];
+const frequencia = Array.isArray(aluno.frequencia) ? aluno.frequencia : [];
 
 const alunoFormatado = {
   id: aluno._id,
@@ -224,6 +249,17 @@ const alunoFormatado = {
     },
     anotacao: a.anotacao,
     data: a.data,
+  })),
+  frequencia: frequencia.map((f: any) => ({
+    id: f._id,
+    data: f.data,
+    status: f.status,
+    disciplina: f.disciplina
+      ? {
+          id: f.disciplina._id,
+          nome: f.disciplina.nome,
+        }
+      : null,
   })),
 };
 

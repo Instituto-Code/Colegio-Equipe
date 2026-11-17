@@ -17,11 +17,11 @@ export interface INota {
 }
 
 export interface IFrequencia {
-  aluno: Types.ObjectId;
+  _id?: Types.ObjectId;
   disciplina: Types.ObjectId;
+  professor: Types.ObjectId;
   data: Date;
-  presente: boolean;           
-  justificativa?: string;    
+  status: 'presente' | 'falta';
 }
 
 export interface IAnotacao {
@@ -42,8 +42,9 @@ export interface IAluno extends Document {
   grades: Types.ObjectId[];
   turma: Types.ObjectId;
   
-  parents: Types.ObjectId[]; 
+  parents: Types.ObjectId[];
   anotacoes: IAnotacao[];
+  frequencia: IFrequencia[];
   
   createdAt: Date;
   updatedAt: Date;

@@ -4,9 +4,16 @@ export const TeacherRepository = {
   async findByUser(userId: string) {
     return await teacherModel.findOne({ user: userId }).populate({
       path: 'turmas',
-      populate: {
-        path: 'disciplinas',
-      },
+      populate: [
+        {
+          path: 'disciplinas',
+          select: 'nome cargaHoraria quantidadeNotas descricao',
+        },
+        {
+          path: 'alunos',
+          select: 'nome matricula status',
+        },
+      ],
     });
   },
 
